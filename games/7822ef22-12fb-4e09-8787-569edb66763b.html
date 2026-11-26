@@ -1,0 +1,2166 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>BÉ CÙNG CHUỘT MÁY TÍNH - Trường Tiểu học Xuân Lương</title>
+  <style>
+    /* ==========================================================================
+       1. BIẾN MÀU SẮC & THIẾT LẬP CƠ BẢN (PASTEL TƯƠI SÁNG CHO HỌC SINH LỚP 1)
+       ========================================================================== */
+    :root {
+      --bg-page: linear-gradient(135deg, #FFFDF5 0%, #EEF8FF 50%, #FFF3F8 100%);
+      --card-bg: #FFFFFF;
+      --text-dark: #2B3445;
+      --text-muted: #5A677D;
+
+      /* Màu pastel cho 5 thao tác */
+      --op1-bg: #E3F9F0; --op1-border: #34D399; --op1-text: #047857;
+      --op2-bg: #FFE8EE; --op2-border: #FB7185; --op2-text: #BE123C;
+      --op3-bg: #E0F2FE; --op3-border: #38BDF8; --op3-text: #0369A1;
+      --op4-bg: #FEF3C7; --op4-border: #FBBF24; --op4-text: #B45309;
+      --op5-bg: #F3E8FF; --op5-border: #A78BFA; --op5-text: #6D28D9;
+
+      /* Trạng thái đúng / sai */
+      --success-bg: #ECFDF5;
+      --success-border: #10B981;
+      --success-text: #047857;
+      --error-bg: #FFF1F2;
+      --error-border: #F43F5E;
+      --error-text: #BE123C;
+
+      --shadow-soft: 0 8px 24px rgba(43, 52, 69, 0.08);
+      --shadow-btn: 0 4px 0 rgba(0, 0, 0, 0.12);
+      --radius-lg: 22px;
+      --radius-md: 16px;
+      --radius-sm: 12px;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      user-select: none;
+      -webkit-user-select: none;
+    }
+
+    html, body {
+      width: 100%;
+      height: 100%;
+      font-family: 'Segoe UI', 'Arial Rounded MT Bold', Tahoma, Arial, sans-serif;
+      background: var(--bg-page);
+      color: var(--text-dark);
+      overflow-x: hidden;
+    }
+
+    /* ==========================================================================
+       2. BỐ CỤC TỔNG THỂ (TỐI ƯU GỌN GÀNG TRÊN MÀN HÌNH 1366 x 768)
+       ========================================================================== */
+    .app-container {
+      max-width: 1320px;
+      height: 100vh;
+      min-height: 620px;
+      margin: 0 auto;
+      padding: 10px 18px 12px 18px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    /* Thanh tiêu đề nhận diện & điểm số */
+    .top-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background: #FFFFFF;
+      border-radius: var(--radius-md);
+      padding: 8px 18px;
+      box-shadow: var(--shadow-soft);
+      border: 2px solid #E2EEFF;
+      flex-shrink: 0;
+    }
+
+    .brand-area {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .brand-logo {
+      width: 46px;
+      height: 46px;
+      background: #E0F2FE;
+      border-radius: 14px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border: 2px solid #7DD3FC;
+      flex-shrink: 0;
+    }
+
+    .brand-text h1 {
+      font-size: 24px;
+      font-weight: 800;
+      color: #1D4ED8;
+      letter-spacing: 0.4px;
+      line-height: 1.15;
+    }
+
+    .brand-meta {
+      font-size: 13.5px;
+      font-weight: 600;
+      color: var(--text-muted);
+      margin-top: 2px;
+    }
+
+    .brand-meta span.sep {
+      margin: 0 6px;
+      color: #CBD5E1;
+    }
+
+    .stats-area {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .stat-pill {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 7px 14px;
+      border-radius: 999px;
+      font-weight: 800;
+      font-size: 16px;
+      border: 2px solid transparent;
+    }
+
+    .stat-score {
+      background: #FEF3C7;
+      border-color: #FCD34D;
+      color: #B45309;
+    }
+
+    .stat-progress {
+      background: #E0F2FE;
+      border-color: #7DD3FC;
+      color: #0369A1;
+    }
+
+    .progress-bar-wrap {
+      width: 90px;
+      height: 10px;
+      background: #FFFFFF;
+      border-radius: 999px;
+      overflow: hidden;
+      border: 1px solid #BAE6FD;
+    }
+
+    .progress-bar-fill {
+      height: 100%;
+      width: 0%;
+      background: linear-gradient(90deg, #38BDF8, #10B981);
+      border-radius: 999px;
+      transition: width 0.4s ease;
+    }
+
+    /* ==========================================================================
+       3. HÀNG 5 NÚT THAO TÁC LỚN PHÍA TRÊN
+       ========================================================================== */
+    .nav-grid {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 10px;
+      flex-shrink: 0;
+    }
+
+    .nav-btn {
+      position: relative;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px 12px;
+      border-radius: var(--radius-md);
+      border: 3px solid transparent;
+      background: #FFFFFF;
+      cursor: pointer;
+      text-align: left;
+      transition: transform 0.18s ease, box-shadow 0.18s ease, border-color 0.18s ease;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.06);
+      font-family: inherit;
+    }
+
+    .nav-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 14px rgba(0, 0, 0, 0.1);
+    }
+
+    .nav-btn:active {
+      transform: translateY(1px);
+    }
+
+    .nav-num {
+      width: 34px;
+      height: 34px;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 18px;
+      font-weight: 900;
+      color: #FFFFFF;
+      flex-shrink: 0;
+    }
+
+    .nav-info {
+      display: flex;
+      flex-direction: column;
+      min-width: 0;
+    }
+
+    .nav-title {
+      font-size: 15.5px;
+      font-weight: 800;
+      line-height: 1.2;
+      color: var(--text-dark);
+    }
+
+    .nav-status {
+      font-size: 12.5px;
+      font-weight: 700;
+      margin-top: 2px;
+      color: var(--text-muted);
+    }
+
+    /* Màu riêng cho từng nút */
+    .nav-btn[data-op="0"] { background: var(--op1-bg); border-color: #A7F3D0; }
+    .nav-btn[data-op="0"] .nav-num { background: #10B981; }
+    .nav-btn[data-op="0"].active { border-color: #059669; box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.25); transform: translateY(-2px); }
+
+    .nav-btn[data-op="1"] { background: var(--op2-bg); border-color: #FECDD3; }
+    .nav-btn[data-op="1"] .nav-num { background: #F43F5E; }
+    .nav-btn[data-op="1"].active { border-color: #E11D48; box-shadow: 0 0 0 3px rgba(244, 63, 94, 0.25); transform: translateY(-2px); }
+
+    .nav-btn[data-op="2"] { background: var(--op3-bg); border-color: #BAE6FD; }
+    .nav-btn[data-op="2"] .nav-num { background: #0EA5E9; }
+    .nav-btn[data-op="2"].active { border-color: #0284C7; box-shadow: 0 0 0 3px rgba(14, 165, 233, 0.25); transform: translateY(-2px); }
+
+    .nav-btn[data-op="3"] { background: var(--op4-bg); border-color: #FDE68A; }
+    .nav-btn[data-op="3"] .nav-num { background: #F59E0B; }
+    .nav-btn[data-op="3"].active { border-color: #D97706; box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.25); transform: translateY(-2px); }
+
+    .nav-btn[data-op="4"] { background: var(--op5-bg); border-color: #DDD6FE; }
+    .nav-btn[data-op="4"] .nav-num { background: #8B5CF6; }
+    .nav-btn[data-op="4"].active { border-color: #7C3AED; box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.25); transform: translateY(-2px); }
+
+    .nav-done-badge {
+      position: absolute;
+      top: -7px;
+      right: -6px;
+      width: 24px;
+      height: 24px;
+      border-radius: 50%;
+      background: #10B981;
+      color: #FFFFFF;
+      font-size: 14px;
+      font-weight: 900;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      border: 2px solid #FFFFFF;
+      box-shadow: 0 2px 6px rgba(16, 185, 129, 0.4);
+    }
+
+    .nav-btn.completed .nav-done-badge {
+      display: flex;
+    }
+
+    /* ==========================================================================
+       4. KHU VỰC HỌC VÀ THỰC HÀNH CHÍNH (CÙNG MỘT MÀN HÌNH)
+       ========================================================================== */
+    .workspace-card {
+      flex: 1;
+      min-height: 0;
+      background: #FFFFFF;
+      border-radius: var(--radius-lg);
+      box-shadow: var(--shadow-soft);
+      border: 3px solid #E2EEFF;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      position: relative;
+    }
+
+    /* Phần kiến thức & minh họa chuột luôn cố định phía trên khu vực thực hành */
+    .lesson-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      padding: 12px 22px;
+      background: linear-gradient(90deg, #F8FBFF 0%, #FFFDF4 100%);
+      border-bottom: 2px dashed #D8E6FA;
+      flex-shrink: 0;
+    }
+
+    .lesson-text-col {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .lesson-title-row {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    .lesson-title {
+      font-size: 24px;
+      font-weight: 900;
+      color: #1E3A8A;
+      text-transform: uppercase;
+    }
+
+    .task-pill {
+      padding: 4px 12px;
+      border-radius: 999px;
+      font-size: 14px;
+      font-weight: 800;
+      background: #DBEAFE;
+      color: #1D4ED8;
+      border: 2px solid #93C5FD;
+    }
+
+    .lesson-knowledge {
+      font-size: 20px;
+      font-weight: 700;
+      color: #1F2937;
+      line-height: 1.3;
+    }
+
+    .lesson-knowledge .label-tag {
+      display: inline-block;
+      background: #FEF3C7;
+      color: #B45309;
+      padding: 2px 10px;
+      border-radius: 8px;
+      font-size: 15px;
+      font-weight: 800;
+      margin-right: 6px;
+      vertical-align: middle;
+    }
+
+    .lesson-task-prompt {
+      font-size: 18px;
+      font-weight: 700;
+      color: #047857;
+      background: #ECFDF5;
+      border: 2px solid #A7F3D0;
+      border-radius: 10px;
+      padding: 5px 12px;
+      display: inline-block;
+      align-self: flex-start;
+    }
+
+    /* Khung hình chuột minh họa */
+    .illustration-box {
+      width: 210px;
+      height: 108px;
+      background: #FFFFFF;
+      border-radius: 16px;
+      border: 2px solid #CBD5E1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      box-shadow: inset 0 2px 8px rgba(0, 0, 0, 0.04);
+      position: relative;
+      overflow: hidden;
+    }
+
+    /* ==========================================================================
+       5. KHU VỰC THỰC HÀNH (PRACTICE STAGE)
+       ========================================================================== */
+    .practice-stage {
+      flex: 1;
+      min-height: 290px;
+      position: relative;
+      background: radial-gradient(circle at 50% 30%, #FFFFFF 0%, #F0F9FF 65%, #E6F7EE 100%);
+      overflow: hidden;
+      cursor: default;
+    }
+
+    /* Mây trang trí nhẹ nhàng ở nền */
+    .stage-decor {
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      overflow: hidden;
+    }
+
+    .cloud {
+      position: absolute;
+      background: rgba(255, 255, 255, 0.85);
+      border-radius: 999px;
+      box-shadow: 0 4px 12px rgba(148, 163, 184, 0.12);
+    }
+
+    /* Lớp chứa đối tượng thực hành */
+    .stage-objects {
+      position: absolute;
+      inset: 0;
+      z-index: 5;
+    }
+
+    /* Các đối tượng tương tác */
+    .interactive-obj {
+      position: absolute;
+      cursor: pointer;
+      transition: transform 0.18s ease, filter 0.18s ease;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .interactive-obj:hover {
+      filter: drop-shadow(0 8px 16px rgba(0, 0, 0, 0.14));
+    }
+
+    .obj-label {
+      margin-top: 4px;
+      font-size: 16px;
+      font-weight: 800;
+      color: #334155;
+      background: rgba(255, 255, 255, 0.92);
+      padding: 3px 12px;
+      border-radius: 999px;
+      border: 2px solid #CBD5E1;
+      pointer-events: none;
+      white-space: nowrap;
+    }
+
+    /* Hiệu ứng rung khi làm sai */
+    @keyframes gentleShake {
+      0%, 100% { transform: translateX(0); }
+      20% { transform: translateX(-10px) rotate(-3deg); }
+      40% { transform: translateX(10px) rotate(3deg); }
+      60% { transform: translateX(-7px) rotate(-2deg); }
+      80% { transform: translateX(7px) rotate(2deg); }
+    }
+
+    .shake-error {
+      animation: gentleShake 0.45s ease;
+    }
+
+    /* Hiệu ứng lắc nhẹ quả trứng khi nháy lần 1 */
+    @keyframes eggWobble {
+      0%, 100% { transform: rotate(0deg); }
+      25% { transform: rotate(-8deg); }
+      75% { transform: rotate(8deg); }
+    }
+
+    .egg-wobble {
+      animation: eggWobble 0.35s ease;
+    }
+
+    /* Hiệu ứng nổi nhẹ */
+    @keyframes gentleFloat {
+      0%, 100% { transform: translateY(0px); }
+      50% { transform: translateY(-8px); }
+    }
+
+    .float-anim {
+      animation: gentleFloat 2.4s ease-in-out infinite;
+    }
+
+    /* Hiệu ứng nổ bóng */
+    @keyframes popBurst {
+      0% { transform: scale(1); opacity: 1; }
+      50% { transform: scale(1.35); opacity: 0.9; }
+      100% { transform: scale(1.6); opacity: 0; }
+    }
+
+    .pop-anim {
+      animation: popBurst 0.35s ease forwards;
+    }
+
+    /* Giỏ táo (Thao tác 5) */
+    .basket-target {
+      position: absolute;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      border-radius: 24px;
+      padding: 10px 18px;
+      border: 4px dashed #94A3B8;
+      background: rgba(255, 255, 255, 0.65);
+      transition: transform 0.2s ease, border-color 0.2s ease, background-color 0.2s ease;
+    }
+
+    .basket-target.basket-hover {
+      border-color: #10B981;
+      background: rgba(209, 250, 229, 0.85);
+      transform: scale(1.06);
+    }
+
+    .draggable-apple {
+      cursor: grab;
+      z-index: 10;
+      transition: transform 0.15s ease;
+    }
+
+    .draggable-apple.dragging {
+      cursor: grabbing;
+      transform: scale(1.12);
+      z-index: 30;
+      transition: none;
+      filter: drop-shadow(0 14px 20px rgba(0, 0, 0, 0.22));
+    }
+
+    .draggable-apple.returning {
+      transition: left 0.35s cubic-bezier(0.34, 1.56, 0.64, 1), top 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+
+    /* ==========================================================================
+       6. THÔNG BÁO PHẢN HỒI ĐÚNG / SAI
+       ========================================================================== */
+    /* Thông báo sai (hiển thị nổi phía dưới khu vực thực hành, không che đối tượng) */
+    .error-banner {
+      position: absolute;
+      bottom: 14px;
+      left: 50%;
+      transform: translateX(-50%) translateY(20px);
+      background: var(--error-bg);
+      border: 3px solid var(--error-border);
+      border-radius: 18px;
+      padding: 10px 24px;
+      text-align: center;
+      z-index: 40;
+      box-shadow: 0 10px 25px rgba(244, 63, 94, 0.22);
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.22s ease, transform 0.22s ease;
+      max-width: 90%;
+    }
+
+    .error-banner.show {
+      opacity: 1;
+      transform: translateX(-50%) translateY(0);
+    }
+
+    .error-banner-title {
+      font-size: 22px;
+      font-weight: 900;
+      color: var(--error-text);
+    }
+
+    .error-banner-hint {
+      font-size: 16.5px;
+      font-weight: 700;
+      color: #881337;
+      margin-top: 2px;
+    }
+
+    /* Lớp phủ thành công ngay trong khu vực thực hành (vẫn giữ nguyên kiến thức phía trên) */
+    .success-overlay {
+      position: absolute;
+      inset: 0;
+      background: rgba(236, 253, 245, 0.88);
+      backdrop-filter: blur(2px);
+      display: none;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      z-index: 50;
+      padding: 16px;
+      text-align: center;
+    }
+
+    .success-overlay.show {
+      display: flex;
+      animation: fadeInScale 0.28s ease;
+    }
+
+    @keyframes fadeInScale {
+      from { opacity: 0; transform: scale(0.92); }
+      to { opacity: 1; transform: scale(1); }
+    }
+
+    .success-card {
+      background: #FFFFFF;
+      border: 4px solid #10B981;
+      border-radius: 26px;
+      padding: 20px 38px;
+      box-shadow: 0 14px 36px rgba(16, 185, 129, 0.22);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 8px;
+      position: relative;
+      z-index: 2;
+    }
+
+    .success-title {
+      font-size: 32px;
+      font-weight: 900;
+      color: #059669;
+      letter-spacing: 0.5px;
+    }
+
+    .success-sub {
+      font-size: 18px;
+      font-weight: 700;
+      color: #374151;
+    }
+
+    .btn-primary {
+      margin-top: 8px;
+      padding: 12px 34px;
+      font-size: 20px;
+      font-weight: 900;
+      color: #FFFFFF;
+      background: linear-gradient(180deg, #34D399 0%, #059669 100%);
+      border: none;
+      border-radius: 999px;
+      cursor: pointer;
+      box-shadow: 0 5px 0 #047857, 0 8px 18px rgba(16, 185, 129, 0.35);
+      transition: transform 0.12s ease, box-shadow 0.12s ease;
+      font-family: inherit;
+    }
+
+    .btn-primary:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 7px 0 #047857, 0 10px 22px rgba(16, 185, 129, 0.42);
+    }
+
+    .btn-primary:active {
+      transform: translateY(3px);
+      box-shadow: 0 2px 0 #047857;
+    }
+
+    /* Hiệu ứng ngôi sao bay nhẹ nhàng khi đúng */
+    .sparkle-star {
+      position: absolute;
+      pointer-events: none;
+      z-index: 1;
+      animation: starRise 1.4s ease-out forwards;
+    }
+
+    @keyframes starRise {
+      0% { transform: translateY(20px) scale(0.4) rotate(0deg); opacity: 0; }
+      30% { opacity: 1; }
+      100% { transform: translateY(-90px) scale(1.15) rotate(40deg); opacity: 0; }
+    }
+
+    /* Thẻ thông báo khi chọn lại thao tác đã hoàn thành */
+    .op-done-panel {
+      position: absolute;
+      inset: 0;
+      display: none;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      background: rgba(255, 255, 255, 0.92);
+      z-index: 45;
+      gap: 12px;
+      padding: 20px;
+      text-align: center;
+    }
+
+    .op-done-panel.show {
+      display: flex;
+    }
+
+    .op-done-title {
+      font-size: 26px;
+      font-weight: 900;
+      color: #059669;
+    }
+
+    .op-done-score {
+      font-size: 19px;
+      font-weight: 700;
+      color: #334155;
+    }
+
+    /* ==========================================================================
+       7. MÀN HÌNH TỔNG KẾT (HIỂN THỊ TRONG CÙNG MÀN HÌNH KHI HOÀN THÀNH 5 THAO TÁC)
+       ========================================================================== */
+    .summary-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(30, 41, 59, 0.55);
+      backdrop-filter: blur(4px);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 100;
+      padding: 16px;
+    }
+
+    .summary-overlay.show {
+      display: flex;
+      animation: fadeInScale 0.3s ease;
+    }
+
+    .summary-card {
+      background: #FFFFFF;
+      border-radius: 28px;
+      border: 5px solid #FCD34D;
+      max-width: 780px;
+      width: 100%;
+      padding: 24px 32px;
+      box-shadow: 0 20px 50px rgba(0, 0, 0, 0.25);
+      text-align: center;
+      position: relative;
+      z-index: 2;
+    }
+
+    .summary-card.encourage {
+      border-color: #7DD3FC;
+    }
+
+    .summary-icon {
+      display: flex;
+      justify-content: center;
+      margin-bottom: 6px;
+    }
+
+    .summary-heading {
+      font-size: 32px;
+      font-weight: 900;
+      color: #D97706;
+      margin-bottom: 4px;
+    }
+
+    .summary-card.encourage .summary-heading {
+      color: #0284C7;
+    }
+
+    .summary-comment {
+      font-size: 20px;
+      font-weight: 700;
+      color: #334155;
+      margin-bottom: 14px;
+    }
+
+    .summary-total-badge {
+      display: inline-block;
+      background: #FEF3C7;
+      border: 3px solid #F59E0B;
+      color: #B45309;
+      font-size: 26px;
+      font-weight: 900;
+      padding: 6px 26px;
+      border-radius: 999px;
+      margin-bottom: 16px;
+    }
+
+    .summary-breakdown {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 10px;
+      margin-bottom: 18px;
+    }
+
+    .summary-op-item {
+      background: #F8FAFC;
+      border: 2px solid #E2E8F0;
+      border-radius: 14px;
+      padding: 10px 6px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .summary-op-name {
+      font-size: 13.5px;
+      font-weight: 800;
+      color: #334155;
+      line-height: 1.25;
+    }
+
+    .summary-op-pts {
+      font-size: 17px;
+      font-weight: 900;
+      color: #059669;
+    }
+
+    .summary-op-pts.low {
+      color: #D97706;
+    }
+
+    .btn-restart {
+      padding: 12px 34px;
+      font-size: 20px;
+      font-weight: 900;
+      color: #FFFFFF;
+      background: linear-gradient(180deg, #38BDF8 0%, #0284C7 100%);
+      border: none;
+      border-radius: 999px;
+      cursor: pointer;
+      box-shadow: 0 5px 0 #0369A1, 0 8px 18px rgba(2, 132, 199, 0.35);
+      transition: transform 0.12s ease;
+      font-family: inherit;
+    }
+
+    .btn-restart:hover {
+      transform: translateY(-2px);
+    }
+
+    .btn-restart:active {
+      transform: translateY(3px);
+      box-shadow: 0 2px 0 #0369A1;
+    }
+
+    /* Pháo giấy (Confetti) */
+    .confetti-layer {
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      overflow: hidden;
+      z-index: 1;
+    }
+
+    .confetti-piece {
+      position: absolute;
+      width: 11px;
+      height: 16px;
+      top: -20px;
+      border-radius: 3px;
+      animation: confettiFall linear infinite;
+    }
+
+    @keyframes confettiFall {
+      0% { transform: translateY(-20px) rotate(0deg); opacity: 1; }
+      100% { transform: translateY(105vh) rotate(720deg); opacity: 0.85; }
+    }
+
+    /* ==========================================================================
+       8. HOẠT ẢNH MINH HỌA CHUỘT MÁY TÍNH (SVG ANIMATIONS)
+       ========================================================================== */
+    /* Thao tác 1: Di chuyển chuột theo các hướng */
+    @keyframes mouseMoveDemo {
+      0%, 100% { transform: translate(0px, 0px); }
+      25% { transform: translate(22px, -8px); }
+      50% { transform: translate(22px, 12px); }
+      75% { transform: translate(-16px, 8px); }
+    }
+    .anim-move-demo {
+      animation: mouseMoveDemo 3.2s ease-in-out infinite;
+    }
+
+    /* Thao tác 2 & 3: Nhấp nháy nút trái / nút phải */
+    @keyframes btnPulse {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.65; transform: scale(0.96); }
+    }
+    .anim-btn-pulse {
+      transform-origin: center;
+      animation: btnPulse 1.1s ease-in-out infinite;
+    }
+
+    /* Thao tác 4: Nháy đúp nhanh 2 lần liên tiếp */
+    @keyframes doubleClickFlash {
+      0%, 100% { fill: #FDE68A; }
+      12% { fill: #F59E0B; }
+      22% { fill: #FDE68A; }
+      34% { fill: #F59E0B; }
+      46% { fill: #FDE68A; }
+    }
+    .anim-dblclick-btn {
+      animation: doubleClickFlash 1.8s ease-in-out infinite;
+    }
+
+    @keyframes doubleRipple {
+      0%, 10% { r: 4; opacity: 0; }
+      15% { r: 8; opacity: 0.9; }
+      26% { r: 16; opacity: 0; }
+      34% { r: 8; opacity: 0.9; }
+      48% { r: 18; opacity: 0; }
+      100% { r: 4; opacity: 0; }
+    }
+    .anim-dbl-ripple {
+      animation: doubleRipple 1.8s ease-out infinite;
+    }
+
+    /* Thao tác 5: Nhấn giữ, kéo và thả */
+    @keyframes dragDemoSlide {
+      0%, 12% { transform: translateX(0px); }
+      65%, 82% { transform: translateX(74px); }
+      100% { transform: translateX(0px); }
+    }
+    .anim-drag-slide {
+      animation: dragDemoSlide 2.8s ease-in-out infinite;
+    }
+
+    @keyframes dragHoldBtn {
+      0%, 8% { fill: #E2E8F0; }
+      14%, 72% { fill: #8B5CF6; }
+      80%, 100% { fill: #E2E8F0; }
+    }
+    .anim-drag-hold {
+      animation: dragHoldBtn 2.8s ease-in-out infinite;
+    }
+
+    /* Responsive cho màn hình nhỏ hơn nếu cần */
+    @media (max-width: 1024px) {
+      .nav-title { font-size: 13.5px; }
+      .lesson-title { font-size: 20px; }
+      .lesson-knowledge { font-size: 17px; }
+      .lesson-task-prompt { font-size: 15.5px; }
+      .illustration-box { width: 170px; height: 95px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="app-container">
+    <!-- ==================== THANH TIÊU ĐỀ & ĐIỂM SỐ ==================== -->
+    <header class="top-header">
+      <div class="brand-area">
+        <div class="brand-logo" aria-hidden="true">
+          <!-- Biểu tượng chuột máy tính dễ thương -->
+          <svg width="32" height="32" viewBox="0 0 64 64">
+            <rect x="14" y="8" width="36" height="48" rx="18" fill="#FFFFFF" stroke="#0284C7" stroke-width="4"/>
+            <path d="M14 28 H50" stroke="#0284C7" stroke-width="3.5"/>
+            <path d="M32 8 V28" stroke="#0284C7" stroke-width="3.5"/>
+            <rect x="29" y="14" width="6" height="10" rx="3" fill="#38BDF8"/>
+            <circle cx="25" cy="40" r="2.5" fill="#1E293B"/>
+            <circle cx="39" cy="40" r="2.5" fill="#1E293B"/>
+            <path d="M27 46 Q32 51 37 46" fill="none" stroke="#F43F5E" stroke-width="3" stroke-linecap="round"/>
+          </svg>
+        </div>
+        <div class="brand-text">
+          <h1>BÉ CÙNG CHUỘT MÁY TÍNH</h1>
+          <div class="brand-meta">
+            Trường Tiểu học Xuân Lương <span class="sep">•</span> Thiết kế và phát triển: Ninh Tiến Hùng
+          </div>
+        </div>
+      </div>
+
+      <div class="stats-area">
+        <div class="stat-pill stat-score" title="Tổng điểm hiện tại">
+          <span>⭐ Điểm:</span>
+          <span id="scoreDisplay">0 / 100</span>
+        </div>
+        <div class="stat-pill stat-progress" title="Tiến độ hoàn thành 10 nhiệm vụ">
+          <span>Tiến độ:</span>
+          <span id="progressText">0 / 10</span>
+          <div class="progress-bar-wrap">
+            <div class="progress-bar-fill" id="progressBarFill"></div>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <!-- ==================== 5 NÚT THAO TÁC LỚN PHÍA TRÊN ==================== -->
+    <nav class="nav-grid" aria-label="Chọn thao tác với chuột máy tính">
+      <button type="button" class="nav-btn active" data-op="0" onclick="selectOperation(0)">
+        <span class="nav-num">1</span>
+        <span class="nav-info">
+          <span class="nav-title">Di chuyển chuột</span>
+          <span class="nav-status" id="navStatus0">0 / 2 nhiệm vụ</span>
+        </span>
+        <span class="nav-done-badge">✓</span>
+      </button>
+
+      <button type="button" class="nav-btn" data-op="1" onclick="selectOperation(1)">
+        <span class="nav-num">2</span>
+        <span class="nav-info">
+          <span class="nav-title">Nháy chuột</span>
+          <span class="nav-status" id="navStatus1">0 / 2 nhiệm vụ</span>
+        </span>
+        <span class="nav-done-badge">✓</span>
+      </button>
+
+      <button type="button" class="nav-btn" data-op="2" onclick="selectOperation(2)">
+        <span class="nav-num">3</span>
+        <span class="nav-info">
+          <span class="nav-title">Nháy nút phải chuột</span>
+          <span class="nav-status" id="navStatus2">0 / 2 nhiệm vụ</span>
+        </span>
+        <span class="nav-done-badge">✓</span>
+      </button>
+
+      <button type="button" class="nav-btn" data-op="3" onclick="selectOperation(3)">
+        <span class="nav-num">4</span>
+        <span class="nav-info">
+          <span class="nav-title">Nháy đúp chuột</span>
+          <span class="nav-status" id="navStatus3">0 / 2 nhiệm vụ</span>
+        </span>
+        <span class="nav-done-badge">✓</span>
+      </button>
+
+      <button type="button" class="nav-btn" data-op="4" onclick="selectOperation(4)">
+        <span class="nav-num">5</span>
+        <span class="nav-info">
+          <span class="nav-title">Kéo thả chuột</span>
+          <span class="nav-status" id="navStatus4">0 / 2 nhiệm vụ</span>
+        </span>
+        <span class="nav-done-badge">✓</span>
+      </button>
+    </nav>
+
+    <!-- ==================== KHU VỰC HỌC & THỰC HÀNH CHÍNH ==================== -->
+    <main class="workspace-card">
+      <!-- Thông tin thao tác, kiến thức & minh họa chuột luôn hiển thị phía trên -->
+      <section class="lesson-header">
+        <div class="lesson-text-col">
+          <div class="lesson-title-row">
+            <h2 class="lesson-title" id="lessonTitle">THAO TÁC 1: DI CHUYỂN CHUỘT</h2>
+            <span class="task-pill" id="taskPill">Nhiệm vụ 1 / 2</span>
+          </div>
+          <div class="lesson-knowledge">
+            <span class="label-tag">Cách làm</span>
+            <span id="lessonKnowledge">Di chuyển chuột để con trỏ di chuyển trên màn hình.</span>
+          </div>
+          <div class="lesson-task-prompt" id="lessonPrompt">
+            Thực hành: Di chuyển con trỏ đến ngôi sao mà không nhấn nút chuột.
+          </div>
+        </div>
+
+        <div class="illustration-box" id="illustrationBox" aria-label="Hình minh họa thao tác chuột">
+          <!-- SVG minh họa sẽ được cập nhật theo từng thao tác -->
+        </div>
+      </section>
+
+      <!-- Khu vực thực hành trực tiếp ngay bên dưới -->
+      <section class="practice-stage" id="practiceStage">
+        <!-- Mây trang trí nhẹ nhàng -->
+        <div class="stage-decor" aria-hidden="true">
+          <div class="cloud" style="width:110px;height:38px;top:24px;left:6%;"></div>
+          <div class="cloud" style="width:140px;height:44px;top:36px;right:9%;"></div>
+          <div class="cloud" style="width:90px;height:30px;bottom:28px;left:18%;"></div>
+        </div>
+
+        <!-- Nơi chứa 1 đối tượng thực hành duy nhất mỗi lần -->
+        <div class="stage-objects" id="stageObjects"></div>
+
+        <!-- Thông báo khi học sinh làm sai -->
+        <div class="error-banner" id="errorBanner" role="status" aria-live="polite">
+          <div class="error-banner-title">BÉ HÃY THỬ LẠI NHÉ!</div>
+          <div class="error-banner-hint" id="errorBannerHint"></div>
+        </div>
+
+        <!-- Lớp phủ chúc mừng khi thực hiện đúng -->
+        <div class="success-overlay" id="successOverlay" role="status" aria-live="polite">
+          <div class="success-card">
+            <!-- Dấu tích xanh lớn -->
+            <svg width="78" height="78" viewBox="0 0 80 80" aria-hidden="true">
+              <circle cx="40" cy="40" r="36" fill="#10B981"/>
+              <path d="M23 41 L35 53 L58 28" fill="none" stroke="#FFFFFF" stroke-width="8" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+            <div class="success-title">BÉ GIỎI QUÁ!</div>
+            <div class="success-sub" id="successSubText">+10 điểm</div>
+            <button type="button" class="btn-primary" id="continueBtn" onclick="handleContinue()">
+              Tiếp tục ➜
+            </button>
+          </div>
+        </div>
+
+        <!-- Bảng hiển thị khi học sinh quay lại thao tác đã hoàn thành cả 2 nhiệm vụ -->
+        <div class="op-done-panel" id="opDonePanel">
+          <svg width="70" height="70" viewBox="0 0 80 80" aria-hidden="true">
+            <circle cx="40" cy="40" r="36" fill="#10B981"/>
+            <path d="M23 41 L35 53 L58 28" fill="none" stroke="#FFFFFF" stroke-width="8" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+          <div class="op-done-title" id="opDoneTitle">Bé đã hoàn thành thao tác này!</div>
+          <div class="op-done-score" id="opDoneScore">Điểm thao tác này: 20 / 20</div>
+          <button type="button" class="btn-primary" id="opDoneNextBtn" onclick="goToNextUnfinished()">
+            Chuyển sang thao tác tiếp theo ➜
+          </button>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <!-- ==================== MÀN HÌNH TỔNG KẾT ==================== -->
+  <div class="summary-overlay" id="summaryOverlay" role="dialog" aria-modal="true" aria-labelledby="summaryHeading">
+    <div class="confetti-layer" id="confettiLayer"></div>
+    <div class="summary-card" id="summaryCard">
+      <div class="summary-icon" id="summaryIcon"></div>
+      <h2 class="summary-heading" id="summaryHeading">CHÚC MỪNG BÉ!</h2>
+      <p class="summary-comment" id="summaryComment">Bé đã thực hiện tốt 5 thao tác với chuột máy tính!</p>
+      <div class="summary-total-badge" id="summaryTotalBadge">Tổng điểm: 100 / 100</div>
+
+      <div class="summary-breakdown" id="summaryBreakdown">
+        <!-- Kết quả từng thao tác sẽ được hiển thị tại đây -->
+      </div>
+
+      <button type="button" class="btn-restart" onclick="restartGame()">
+        Làm lại trò chơi
+      </button>
+    </div>
+  </div>
+
+  <script>
+    /* ==========================================================================
+       1. DỮ LIỆU 5 THAO TÁC HỌC VÀ THỰC HÀNH (MỖI THAO TÁC GỒM 2 NHIỆM VỤ)
+       ========================================================================== */
+    const OPERATIONS = [
+      {
+        id: 0,
+        shortName: 'Di chuyển chuột',
+        fullTitle: 'THAO TÁC 1: DI CHUYỂN CHUỘT',
+        knowledge: 'Di chuyển chuột để con trỏ di chuyển trên màn hình.',
+        prompt: 'Thực hành: Di chuyển con trỏ đến ngôi sao mà không nhấn nút chuột.',
+        errorHint: 'Di chuyển chuột để con trỏ đến ngôi sao, không nhấn nút chuột bé nhé!',
+        tasks: [
+          { xPercent: 72, yPercent: 48, starColor: '#FBBF24', starStroke: '#D97706' },
+          { xPercent: 26, yPercent: 52, starColor: '#F472B6', starStroke: '#DB2777' }
+        ]
+      },
+      {
+        id: 1,
+        shortName: 'Nháy chuột',
+        fullTitle: 'THAO TÁC 2: NHÁY CHUỘT',
+        knowledge: 'Nhấn nút trái chuột một lần rồi thả tay.',
+        prompt: 'Thực hành: Nháy nút trái chuột vào quả bóng để làm bóng nổ.',
+        errorHint: 'Nhấn nút trái chuột một lần rồi thả tay vào quả bóng nhé!',
+        tasks: [
+          { xPercent: 50, yPercent: 46, balloonColor: '#FB7185', balloonHighlight: '#FFE4E6' },
+          { xPercent: 68, yPercent: 44, balloonColor: '#38BDF8', balloonHighlight: '#E0F2FE' }
+        ]
+      },
+      {
+        id: 2,
+        shortName: 'Nháy nút phải chuột',
+        fullTitle: 'THAO TÁC 3: NHÁY NÚT PHẢI CHUỘT',
+        knowledge: 'Nhấn nút phải chuột một lần rồi thả tay.',
+        prompt: 'Thực hành: Nháy nút phải chuột vào rương kho báu để mở rương.',
+        errorHint: 'Nhấn nút phải chuột một lần rồi thả tay vào rương kho báu nhé!',
+        tasks: [
+          { xPercent: 50, yPercent: 50, chestStyle: 'gold' },
+          { xPercent: 32, yPercent: 52, chestStyle: 'ruby' }
+        ]
+      },
+      {
+        id: 3,
+        shortName: 'Nháy đúp chuột',
+        fullTitle: 'THAO TÁC 4: NHÁY ĐÚP CHUỘT',
+        knowledge: 'Nhấn nhanh nút trái chuột hai lần liên tiếp.',
+        prompt: 'Thực hành: Nháy đúp chuột vào quả trứng để gà con chào đời.',
+        errorHint: 'Nhấn nhanh nút trái chuột hai lần liên tiếp vào quả trứng nhé!',
+        tasks: [
+          { xPercent: 50, yPercent: 50, eggColor: '#FEF3C7', spotColor: '#F59E0B' },
+          { xPercent: 66, yPercent: 50, eggColor: '#E0F2FE', spotColor: '#38BDF8' }
+        ]
+      },
+      {
+        id: 4,
+        shortName: 'Kéo thả chuột',
+        fullTitle: 'THAO TÁC 5: KÉO THẢ CHUỘT',
+        knowledge: 'Nhấn giữ nút trái chuột, di chuyển chuột rồi thả tay.',
+        prompt: 'Thực hành: Kéo quả táo vào giỏ.',
+        errorHint: 'Nhấn giữ nút trái chuột vào quả táo, kéo vào giỏ rồi thả tay nhé!',
+        tasks: [
+          { appleX: 22, appleY: 48, basketX: 74, basketY: 50, appleColor: '#EF4444' },
+          { appleX: 76, appleY: 46, basketX: 24, basketY: 52, appleColor: '#22C55E' }
+        ]
+      }
+    ];
+
+    /* ==========================================================================
+       2. TRẠNG THÁI TRÒ CHƠI (STATE)
+       ========================================================================== */
+    let currentOpIndex = 0;
+    let currentTaskIndex = 0;
+    let taskLocked = false;          // Khóa tương tác khi đã xong nhiệm vụ hiện tại và đang hiện chúc mừng
+    let moveTaskReadyTime = 0;       // Tránh nhận nhầm vị trí chuột cũ ngay khi vừa đổi nhiệm vụ
+    let dblClickTimer = null;        // Bộ đếm chờ nháy lần 2 của thao tác nháy đúp
+    let errorHideTimer = null;       // Bộ đếm ẩn nhẹ thông báo lỗi khi bé thử lại
+    let lastMouseClientX = -999;
+    let lastMouseClientY = -999;
+
+    // Biến phục vụ kéo thả chuột thật (Thao tác 5)
+    let dragState = {
+      active: false,
+      el: null,
+      offsetX: 0,
+      offsetY: 0,
+      startLeft: 0,
+      startTop: 0
+    };
+
+    // Lưu trạng thái từng nhiệm vụ: 5 thao tác x 2 nhiệm vụ = 10 nhiệm vụ
+    let tasksState = [];
+
+    function initTasksState() {
+      tasksState = OPERATIONS.map(() => [
+        { completed: false, failedOnce: false, pointsEarned: 0 },
+        { completed: false, failedOnce: false, pointsEarned: 0 }
+      ]);
+    }
+
+    // Tham chiếu các phần tử DOM
+    const scoreDisplay = document.getElementById('scoreDisplay');
+    const progressText = document.getElementById('progressText');
+    const progressBarFill = document.getElementById('progressBarFill');
+    const lessonTitle = document.getElementById('lessonTitle');
+    const taskPill = document.getElementById('taskPill');
+    const lessonKnowledge = document.getElementById('lessonKnowledge');
+    const lessonPrompt = document.getElementById('lessonPrompt');
+    const illustrationBox = document.getElementById('illustrationBox');
+    const practiceStage = document.getElementById('practiceStage');
+    const stageObjects = document.getElementById('stageObjects');
+    const errorBanner = document.getElementById('errorBanner');
+    const errorBannerHint = document.getElementById('errorBannerHint');
+    const successOverlay = document.getElementById('successOverlay');
+    const successSubText = document.getElementById('successSubText');
+    const continueBtn = document.getElementById('continueBtn');
+    const opDonePanel = document.getElementById('opDonePanel');
+    const opDoneTitle = document.getElementById('opDoneTitle');
+    const opDoneScore = document.getElementById('opDoneScore');
+    const opDoneNextBtn = document.getElementById('opDoneNextBtn');
+    const summaryOverlay = document.getElementById('summaryOverlay');
+    const summaryCard = document.getElementById('summaryCard');
+    const summaryIcon = document.getElementById('summaryIcon');
+    const summaryHeading = document.getElementById('summaryHeading');
+    const summaryComment = document.getElementById('summaryComment');
+    const summaryTotalBadge = document.getElementById('summaryTotalBadge');
+    const summaryBreakdown = document.getElementById('summaryBreakdown');
+    const confettiLayer = document.getElementById('confettiLayer');
+
+    /* ==========================================================================
+       3. HÌNH SVG MINH HỌA CHUỘT MÁY TÍNH CHO 5 THAO TÁC
+       ========================================================================== */
+    function getIllustrationSVG(opIndex) {
+      switch (opIndex) {
+        case 0:
+          // Di chuyển chuột: Hình chuột và con trỏ di chuyển theo các hướng
+          return `
+            <svg width="196" height="96" viewBox="0 0 196 96">
+              <!-- Mũi tên 4 hướng -->
+              <path d="M52 14 L52 82 M18 48 L86 48" stroke="#A7F3D0" stroke-width="3" stroke-dasharray="4 4"/>
+              <polygon points="52,8 47,16 57,16" fill="#10B981"/>
+              <polygon points="52,88 47,80 57,80" fill="#10B981"/>
+              <polygon points="12,48 20,43 20,53" fill="#10B981"/>
+              <polygon points="92,48 84,43 84,53" fill="#10B981"/>
+              <!-- Hình chuột di chuyển -->
+              <g class="anim-move-demo">
+                <rect x="36" y="25" width="32" height="46" rx="16" fill="#FFFFFF" stroke="#059669" stroke-width="3"/>
+                <path d="M36 42 H68 M52 25 V42" stroke="#059669" stroke-width="2.5"/>
+                <rect x="49.5" y="30" width="5" height="8" rx="2.5" fill="#34D399"/>
+              </g>
+              <!-- Con trỏ chuột di chuyển cùng hướng -->
+              <g class="anim-move-demo" transform="translate(88, 0)">
+                <polygon points="140,26 140,62 150,53 158,66 164,62 156,49 168,49" fill="#0F172A" stroke="#FFFFFF" stroke-width="2"/>
+              </g>
+            </svg>`;
+        case 1:
+          // Nháy chuột: Nút trái tô màu nổi bật
+          return `
+            <svg width="196" height="96" viewBox="0 0 196 96">
+              <rect x="74" y="14" width="48" height="68" rx="24" fill="#FFFFFF" stroke="#475569" stroke-width="3.5"/>
+              <!-- Nút trái nổi bật -->
+              <path d="M75.5 38 V36 C75.5 24 85 15.5 98 15.5 V38 Z" fill="#FB7185" class="anim-btn-pulse"/>
+              <path d="M74 39 H122 M98 14 V39" stroke="#475569" stroke-width="3"/>
+              <rect x="94.5" y="22" width="7" height="12" rx="3.5" fill="#94A3B8"/>
+              <!-- Chú thích nút trái -->
+              <text x="14" y="34" font-size="13" font-weight="800" fill="#BE123C">Nút trái</text>
+              <path d="M64 30 L78 28" stroke="#E11D48" stroke-width="2.5" stroke-linecap="round"/>
+              <circle cx="84" cy="27" r="4" fill="#E11D48"/>
+            </svg>`;
+        case 2:
+          // Nháy nút phải chuột: Nút phải tô màu nổi bật
+          return `
+            <svg width="196" height="96" viewBox="0 0 196 96">
+              <rect x="74" y="14" width="48" height="68" rx="24" fill="#FFFFFF" stroke="#475569" stroke-width="3.5"/>
+              <!-- Nút phải nổi bật -->
+              <path d="M98 15.5 C111 15.5 120.5 24 120.5 36 V38 H98 Z" fill="#38BDF8" class="anim-btn-pulse"/>
+              <path d="M74 39 H122 M98 14 V39" stroke="#475569" stroke-width="3"/>
+              <rect x="94.5" y="22" width="7" height="12" rx="3.5" fill="#94A3B8"/>
+              <!-- Chú thích nút phải -->
+              <text x="132" y="34" font-size="13" font-weight="800" fill="#0369A1">Nút phải</text>
+              <path d="M130 30 L116 28" stroke="#0284C7" stroke-width="2.5" stroke-linecap="round"/>
+              <circle cx="112" cy="27" r="4" fill="#0284C7"/>
+            </svg>`;
+        case 3:
+          // Nháy đúp chuột: Hoạt ảnh nút trái nhấn nhanh 2 lần
+          return `
+            <svg width="196" height="96" viewBox="0 0 196 96">
+              <rect x="74" y="16" width="48" height="66" rx="24" fill="#FFFFFF" stroke="#475569" stroke-width="3.5"/>
+              <path d="M75.5 40 V38 C75.5 26 85 17.5 98 17.5 V40 Z" class="anim-dblclick-btn"/>
+              <path d="M74 41 H122 M98 16 V41" stroke="#475569" stroke-width="3"/>
+              <rect x="94.5" y="24" width="7" height="12" rx="3.5" fill="#94A3B8"/>
+              <!-- Vòng sóng nháy 2 lần -->
+              <circle cx="86" cy="29" r="6" fill="none" stroke="#D97706" stroke-width="3" class="anim-dbl-ripple"/>
+              <text x="12" y="35" font-size="13.5" font-weight="900" fill="#B45309">Nháy 2 lần</text>
+              <text x="20" y="53" font-size="13" font-weight="800" fill="#D97706">liên tiếp!</text>
+            </svg>`;
+        case 4:
+          // Kéo thả chuột: Nhấn giữ nút trái, di chuyển rồi thả
+          return `
+            <svg width="196" height="96" viewBox="0 0 196 96">
+              <!-- Đường dẫn kéo thả -->
+              <path d="M44 78 H148" stroke="#C4B5FD" stroke-width="4" stroke-dasharray="6 5" stroke-linecap="round"/>
+              <polygon points="154,78 144,72 144,84" fill="#8B5CF6"/>
+              <!-- Giỏ nhỏ đích -->
+              <rect x="142" y="34" width="38" height="28" rx="6" fill="#FDE68A" stroke="#D97706" stroke-width="2.5"/>
+              <!-- Chuột + quả táo di chuyển cùng nhau -->
+              <g class="anim-drag-slide">
+                <rect x="26" y="18" width="36" height="50" rx="18" fill="#FFFFFF" stroke="#475569" stroke-width="3"/>
+                <path d="M27.5 38 V36 C27.5 26 35 19.5 44 19.5 V38 Z" class="anim-drag-hold"/>
+                <path d="M26 38 H62 M44 18 V38" stroke="#475569" stroke-width="2.5"/>
+                <circle cx="72" cy="46" r="9" fill="#EF4444"/>
+                <path d="M72 37 Q75 31 79 34" fill="none" stroke="#16A34A" stroke-width="2.5" stroke-linecap="round"/>
+              </g>
+            </svg>`;
+      }
+    }
+
+    /* ==========================================================================
+       4. CẬP NHẬT GIAO DIỆN ĐIỂM SỐ, TIẾN ĐỘ VÀ 5 NÚT ĐIỀU HƯỚNG
+       ========================================================================== */
+    function getTotalScore() {
+      let sum = 0;
+      for (let i = 0; i < tasksState.length; i++) {
+        for (let j = 0; j < tasksState[i].length; j++) {
+          sum += tasksState[i][j].pointsEarned;
+        }
+      }
+      return sum;
+    }
+
+    function getCompletedCount() {
+      let count = 0;
+      for (let i = 0; i < tasksState.length; i++) {
+        for (let j = 0; j < tasksState[i].length; j++) {
+          if (tasksState[i][j].completed) count++;
+        }
+      }
+      return count;
+    }
+
+    function updateHeaderAndNav() {
+      const totalScore = getTotalScore();
+      const completedCount = getCompletedCount();
+
+      scoreDisplay.textContent = `${totalScore} / 100`;
+      progressText.textContent = `${completedCount} / 10`;
+      progressBarFill.style.width = `${(completedCount / 10) * 100}%`;
+
+      const navButtons = document.querySelectorAll('.nav-btn');
+      navButtons.forEach((btn, idx) => {
+        const doneInOp = tasksState[idx].filter(t => t.completed).length;
+        const statusEl = document.getElementById(`navStatus${idx}`);
+        statusEl.textContent = doneInOp === 2 ? 'Đã hoàn thành' : `${doneInOp} / 2 nhiệm vụ`;
+
+        btn.classList.toggle('active', idx === currentOpIndex);
+        btn.classList.toggle('completed', doneInOp === 2);
+      });
+    }
+
+    /* ==========================================================================
+       5. CHỌN THAO TÁC & HIỂN THỊ NHIỆM VỤ HIỆN TẠI
+       ========================================================================== */
+    function selectOperation(opIndex) {
+      // Dọn dẹp bộ đếm và trạng thái kéo thả nếu đang dở
+      clearPendingTimers();
+      resetDragState();
+
+      currentOpIndex = opIndex;
+
+      // Tìm nhiệm vụ chưa hoàn thành đầu tiên trong thao tác này
+      const firstUnfinished = tasksState[opIndex].findIndex(t => !t.completed);
+      currentTaskIndex = firstUnfinished === -1 ? 1 : firstUnfinished;
+
+      renderCurrentView();
+    }
+
+    function renderCurrentView() {
+      clearPendingTimers();
+      resetDragState();
+      hideErrorBanner();
+      successOverlay.classList.remove('show');
+      opDonePanel.classList.remove('show');
+
+      const op = OPERATIONS[currentOpIndex];
+      const opTasks = tasksState[currentOpIndex];
+      const allInOpDone = opTasks.every(t => t.completed);
+
+      // Cập nhật phần kiến thức và hình chuột minh họa phía trên
+      lessonTitle.textContent = op.fullTitle;
+      lessonKnowledge.textContent = op.knowledge;
+      lessonPrompt.textContent = op.prompt;
+      illustrationBox.innerHTML = getIllustrationSVG(currentOpIndex);
+
+      updateHeaderAndNav();
+
+      // Nếu thao tác này đã hoàn thành cả 2 nhiệm vụ
+      if (allInOpDone) {
+        taskPill.textContent = 'Đã hoàn thành 2 / 2';
+        stageObjects.innerHTML = '';
+        taskLocked = true;
+
+        const opPts = opTasks[0].pointsEarned + opTasks[1].pointsEarned;
+        opDoneTitle.textContent = `Bé đã hoàn thành ${op.shortName.toLowerCase()}!`;
+        opDoneScore.textContent = `Điểm thao tác này: ${opPts} / 20`;
+
+        if (getCompletedCount() === 10) {
+          opDoneNextBtn.textContent = 'Xem kết quả tổng kết 🏆';
+        } else {
+          opDoneNextBtn.textContent = 'Chuyển sang thao tác tiếp theo ➜';
+        }
+        opDonePanel.classList.add('show');
+        return;
+      }
+
+      // Hiển thị nhiệm vụ hiện tại (chỉ 1 đối tượng)
+      taskLocked = false;
+      taskPill.textContent = `Nhiệm vụ ${currentTaskIndex + 1} / 2`;
+      renderPracticeObject(currentOpIndex, currentTaskIndex);
+    }
+
+    /* ==========================================================================
+       6. TẠO ĐỐI TƯỢNG THỰC HÀNH CHO TỪNG THAO TÁC
+       ========================================================================== */
+    function renderPracticeObject(opIndex, taskIndex) {
+      stageObjects.innerHTML = '';
+      const taskCfg = OPERATIONS[opIndex].tasks[taskIndex];
+      const stageRect = practiceStage.getBoundingClientRect();
+
+      if (opIndex === 0) {
+        // ---------- THAO TÁC 1: DI CHUYỂN CHUỘT ĐẾN NGÔI SAO ----------
+        moveTaskReadyTime = Date.now() + 180;
+
+        // Tránh đặt ngôi sao trùng đúng vị trí con trỏ đang đứng sẵn
+        let targetX = taskCfg.xPercent;
+        const relMouseX = stageRect.width > 0 ? ((lastMouseClientX - stageRect.left) / stageRect.width) * 100 : -1;
+        if (Math.abs(relMouseX - targetX) < 16) {
+          targetX = targetX > 50 ? 25 : 75;
+        }
+
+        const starEl = document.createElement('div');
+        starEl.className = 'interactive-obj float-anim';
+        starEl.id = 'targetStar';
+        starEl.style.left = `calc(${targetX}% - 65px)`;
+        starEl.style.top = `calc(${taskCfg.yPercent}% - 68px)`;
+        starEl.innerHTML = `
+          <svg width="130" height="130" viewBox="0 0 140 140">
+            <polygon points="70,10 87,48 128,53 98,81 106,122 70,102 34,122 42,81 12,53 53,48"
+              fill="${taskCfg.starColor}" stroke="${taskCfg.starStroke}" stroke-width="5" stroke-linejoin="round"/>
+            <circle cx="57" cy="66" r="4.5" fill="#1E293B"/>
+            <circle cx="83" cy="66" r="4.5" fill="#1E293B"/>
+            <path d="M60 79 Q70 88 80 79" fill="none" stroke="#9A3412" stroke-width="4" stroke-linecap="round"/>
+            <circle cx="49" cy="75" r="4.5" fill="#FDA4AF" opacity="0.75"/>
+            <circle cx="91" cy="75" r="4.5" fill="#FDA4AF" opacity="0.75"/>
+          </svg>
+          <span class="obj-label">Ngôi sao</span>
+        `;
+
+        // Di chuyển con trỏ đến ngôi sao mà không nhấn nút chuột
+        const onReachStar = (e) => {
+          if (taskLocked) return;
+          if (Date.now() < moveTaskReadyTime) return;
+          if (e.buttons !== 0) {
+            // Đang giữ nút chuột -> báo sai
+            handleTaskError(starEl);
+            return;
+          }
+          handleTaskSuccess();
+        };
+
+        starEl.addEventListener('mouseenter', onReachStar);
+        starEl.addEventListener('mousemove', onReachStar);
+        stageObjects.appendChild(starEl);
+
+      } else if (opIndex === 1) {
+        // ---------- THAO TÁC 2: NHÁY NÚT TRÁI CHUỘT VÀO QUẢ BÓNG ----------
+        const balloonEl = document.createElement('div');
+        balloonEl.className = 'interactive-obj float-anim';
+        balloonEl.id = 'targetBalloon';
+        balloonEl.style.left = `calc(${taskCfg.xPercent}% - 60px)`;
+        balloonEl.style.top = `calc(${taskCfg.yPercent}% - 82px)`;
+        balloonEl.innerHTML = `
+          <svg width="120" height="156" viewBox="0 0 120 156">
+            <!-- Dây bóng -->
+            <path d="M60 112 Q52 128 62 140 Q68 148 58 154" fill="none" stroke="#64748B" stroke-width="3.5" stroke-linecap="round"/>
+            <!-- Nút thắt -->
+            <polygon points="54,112 66,112 60,104" fill="${taskCfg.balloonColor}"/>
+            <!-- Thân bóng -->
+            <ellipse cx="60" cy="58" rx="46" ry="52" fill="${taskCfg.balloonColor}" stroke="#FFFFFF" stroke-width="4"/>
+            <ellipse cx="42" cy="36" rx="11" ry="18" fill="${taskCfg.balloonHighlight}" opacity="0.7" transform="rotate(-22 42 36)"/>
+            <!-- Mặt cười dễ thương -->
+            <circle cx="46" cy="56" r="4.5" fill="#1E293B"/>
+            <circle cx="74" cy="56" r="4.5" fill="#1E293B"/>
+            <path d="M50 69 Q60 78 70 69" fill="none" stroke="#1E293B" stroke-width="3.8" stroke-linecap="round"/>
+          </svg>
+          <span class="obj-label">Quả bóng</span>
+        `;
+
+        // Nháy nút trái chuột (click) -> nổ bóng
+        balloonEl.addEventListener('click', (e) => {
+          e.stopPropagation();
+          if (taskLocked) return;
+          if (e.button === 0) {
+            // Hiệu ứng bóng nổ
+            balloonEl.classList.remove('float-anim');
+            balloonEl.innerHTML = `
+              <svg width="140" height="140" viewBox="0 0 140 140" class="pop-anim">
+                <polygon points="70,8 84,46 126,34 98,68 132,96 88,92 80,132 62,96 20,112 46,74 12,48 56,48"
+                  fill="#FBBF24" stroke="#F43F5E" stroke-width="5" stroke-linejoin="round"/>
+                <text x="70" y="78" text-anchor="middle" font-size="24" font-weight="900" fill="#BE123C">BÙM!</text>
+              </svg>
+            `;
+            taskLocked = true;
+            setTimeout(() => handleTaskSuccess(true), 280);
+          }
+        });
+
+        // Nháy nút phải chuột -> sai
+        balloonEl.addEventListener('contextmenu', (e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          if (taskLocked) return;
+          handleTaskError(balloonEl);
+        });
+
+        stageObjects.appendChild(balloonEl);
+
+      } else if (opIndex === 2) {
+        // ---------- THAO TÁC 3: NHÁY NÚT PHẢI CHUỘT VÀO RƯƠNG KHO BÁU ----------
+        const chestEl = document.createElement('div');
+        chestEl.className = 'interactive-obj';
+        chestEl.id = 'targetChest';
+        chestEl.style.left = `calc(${taskCfg.xPercent}% - 78px)`;
+        chestEl.style.top = `calc(${taskCfg.yPercent}% - 72px)`;
+        chestEl.innerHTML = getClosedChestSVG() + `<span class="obj-label">Rương kho báu</span>`;
+
+        // Nháy nút phải chuột (contextmenu) -> mở rương
+        chestEl.addEventListener('contextmenu', (e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          if (taskLocked) return;
+          chestEl.innerHTML = getOpenChestSVG() + `<span class="obj-label">Kho báu đã mở!</span>`;
+          taskLocked = true;
+          setTimeout(() => handleTaskSuccess(true), 380);
+        });
+
+        // Nháy nút trái chuột -> sai
+        chestEl.addEventListener('click', (e) => {
+          e.stopPropagation();
+          if (taskLocked) return;
+          handleTaskError(chestEl);
+        });
+
+        stageObjects.appendChild(chestEl);
+
+      } else if (opIndex === 3) {
+        // ---------- THAO TÁC 4: NHÁY ĐÚP CHUỘT VÀO QUẢ TRỨNG ----------
+        const eggEl = document.createElement('div');
+        eggEl.className = 'interactive-obj';
+        eggEl.id = 'targetEgg';
+        eggEl.style.left = `calc(${taskCfg.xPercent}% - 70px)`;
+        eggEl.style.top = `calc(${taskCfg.yPercent}% - 78px)`;
+        eggEl.innerHTML = getEggSVG(taskCfg.eggColor, taskCfg.spotColor) + `<span class="obj-label">Quả trứng</span>`;
+
+        // Nháy đúp chuột (dblclick) -> gà con chào đời
+        eggEl.addEventListener('dblclick', (e) => {
+          e.stopPropagation();
+          if (taskLocked) return;
+          // Hủy ngay bộ đếm kiểm tra nháy đơn
+          if (dblClickTimer) {
+            clearTimeout(dblClickTimer);
+            dblClickTimer = null;
+          }
+          eggEl.innerHTML = getHatchedChickSVG() + `<span class="obj-label">Gà con chào đời!</span>`;
+          taskLocked = true;
+          setTimeout(() => handleTaskSuccess(true), 420);
+        });
+
+        // Nháy đơn: KHÔNG tính lỗi ngay lập tức! Chờ 750ms xem bé có nháy lần 2 không
+        eggEl.addEventListener('click', (e) => {
+          e.stopPropagation();
+          if (taskLocked) return;
+
+          // Rung nhẹ để bé cảm nhận quả trứng vừa được chạm
+          eggEl.classList.remove('egg-wobble');
+          void eggEl.offsetWidth;
+          eggEl.classList.add('egg-wobble');
+
+          // Nếu là lần nháy đầu tiên, đặt bộ đếm chờ
+          if (dblClickTimer) {
+            clearTimeout(dblClickTimer);
+          }
+          dblClickTimer = setTimeout(() => {
+            dblClickTimer = null;
+            if (!taskLocked) {
+              handleTaskError(eggEl);
+            }
+          }, 750);
+        });
+
+        // Nháy nút phải chuột vào quả trứng -> báo sai ngay
+        eggEl.addEventListener('contextmenu', (e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          if (taskLocked) return;
+          if (dblClickTimer) {
+            clearTimeout(dblClickTimer);
+            dblClickTimer = null;
+          }
+          handleTaskError(eggEl);
+        });
+
+        stageObjects.appendChild(eggEl);
+
+      } else if (opIndex === 4) {
+        // ---------- THAO TÁC 5: KÉO QUẢ TÁO VÀO GIỎ ----------
+        // Tạo mũi tên nét đứt gợi ý hướng kéo
+        const guideSvg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+        guideSvg.setAttribute('style', 'position:absolute;inset:0;width:100%;height:100%;pointer-events:none;z-index:2;');
+        const fromX = taskCfg.appleX < taskCfg.basketX ? '32%' : '68%';
+        const toX = taskCfg.appleX < taskCfg.basketX ? '64%' : '36%';
+        guideSvg.innerHTML = `
+          <line x1="${fromX}" y1="50%" x2="${toX}" y2="50%" stroke="#94A3B8" stroke-width="4" stroke-dasharray="10 8" stroke-linecap="round"/>
+        `;
+        stageObjects.appendChild(guideSvg);
+
+        // Tạo giỏ đựng táo
+        const basketEl = document.createElement('div');
+        basketEl.className = 'basket-target';
+        basketEl.id = 'targetBasket';
+        basketEl.style.left = `calc(${taskCfg.basketX}% - 85px)`;
+        basketEl.style.top = `calc(${taskCfg.basketY}% - 72px)`;
+        basketEl.innerHTML = getBasketSVG() + `<span class="obj-label">Giỏ táo</span>`;
+        stageObjects.appendChild(basketEl);
+
+        // Tạo quả táo có thể kéo thả bằng nút trái chuột
+        const appleEl = document.createElement('div');
+        appleEl.className = 'interactive-obj draggable-apple';
+        appleEl.id = 'draggableApple';
+        appleEl.style.left = `calc(${taskCfg.appleX}% - 52px)`;
+        appleEl.style.top = `calc(${taskCfg.appleY}% - 60px)`;
+        appleEl.innerHTML = getAppleSVG(taskCfg.appleColor) + `<span class="obj-label">Quả táo</span>`;
+
+        appleEl.addEventListener('mousedown', (e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          if (taskLocked) return;
+
+          // Nếu nhấn nút phải chuột -> báo sai
+          if (e.button === 2) {
+            handleTaskError(appleEl);
+            return;
+          }
+
+          // Chỉ chấp nhận nhấn giữ nút trái chuột (button === 0)
+          if (e.button !== 0) return;
+
+          hideErrorBanner();
+          const stageBox = practiceStage.getBoundingClientRect();
+          const appleBox = appleEl.getBoundingClientRect();
+
+          // Ghi nhận tọa độ ban đầu theo pixel để trả về nếu thả sai chỗ
+          const currentLeft = appleBox.left - stageBox.left;
+          const currentTop = appleBox.top - stageBox.top;
+
+          appleEl.classList.remove('returning');
+          appleEl.style.left = `${currentLeft}px`;
+          appleEl.style.top = `${currentTop}px`;
+          appleEl.classList.add('dragging');
+
+          dragState = {
+            active: true,
+            el: appleEl,
+            offsetX: e.clientX - appleBox.left,
+            offsetY: e.clientY - appleBox.top,
+            startLeft: currentLeft,
+            startTop: currentTop
+          };
+        });
+
+        appleEl.addEventListener('contextmenu', (e) => {
+          e.preventDefault();
+          e.stopPropagation();
+        });
+
+        stageObjects.appendChild(appleEl);
+      }
+    }
+
+    /* ==========================================================================
+       7. SỰ KIỆN CHUỘT TOÀN CỤC & TRONG KHU VỰC THỰC HÀNH
+       ========================================================================== */
+    // Vô hiệu hóa menu chuột phải trong toàn bộ khu vực thực hành
+    practiceStage.addEventListener('contextmenu', (e) => {
+      e.preventDefault();
+    });
+
+    // Riêng Thao tác 1 (Di chuyển chuột): Nếu học sinh nhấn bất kỳ nút chuột nào trong khu vực thực hành -> sai
+    practiceStage.addEventListener('mousedown', (e) => {
+      if (taskLocked) return;
+      if (currentOpIndex === 0) {
+        // Không tính nhấn vào nút trong lớp phủ (khi taskLocked = true đã chặn)
+        const starEl = document.getElementById('targetStar');
+        handleTaskError(starEl);
+      }
+    });
+
+    // Theo dõi tọa độ chuột và xử lý di chuyển khi đang kéo thả (Thao tác 5)
+    window.addEventListener('mousemove', (e) => {
+      lastMouseClientX = e.clientX;
+      lastMouseClientY = e.clientY;
+
+      if (!dragState.active || !dragState.el || taskLocked) return;
+
+      // Kiểm tra học sinh vẫn đang giữ nút trái chuột thật sự
+      if ((e.buttons & 1) !== 1) {
+        finishDrag(e);
+        return;
+      }
+
+      const stageBox = practiceStage.getBoundingClientRect();
+      const elW = dragState.el.offsetWidth;
+      const elH = dragState.el.offsetHeight;
+
+      let newLeft = e.clientX - stageBox.left - dragState.offsetX;
+      let newTop = e.clientY - stageBox.top - dragState.offsetY;
+
+      // Giữ quả táo nằm gọn trong khu vực thực hành
+      newLeft = Math.max(4, Math.min(stageBox.width - elW - 4, newLeft));
+      newTop = Math.max(4, Math.min(stageBox.height - elH - 4, newTop));
+
+      dragState.el.style.left = `${newLeft}px`;
+      dragState.el.style.top = `${newTop}px`;
+
+      // Làm nổi bật giỏ khi quả táo chạm vùng giỏ
+      const basketEl = document.getElementById('targetBasket');
+      if (basketEl) {
+        const isOver = checkOverlap(dragState.el.getBoundingClientRect(), basketEl.getBoundingClientRect());
+        basketEl.classList.toggle('basket-hover', isOver);
+      }
+    });
+
+    window.addEventListener('mouseup', (e) => {
+      if (!dragState.active) return;
+      finishDrag(e);
+    });
+
+    function finishDrag(e) {
+      if (!dragState.active || !dragState.el) return;
+
+      const appleEl = dragState.el;
+      const basketEl = document.getElementById('targetBasket');
+      appleEl.classList.remove('dragging');
+
+      const isOverBasket = basketEl && checkOverlap(
+        appleEl.getBoundingClientRect(),
+        basketEl.getBoundingClientRect()
+      );
+
+      if (basketEl) basketEl.classList.remove('basket-hover');
+
+      if (isOverBasket) {
+        // Đặt quả táo gọn gàng vào trong giỏ
+        const stageBox = practiceStage.getBoundingClientRect();
+        const basketBox = basketEl.getBoundingClientRect();
+        const snapLeft = (basketBox.left - stageBox.left) + (basketBox.width - appleEl.offsetWidth) / 2;
+        const snapTop = (basketBox.top - stageBox.top) + 12;
+
+        appleEl.classList.add('returning');
+        appleEl.style.left = `${snapLeft}px`;
+        appleEl.style.top = `${snapTop}px`;
+
+        resetDragState();
+        taskLocked = true;
+        setTimeout(() => handleTaskSuccess(true), 280);
+      } else {
+        // Thả ngoài giỏ (hoặc chỉ nháy mà không kéo) -> báo sai và đưa táo về chỗ cũ
+        appleEl.classList.add('returning');
+        appleEl.style.left = `${dragState.startLeft}px`;
+        appleEl.style.top = `${dragState.startTop}px`;
+        resetDragState();
+        handleTaskError(appleEl);
+      }
+    }
+
+    function checkOverlap(rectA, rectB) {
+      // Kiểm tra tâm quả táo nằm trong vùng giỏ mở rộng nhẹ để học sinh lớp 1 dễ thả chính xác
+      const centerX = rectA.left + rectA.width / 2;
+      const centerY = rectA.top + rectA.height / 2;
+      const pad = 16;
+      return (
+        centerX >= rectB.left - pad &&
+        centerX <= rectB.right + pad &&
+        centerY >= rectB.top - pad &&
+        centerY <= rectB.bottom + pad
+      );
+    }
+
+    function resetDragState() {
+      dragState = { active: false, el: null, offsetX: 0, offsetY: 0, startLeft: 0, startTop: 0 };
+    }
+
+    /* ==========================================================================
+       8. XỬ LÝ KẾT QUẢ ĐÚNG / SAI & TÍNH ĐIỂM
+       ========================================================================== */
+    function handleTaskSuccess(alreadyLocked = false) {
+      if (!alreadyLocked && taskLocked) return;
+      taskLocked = true;
+      clearPendingTimers();
+      hideErrorBanner();
+
+      const taskObj = tasksState[currentOpIndex][currentTaskIndex];
+      if (!taskObj.completed) {
+        taskObj.completed = true;
+        // Đúng ngay lần đầu -> 10 điểm; đã từng sai -> 0 điểm (không trừ điểm, không cộng trùng)
+        taskObj.pointsEarned = taskObj.failedOnce ? 0 : 10;
+      }
+
+      updateHeaderAndNav();
+
+      // Hiển thị nội dung chúc mừng
+      if (taskObj.pointsEarned === 10) {
+        successSubText.textContent = 'Bé làm đúng ngay lần đầu! (+10 điểm)';
+      } else {
+        successSubText.textContent = 'Bé đã thực hiện đúng nhiệm vụ này!';
+      }
+
+      if (getCompletedCount() === 10) {
+        continueBtn.textContent = 'Xem kết quả tổng kết 🏆';
+      } else {
+        continueBtn.textContent = 'Tiếp tục ➜';
+      }
+
+      successOverlay.classList.add('show');
+      spawnGentleStars();
+    }
+
+    function handleTaskError(targetEl) {
+      if (taskLocked) return;
+
+      const taskObj = tasksState[currentOpIndex][currentTaskIndex];
+      // Đánh dấu đã sai để không cộng điểm nhiệm vụ này, không trừ điểm nhiều lần
+      taskObj.failedOnce = true;
+
+      // Rung nhẹ đối tượng
+      if (targetEl) {
+        targetEl.classList.remove('shake-error');
+        void targetEl.offsetWidth;
+        targetEl.classList.add('shake-error');
+      }
+
+      // Hiển thị thông báo nhắc lại cách thực hiện đúng
+      errorBannerHint.textContent = OPERATIONS[currentOpIndex].errorHint;
+      errorBanner.classList.add('show');
+
+      if (errorHideTimer) clearTimeout(errorHideTimer);
+      errorHideTimer = setTimeout(() => {
+        hideErrorBanner();
+      }, 4500);
+    }
+
+    function hideErrorBanner() {
+      errorBanner.classList.remove('show');
+      if (errorHideTimer) {
+        clearTimeout(errorHideTimer);
+        errorHideTimer = null;
+      }
+    }
+
+    function clearPendingTimers() {
+      if (dblClickTimer) {
+        clearTimeout(dblClickTimer);
+        dblClickTimer = null;
+      }
+      if (errorHideTimer) {
+        clearTimeout(errorHideTimer);
+        errorHideTimer = null;
+      }
+    }
+
+    // Hiệu ứng ngôi sao nhẹ nhàng khi học sinh làm đúng
+    function spawnGentleStars() {
+      // Xóa các ngôi sao cũ nếu còn
+      successOverlay.querySelectorAll('.sparkle-star').forEach(el => el.remove());
+
+      const positions = [
+        { left: '22%', top: '62%', size: 28, color: '#FBBF24' },
+        { left: '30%', top: '34%', size: 22, color: '#34D399' },
+        { left: '70%', top: '32%', size: 26, color: '#FBBF24' },
+        { left: '76%', top: '60%', size: 30, color: '#F472B6' },
+        { left: '50%', top: '24%', size: 24, color: '#38BDF8' }
+      ];
+
+      positions.forEach((pos, idx) => {
+        const star = document.createElement('div');
+        star.className = 'sparkle-star';
+        star.style.left = pos.left;
+        star.style.top = pos.top;
+        star.style.animationDelay = `${idx * 0.12}s`;
+        star.innerHTML = `
+          <svg width="${pos.size}" height="${pos.size}" viewBox="0 0 40 40">
+            <polygon points="20,2 25,14 38,15 28,24 31,37 20,30 9,37 12,24 2,15 15,14" fill="${pos.color}"/>
+          </svg>
+        `;
+        successOverlay.appendChild(star);
+      });
+    }
+
+    /* ==========================================================================
+       9. CHUYỂN NHIỆM VỤ & TỔNG KẾT
+       ========================================================================== */
+    function handleContinue() {
+      // Nếu đã hoàn thành tất cả 10 nhiệm vụ -> hiện tổng kết
+      if (getCompletedCount() === 10) {
+        showSummary();
+        return;
+      }
+
+      // Kiểm tra nhiệm vụ tiếp theo trong cùng thao tác
+      const nextInSameOp = tasksState[currentOpIndex].findIndex(t => !t.completed);
+      if (nextInSameOp !== -1) {
+        currentTaskIndex = nextInSameOp;
+        renderCurrentView();
+        return;
+      }
+
+      // Chuyển sang thao tác chưa hoàn thành tiếp theo
+      goToNextUnfinished();
+    }
+
+    function goToNextUnfinished() {
+      if (getCompletedCount() === 10) {
+        showSummary();
+        return;
+      }
+
+      for (let offset = 1; offset <= OPERATIONS.length; offset++) {
+        const idx = (currentOpIndex + offset) % OPERATIONS.length;
+        const unfinishedTask = tasksState[idx].findIndex(t => !t.completed);
+        if (unfinishedTask !== -1) {
+          currentOpIndex = idx;
+          currentTaskIndex = unfinishedTask;
+          renderCurrentView();
+          return;
+        }
+      }
+    }
+
+    function showSummary() {
+      const totalScore = getTotalScore();
+      const passed = totalScore >= 80;
+
+      summaryCard.classList.toggle('encourage', !passed);
+      confettiLayer.innerHTML = '';
+
+      if (passed) {
+        summaryIcon.innerHTML = getGoldenTrophySVG();
+        summaryHeading.textContent = 'CHÚC MỪNG BÉ!';
+        summaryComment.textContent = 'Bé đã thực hiện tốt 5 thao tác với chuột máy tính!';
+        createConfetti();
+      } else {
+        summaryIcon.innerHTML = getEncouragingMascotSVG();
+        summaryHeading.textContent = 'BÉ HÃY LUYỆN TẬP THÊM NHÉ!';
+        summaryComment.textContent = 'Bé đã cố gắng rất nhiều, hãy thử lại để đạt điểm cao hơn nhé!';
+      }
+
+      summaryTotalBadge.textContent = `Tổng điểm: ${totalScore} / 100 điểm`;
+
+      // Hiển thị kết quả từng thao tác
+      summaryBreakdown.innerHTML = OPERATIONS.map((op, idx) => {
+        const opPts = tasksState[idx][0].pointsEarned + tasksState[idx][1].pointsEarned;
+        const cls = opPts < 20 ? 'summary-op-pts low' : 'summary-op-pts';
+        return `
+          <div class="summary-op-item">
+            <div class="summary-op-name">${idx + 1}. ${op.shortName}</div>
+            <div class="${cls}">${opPts} / 20</div>
+          </div>
+        `;
+      }).join('');
+
+      summaryOverlay.classList.add('show');
+    }
+
+    function createConfetti() {
+      const colors = ['#F43F5E', '#FBBF24', '#10B981', '#38BDF8', '#A78BFA', '#FB923C'];
+      for (let i = 0; i < 42; i++) {
+        const piece = document.createElement('div');
+        piece.className = 'confetti-piece';
+        piece.style.left = `${Math.random() * 100}%`;
+        piece.style.backgroundColor = colors[i % colors.length];
+        piece.style.animationDuration = `${2.5 + Math.random() * 2.5}s`;
+        piece.style.animationDelay = `${Math.random() * 1.8}s`;
+        confettiLayer.appendChild(piece);
+      }
+    }
+
+    function restartGame() {
+      summaryOverlay.classList.remove('show');
+      confettiLayer.innerHTML = '';
+      initTasksState();
+      currentOpIndex = 0;
+      currentTaskIndex = 0;
+      renderCurrentView();
+    }
+
+    /* ==========================================================================
+       10. CÁC HÌNH SVG HOẠT HÌNH DỄ THƯƠNG CHO ĐỐI TƯỢNG THỰC HÀNH & TỔNG KẾT
+       ========================================================================== */
+    function getClosedChestSVG() {
+      return `
+        <svg width="150" height="122" viewBox="0 0 150 122">
+          <!-- Thân rương -->
+          <rect x="16" y="46" width="118" height="66" rx="12" fill="#B45309" stroke="#78350F" stroke-width="4.5"/>
+          <!-- Nắp rương cong -->
+          <path d="M14 52 C14 20 136 20 136 52 Z" fill="#D97706" stroke="#78350F" stroke-width="4.5"/>
+          <!-- Đai vàng -->
+          <rect x="36" y="26" width="14" height="84" fill="#FBBF24" stroke="#78350F" stroke-width="3"/>
+          <rect x="100" y="26" width="14" height="84" fill="#FBBF24" stroke="#78350F" stroke-width="3"/>
+          <rect x="14" y="48" width="122" height="11" fill="#F59E0B" stroke="#78350F" stroke-width="3"/>
+          <!-- Ổ khóa vàng -->
+          <rect x="63" y="45" width="24" height="28" rx="6" fill="#FDE047" stroke="#78350F" stroke-width="3.5"/>
+          <circle cx="75" cy="57" r="4" fill="#78350F"/>
+          <rect x="73" y="59" width="4" height="8" rx="1.5" fill="#78350F"/>
+        </svg>`;
+    }
+
+    function getOpenChestSVG() {
+      return `
+        <svg width="150" height="126" viewBox="0 0 150 126">
+          <!-- Ánh sáng kho báu -->
+          <ellipse cx="75" cy="52" rx="58" ry="26" fill="#FEF08A" opacity="0.85"/>
+          <!-- Nắp mở phía sau -->
+          <path d="M18 48 C18 14 132 14 132 48 Z" fill="#92400E" stroke="#78350F" stroke-width="4"/>
+          <!-- Đồng xu & viên ngọc -->
+          <circle cx="48" cy="56" r="12" fill="#FACC15" stroke="#CA8A04" stroke-width="3"/>
+          <circle cx="75" cy="50" r="14" fill="#FDE047" stroke="#CA8A04" stroke-width="3"/>
+          <circle cx="102" cy="56" r="12" fill="#FACC15" stroke="#CA8A04" stroke-width="3"/>
+          <polygon points="64,34 75,20 86,34 75,46" fill="#38BDF8" stroke="#0284C7" stroke-width="2.5"/>
+          <!-- Thân rương phía trước -->
+          <rect x="16" y="58" width="118" height="58" rx="10" fill="#B45309" stroke="#78350F" stroke-width="4.5"/>
+          <rect x="36" y="58" width="14" height="58" fill="#FBBF24" stroke="#78350F" stroke-width="3"/>
+          <rect x="100" y="58" width="14" height="58" fill="#FBBF24" stroke="#78350F" stroke-width="3"/>
+          <rect x="65" y="54" width="20" height="16" rx="4" fill="#FDE047" stroke="#78350F" stroke-width="3"/>
+        </svg>`;
+    }
+
+    function getEggSVG(eggColor, spotColor) {
+      return `
+        <svg width="136" height="142" viewBox="0 0 136 142">
+          <!-- Tổ rơm -->
+          <ellipse cx="68" cy="118" rx="52" ry="16" fill="#D97706" stroke="#92400E" stroke-width="3.5"/>
+          <path d="M24 118 Q68 134 112 118" fill="none" stroke="#FDE68A" stroke-width="4" stroke-dasharray="8 6"/>
+          <!-- Quả trứng -->
+          <path d="M68 18 C96 18 110 56 108 86 C106 108 90 120 68 120 C46 120 30 108 28 86 C26 56 40 18 68 18 Z"
+            fill="${eggColor}" stroke="#B45309" stroke-width="4.5"/>
+          <!-- Đốm dễ thương -->
+          <circle cx="52" cy="52" r="8" fill="${spotColor}" opacity="0.5"/>
+          <circle cx="84" cy="70" r="10" fill="${spotColor}" opacity="0.45"/>
+          <circle cx="56" cy="92" r="6" fill="${spotColor}" opacity="0.45"/>
+          <!-- Mắt cười -->
+          <circle cx="56" cy="74" r="3.5" fill="#1E293B"/>
+          <circle cx="80" cy="74" r="3.5" fill="#1E293B"/>
+          <path d="M63 82 Q68 87 73 82" fill="none" stroke="#1E293B" stroke-width="3" stroke-linecap="round"/>
+        </svg>`;
+    }
+
+    function getHatchedChickSVG() {
+      return `
+        <svg width="140" height="144" viewBox="0 0 140 144">
+          <!-- Gà con vàng dễ thương -->
+          <circle cx="70" cy="60" r="34" fill="#FDE047" stroke="#CA8A04" stroke-width="4"/>
+          <!-- Mào nhỏ -->
+          <path d="M64 26 Q70 12 76 26" fill="#F59E0B" stroke="#CA8A04" stroke-width="3"/>
+          <!-- Cánh vẫy -->
+          <ellipse cx="32" cy="66" rx="12" ry="8" fill="#FACC15" stroke="#CA8A04" stroke-width="3" transform="rotate(-25 32 66)"/>
+          <ellipse cx="108" cy="66" rx="12" ry="8" fill="#FACC15" stroke="#CA8A04" stroke-width="3" transform="rotate(25 108 66)"/>
+          <!-- Mắt & mỏ -->
+          <circle cx="58" cy="54" r="4.5" fill="#1E293B"/>
+          <circle cx="82" cy="54" r="4.5" fill="#1E293B"/>
+          <polygon points="63,63 77,63 70,73" fill="#F97316" stroke="#C2410C" stroke-width="2"/>
+          <circle cx="49" cy="62" r="4.5" fill="#FDA4AF" opacity="0.8"/>
+          <circle cx="91" cy="62" r="4.5" fill="#FDA4AF" opacity="0.8"/>
+          <!-- Nửa vỏ trứng bên dưới -->
+          <path d="M28 84 L42 96 L56 82 L70 96 L84 82 L98 96 L112 84 C112 114 94 128 70 128 C46 128 28 114 28 84 Z"
+            fill="#FEF3C7" stroke="#B45309" stroke-width="4" stroke-linejoin="round"/>
+        </svg>`;
+    }
+
+    function getAppleSVG(color) {
+      return `
+        <svg width="96" height="96" viewBox="0 0 100 100">
+          <!-- Cuống và lá -->
+          <path d="M50 24 Q52 10 60 8" fill="none" stroke="#78350F" stroke-width="5" stroke-linecap="round"/>
+          <ellipse cx="64" cy="18" rx="13" ry="7" fill="#22C55E" stroke="#15803D" stroke-width="2.5" transform="rotate(-22 64 18)"/>
+          <!-- Thân quả táo -->
+          <path d="M50 28 C66 18 86 30 84 56 C82 78 66 92 50 86 C34 92 18 78 16 56 C14 30 34 18 50 28 Z"
+            fill="${color}" stroke="#991B1B" stroke-width="3.5"/>
+          <!-- Ánh bóng -->
+          <ellipse cx="34" cy="46" rx="7" ry="12" fill="#FFFFFF" opacity="0.45" transform="rotate(-18 34 46)"/>
+          <!-- Mặt cười -->
+          <circle cx="42" cy="56" r="3.5" fill="#1E293B"/>
+          <circle cx="58" cy="56" r="3.5" fill="#1E293B"/>
+          <path d="M45 65 Q50 71 55 65" fill="none" stroke="#1E293B" stroke-width="3" stroke-linecap="round"/>
+        </svg>`;
+    }
+
+    function getBasketSVG() {
+      return `
+        <svg width="136" height="104" viewBox="0 0 136 104">
+          <!-- Quai giỏ -->
+          <path d="M28 42 C28 8 108 8 108 42" fill="none" stroke="#B45309" stroke-width="7" stroke-linecap="round"/>
+          <!-- Thân giỏ -->
+          <path d="M16 42 H120 L106 94 C104 98 98 100 92 100 H44 C38 100 32 98 30 94 Z"
+            fill="#F59E0B" stroke="#92400E" stroke-width="4.5" stroke-linejoin="round"/>
+          <!-- Họa tiết đan giỏ -->
+          <path d="M22 60 H114 M26 78 H110 M46 42 L50 100 M68 42 V100 M90 42 L86 100"
+            stroke="#B45309" stroke-width="3"/>
+          <!-- Viền miệng giỏ -->
+          <rect x="12" y="36" width="112" height="14" rx="7" fill="#FBBF24" stroke="#92400E" stroke-width="4"/>
+        </svg>`;
+    }
+
+    function getGoldenTrophySVG() {
+      return `
+        <svg width="106" height="106" viewBox="0 0 110 110">
+          <!-- Quai cúp -->
+          <path d="M26 26 H14 C14 48 24 56 36 56" fill="none" stroke="#F59E0B" stroke-width="6" stroke-linecap="round"/>
+          <path d="M84 26 H96 C96 48 86 56 74 56" fill="none" stroke="#F59E0B" stroke-width="6" stroke-linecap="round"/>
+          <!-- Thân cúp -->
+          <path d="M26 16 H84 V46 C84 64 70 76 55 76 C40 76 26 64 26 46 Z" fill="#FACC15" stroke="#B45309" stroke-width="4"/>
+          <!-- Ngôi sao trên cúp -->
+          <polygon points="55,28 59,38 70,39 62,46 64,57 55,51 46,57 48,46 40,39 51,38" fill="#FFFFFF"/>
+          <!-- Chân cúp -->
+          <rect x="48" y="76" width="14" height="14" fill="#F59E0B" stroke="#B45309" stroke-width="3.5"/>
+          <rect x="30" y="90" width="50" height="12" rx="5" fill="#B45309"/>
+        </svg>`;
+    }
+
+    function getEncouragingMascotSVG() {
+      return `
+        <svg width="104" height="104" viewBox="0 0 110 110">
+          <!-- Chú gấu hoạt hình động viên -->
+          <circle cx="28" cy="30" r="14" fill="#D97706" stroke="#92400E" stroke-width="4"/>
+          <circle cx="82" cy="30" r="14" fill="#D97706" stroke="#92400E" stroke-width="4"/>
+          <circle cx="28" cy="30" r="7" fill="#FDE68A"/>
+          <circle cx="82" cy="30" r="7" fill="#FDE68A"/>
+          <circle cx="55" cy="58" r="38" fill="#F59E0B" stroke="#92400E" stroke-width="4"/>
+          <ellipse cx="55" cy="68" rx="18" ry="14" fill="#FEF3C7"/>
+          <circle cx="42" cy="50" r="4.5" fill="#1E293B"/>
+          <circle cx="68" cy="50" r="4.5" fill="#1E293B"/>
+          <ellipse cx="55" cy="62" rx="6" ry="4.5" fill="#78350F"/>
+          <path d="M47 72 Q55 80 63 72" fill="none" stroke="#78350F" stroke-width="3.5" stroke-linecap="round"/>
+          <circle cx="34" cy="62" r="5" fill="#FDA4AF" opacity="0.8"/>
+          <circle cx="76" cy="62" r="5" fill="#FDA4AF" opacity="0.8"/>
+        </svg>`;
+    }
+
+    /* ==========================================================================
+       11. KHỞI TẠO TRÒ CHƠI KHI TẢI TRANG
+       ========================================================================== */
+    window.onload = function () {
+      initTasksState();
+      selectOperation(0);
+    };
+  </script>
+</body>
+</html>
