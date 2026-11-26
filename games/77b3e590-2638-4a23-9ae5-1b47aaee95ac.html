@@ -1,0 +1,2881 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Bé Cùng Chuột Nhí – Khám Phá 5 Thao Tác Với Chuột</title>
+  <style>
+    /* ==========================================================================
+       1. THIẾT LẬP CHUNG & BIẾN MÀU PASTEL (TỐI ƯU 16:9 - 1366x768, OFFLINE)
+       ========================================================================== */
+    :root {
+      --sky-top: #cbeeff;
+      --sky-mid: #e6f7ff;
+      --grass-light: #b9f3c6;
+      --grass-mid: #8be2a3;
+      --grass-dark: #5bc87b;
+
+      --blue-main: #2b95d6;
+      --blue-soft: #e0f2fe;
+      --green-main: #27ae60;
+      --green-soft: #dcfce7;
+      --yellow-main: #f59e0b;
+      --yellow-soft: #fef3c7;
+      --pink-main: #ec4899;
+      --pink-soft: #fce7f3;
+      --purple-main: #8b5cf6;
+      --purple-soft: #ede9fe;
+
+      --text-dark: #1e3a5f;
+      --text-mid: #3b5978;
+      --white: #ffffff;
+      --shadow-soft: 0 8px 20px rgba(30, 58, 95, 0.12);
+      --shadow-btn: 0 5px 0 rgba(0, 0, 0, 0.16);
+      --radius-lg: 24px;
+      --radius-md: 16px;
+      --radius-pill: 999px;
+      --font-main: "Segoe UI", "Roboto", "Tahoma", "Arial", sans-serif;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      user-select: none;
+      -webkit-user-select: none;
+    }
+
+    html, body {
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+      font-family: var(--font-main);
+      color: var(--text-dark);
+      background: linear-gradient(180deg, var(--sky-top) 0%, var(--sky-mid) 62%, var(--grass-light) 62%, var(--grass-mid) 100%);
+    }
+
+    /* Khung ứng dụng chính giữ tỷ lệ gọn gàng, không cuộn trên 1366x768 */
+    #app {
+      position: relative;
+      width: 100vw;
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    /* ==========================================================================
+       2. PHÔNG NỀN THIÊN NHIÊN HOẠT HÌNH 2D (SVG CỐ ĐỊNH PHÍA SAU)
+       ========================================================================== */
+    .scenery-bg {
+      position: absolute;
+      inset: 0;
+      z-index: 0;
+      pointer-events: none;
+      overflow: hidden;
+    }
+
+    .cloud {
+      position: absolute;
+      opacity: 0.9;
+      animation: floatCloud 28s linear infinite;
+    }
+    .cloud.c1 { top: 6%; left: -12%; width: 150px; animation-duration: 36s; }
+    .cloud.c2 { top: 13%; left: 30%; width: 120px; animation-duration: 44s; animation-delay: -15s; }
+    .cloud.c3 { top: 8%; left: 72%; width: 140px; animation-duration: 38s; animation-delay: -22s; }
+
+    @keyframes floatCloud {
+      0% { transform: translateX(-18vw); }
+      100% { transform: translateX(118vw); }
+    }
+
+    /* ==========================================================================
+       3. THANH ĐIỀU HƯỚNG & TIẾN TRÌNH TRÊN CÙNG (TOP BAR)
+       ========================================================================== */
+    .top-bar {
+      position: relative;
+      z-index: 10;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 10px 20px;
+      background: rgba(255, 255, 255, 0.9);
+      border-bottom: 3px solid #bae6fd;
+      box-shadow: 0 4px 12px rgba(30, 58, 95, 0.08);
+      min-height: 64px;
+    }
+
+    .top-bar.hidden {
+      display: none;
+    }
+
+    .top-left {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .btn-home-mini {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: var(--blue-soft);
+      color: var(--blue-main);
+      border: 2px solid #93c5fd;
+      border-radius: var(--radius-pill);
+      padding: 6px 14px;
+      font-size: 16px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: transform 0.15s, background 0.15s;
+    }
+    .btn-home-mini:hover {
+      background: #bae6fd;
+      transform: translateY(-1px);
+    }
+
+    .current-action-badge {
+      background: linear-gradient(135deg, #ff7eb3, #ff758c);
+      color: #fff;
+      padding: 7px 18px;
+      border-radius: var(--radius-pill);
+      font-size: 19px;
+      font-weight: 800;
+      letter-spacing: 0.3px;
+      box-shadow: 0 3px 10px rgba(236, 72, 153, 0.28);
+      white-space: nowrap;
+    }
+
+    /* Thanh tiến trình 5 thử thách */
+    .progress-steps {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .step-pill {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      padding: 5px 11px;
+      border-radius: var(--radius-pill);
+      background: #f1f5f9;
+      border: 2px solid #cbd5e1;
+      font-size: 14px;
+      font-weight: 700;
+      color: #64748b;
+      transition: all 0.25s;
+      white-space: nowrap;
+    }
+
+    .step-pill .step-num {
+      width: 22px;
+      height: 22px;
+      border-radius: 50%;
+      background: #cbd5e1;
+      color: #fff;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 13px;
+      font-weight: 800;
+    }
+
+    .step-pill.active {
+      background: var(--yellow-soft);
+      border-color: var(--yellow-main);
+      color: #b45309;
+      transform: scale(1.05);
+    }
+    .step-pill.active .step-num {
+      background: var(--yellow-main);
+    }
+
+    .step-pill.done {
+      background: var(--green-soft);
+      border-color: var(--green-main);
+      color: #15803d;
+    }
+    .step-pill.done .step-num {
+      background: var(--green-main);
+    }
+
+    /* Bộ đếm ngôi sao thưởng */
+    .star-counter {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      background: var(--yellow-soft);
+      border: 2px solid #fbbf24;
+      border-radius: var(--radius-pill);
+      padding: 6px 14px;
+      font-size: 18px;
+      font-weight: 800;
+      color: #b45309;
+      white-space: nowrap;
+    }
+
+    /* ==========================================================================
+       4. KHU VỰC NỘI DUNG CHÍNH (MAIN STAGE)
+       ========================================================================== */
+    .main-stage {
+      position: relative;
+      z-index: 5;
+      flex: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 14px 22px;
+      overflow: hidden;
+    }
+
+    .screen {
+      display: none;
+      width: 100%;
+      height: 100%;
+      max-width: 1280px;
+      max-height: 670px;
+      animation: fadeInScreen 0.3s ease;
+    }
+    .screen.active {
+      display: flex;
+      flex-direction: column;
+    }
+
+    @keyframes fadeInScreen {
+      from { opacity: 0; transform: translateY(8px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* Thẻ trắng bo tròn nổi bật */
+    .card {
+      background: rgba(255, 255, 255, 0.94);
+      border: 4px solid #ffffff;
+      border-radius: var(--radius-lg);
+      box-shadow: var(--shadow-soft);
+    }
+
+    /* ==========================================================================
+       5. NÚT BẤM LỚN THÂN THIỆN VỚI HỌC SINH LỚP 1
+       ========================================================================== */
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      padding: 13px 28px;
+      font-family: var(--font-main);
+      font-size: 21px;
+      font-weight: 800;
+      border: none;
+      border-radius: var(--radius-pill);
+      cursor: pointer;
+      color: #fff;
+      box-shadow: var(--shadow-btn);
+      transition: transform 0.14s, filter 0.14s;
+    }
+    .btn:hover {
+      transform: translateY(-2px);
+      filter: brightness(1.04);
+    }
+    .btn:active {
+      transform: translateY(2px);
+      box-shadow: 0 2px 0 rgba(0,0,0,0.16);
+    }
+
+    .btn-green { background: linear-gradient(180deg, #34d399, #10b981); }
+    .btn-blue  { background: linear-gradient(180deg, #38bdf8, #0284c7); }
+    .btn-pink  { background: linear-gradient(180deg, #f472b6, #db2777); }
+    .btn-amber { background: linear-gradient(180deg, #fbbf24, #d97706); }
+    .btn-purple{ background: linear-gradient(180deg, #a78bfa, #7c3aed); }
+
+    .btn-sm {
+      padding: 10px 20px;
+      font-size: 18px;
+    }
+
+    /* ==========================================================================
+       6. MÀN HÌNH BẮT ĐẦU (HOME SCREEN)
+       ========================================================================== */
+    .home-layout {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: space-between;
+      padding: 18px 26px;
+      text-align: center;
+    }
+
+    .game-title-box {
+      background: linear-gradient(135deg, #fff9db, #ffffff);
+      border: 4px solid #fcd34d;
+      border-radius: 28px;
+      padding: 14px 36px;
+      box-shadow: var(--shadow-soft);
+    }
+    .game-title-main {
+      font-size: 34px;
+      font-weight: 900;
+      color: #0369a1;
+      letter-spacing: 0.5px;
+      text-shadow: 0 2px 0 #bae6fd;
+    }
+    .game-title-sub {
+      font-size: 22px;
+      font-weight: 800;
+      color: #db2777;
+      margin-top: 4px;
+    }
+
+    .home-hero {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 28px;
+      margin: 6px 0;
+    }
+
+    .mascot-wrap {
+      width: 175px;
+      height: 175px;
+      animation: mascotBob 3s ease-in-out infinite;
+    }
+    @keyframes mascotBob {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-8px); }
+    }
+
+    .speech-bubble {
+      position: relative;
+      background: #ffffff;
+      border: 4px solid #7dd3fc;
+      border-radius: 26px;
+      padding: 18px 26px;
+      max-width: 520px;
+      font-size: 23px;
+      font-weight: 800;
+      color: var(--text-dark);
+      line-height: 1.45;
+      box-shadow: var(--shadow-soft);
+      text-align: left;
+    }
+    .speech-bubble::before {
+      content: "";
+      position: absolute;
+      left: -20px;
+      top: 50%;
+      transform: translateY(-50%);
+      border-width: 12px 20px 12px 0;
+      border-style: solid;
+      border-color: transparent #7dd3fc transparent transparent;
+    }
+
+    .home-icons-row {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 14px;
+      width: 100%;
+      max-width: 1060px;
+    }
+
+    .home-icon-card {
+      background: rgba(255, 255, 255, 0.92);
+      border: 3px solid #bae6fd;
+      border-radius: 20px;
+      padding: 10px 8px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 6px;
+      box-shadow: 0 5px 12px rgba(30, 58, 95, 0.08);
+    }
+    .home-icon-card .icon-svg {
+      width: 66px;
+      height: 66px;
+    }
+    .home-icon-card .icon-label {
+      font-size: 16px;
+      font-weight: 800;
+      color: var(--text-dark);
+    }
+
+    .home-actions {
+      display: flex;
+      gap: 20px;
+      justify-content: center;
+      margin-top: 4px;
+    }
+
+    /* ==========================================================================
+       7. MÀN HÌNH CHỌN BÀI LUYỆN TẬP (PRACTICE MENU)
+       ========================================================================== */
+    .menu-container {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      padding: 20px 28px;
+    }
+
+    .section-heading {
+      text-align: center;
+      font-size: 30px;
+      font-weight: 900;
+      color: #0369a1;
+      margin-bottom: 10px;
+    }
+
+    .menu-grid {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 16px;
+      flex: 1;
+      align-items: stretch;
+      margin: 10px 0 18px;
+    }
+
+    .lesson-card {
+      background: #ffffff;
+      border: 3px solid #93c5fd;
+      border-radius: 22px;
+      padding: 16px 12px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: space-between;
+      text-align: center;
+      cursor: pointer;
+      transition: transform 0.18s, border-color 0.18s, box-shadow 0.18s;
+      box-shadow: 0 6px 14px rgba(30, 58, 95, 0.08);
+    }
+    .lesson-card:hover {
+      transform: translateY(-5px);
+      border-color: var(--pink-main);
+      box-shadow: 0 12px 22px rgba(236, 72, 153, 0.16);
+    }
+    .lesson-card.completed {
+      border-color: var(--green-main);
+      background: #f0fdf4;
+    }
+
+    .lesson-num {
+      background: var(--blue-soft);
+      color: var(--blue-main);
+      font-size: 15px;
+      font-weight: 800;
+      padding: 4px 12px;
+      border-radius: var(--radius-pill);
+    }
+    .lesson-card.completed .lesson-num {
+      background: var(--green-soft);
+      color: #15803d;
+    }
+
+    .lesson-title {
+      font-size: 19px;
+      font-weight: 900;
+      color: var(--text-dark);
+    }
+
+    .lesson-game-name {
+      font-size: 15px;
+      font-weight: 700;
+      color: var(--text-mid);
+    }
+
+    .lesson-status {
+      font-size: 14px;
+      font-weight: 800;
+      padding: 5px 10px;
+      border-radius: var(--radius-pill);
+      background: #f1f5f9;
+      color: #64748b;
+    }
+    .lesson-card.completed .lesson-status {
+      background: #bbf7d0;
+      color: #166534;
+    }
+
+    .menu-footer {
+      display: flex;
+      justify-content: center;
+      gap: 18px;
+    }
+
+    /* ==========================================================================
+       8. GIAI ĐOẠN 1: HỌC VÀ QUAN SÁT (LEARN PHASE)
+       ========================================================================== */
+    .learn-card {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      padding: 20px 30px;
+    }
+
+    .phase-tag {
+      display: inline-block;
+      background: var(--purple-soft);
+      color: #6d28d9;
+      font-size: 16px;
+      font-weight: 800;
+      padding: 5px 16px;
+      border-radius: var(--radius-pill);
+      border: 2px solid #c4b5fd;
+    }
+
+    .learn-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-bottom: 2px dashed #bae6fd;
+      padding-bottom: 12px;
+    }
+
+    .learn-title {
+      font-size: 32px;
+      font-weight: 900;
+      color: #0369a1;
+    }
+
+    .learn-body {
+      flex: 1;
+      display: grid;
+      grid-template-columns: 1.05fr 1.15fr;
+      gap: 26px;
+      align-items: center;
+      padding: 14px 0;
+    }
+
+    .learn-text-panel {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    .instruction-box {
+      background: var(--yellow-soft);
+      border: 3px solid #fcd34d;
+      border-radius: 22px;
+      padding: 20px 22px;
+    }
+    .instruction-box h3 {
+      font-size: 20px;
+      font-weight: 800;
+      color: #b45309;
+      margin-bottom: 8px;
+    }
+    .instruction-box p {
+      font-size: 25px;
+      font-weight: 800;
+      color: var(--text-dark);
+      line-height: 1.45;
+    }
+
+    .mascot-tip {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      background: var(--blue-soft);
+      border: 3px solid #93c5fd;
+      border-radius: 20px;
+      padding: 12px 16px;
+    }
+    .mascot-tip-avatar {
+      width: 68px;
+      height: 68px;
+      flex-shrink: 0;
+    }
+    .mascot-tip-text {
+      font-size: 18px;
+      font-weight: 700;
+      color: var(--text-dark);
+      line-height: 1.4;
+    }
+
+    .learn-demo-panel {
+      background: linear-gradient(180deg, #f0f9ff, #e0f2fe);
+      border: 4px solid #7dd3fc;
+      border-radius: 24px;
+      height: 100%;
+      min-height: 310px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 14px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .demo-caption {
+      margin-top: 10px;
+      background: #ffffff;
+      border: 3px solid #f472b6;
+      color: #be185d;
+      font-size: 22px;
+      font-weight: 900;
+      padding: 7px 20px;
+      border-radius: var(--radius-pill);
+      box-shadow: 0 4px 10px rgba(236, 72, 153, 0.14);
+    }
+
+    .learn-footer {
+      display: flex;
+      justify-content: center;
+      gap: 20px;
+      padding-top: 8px;
+    }
+
+    /* Hoạt ảnh minh họa chuột máy tính trong Giai đoạn 1 */
+    .anim-mouse-move {
+      animation: demoMouseMove 4s ease-in-out infinite;
+    }
+    @keyframes demoMouseMove {
+      0%, 100% { transform: translate(0px, 0px); }
+      25% { transform: translate(36px, -16px); }
+      50% { transform: translate(-28px, -22px); }
+      75% { transform: translate(22px, 14px); }
+    }
+
+    .anim-cursor-move {
+      animation: demoCursorMove 4s ease-in-out infinite;
+    }
+    @keyframes demoCursorMove {
+      0%, 100% { transform: translate(0px, 0px); }
+      25% { transform: translate(42px, -18px); }
+      50% { transform: translate(-34px, -26px); }
+      75% { transform: translate(26px, 16px); }
+    }
+
+    .anim-left-click {
+      animation: demoSingleClick 2.2s ease-in-out infinite;
+    }
+    @keyframes demoSingleClick {
+      0%, 25%, 100% { fill: #fb7185; transform: translateY(0); }
+      40%, 55% { fill: #e11d48; transform: translateY(3px); }
+    }
+    .anim-click-ring {
+      transform-origin: center;
+      animation: demoClickRing 2.2s ease-in-out infinite;
+    }
+    @keyframes demoClickRing {
+      0%, 35% { opacity: 0; transform: scale(0.4); }
+      45% { opacity: 1; transform: scale(1); }
+      75%, 100% { opacity: 0; transform: scale(1.7); }
+    }
+
+    .anim-right-click {
+      animation: demoRightClick 2.2s ease-in-out infinite;
+    }
+    @keyframes demoRightClick {
+      0%, 25%, 100% { fill: #60a5fa; transform: translateY(0); }
+      40%, 55% { fill: #2563eb; transform: translateY(3px); }
+    }
+
+    .anim-double-click {
+      animation: demoDoubleClick 2.8s ease-in-out infinite;
+    }
+    @keyframes demoDoubleClick {
+      0%, 18%, 35%, 55%, 100% { fill: #fb7185; transform: translateY(0); }
+      24%, 30% { fill: #e11d48; transform: translateY(3px); }
+      42%, 48% { fill: #e11d48; transform: translateY(3px); }
+    }
+    .anim-num-1 {
+      animation: demoNum1 2.8s ease-in-out infinite;
+    }
+    @keyframes demoNum1 {
+      0%, 18% { opacity: 0; transform: scale(0.5); }
+      24%, 68% { opacity: 1; transform: scale(1); }
+      82%, 100% { opacity: 0; transform: scale(0.8); }
+    }
+    .anim-num-2 {
+      animation: demoNum2 2.8s ease-in-out infinite;
+    }
+    @keyframes demoNum2 {
+      0%, 36% { opacity: 0; transform: scale(0.5); }
+      42%, 78% { opacity: 1; transform: scale(1); }
+      90%, 100% { opacity: 0; transform: scale(0.8); }
+    }
+
+    /* Hoạt ảnh 3 bước kéo thả */
+    .drag-demo-steps {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 10px;
+      width: 100%;
+      justify-content: center;
+    }
+    .drag-step-pill {
+      padding: 6px 12px;
+      border-radius: 14px;
+      font-size: 14px;
+      font-weight: 800;
+      background: #ffffff;
+      border: 2px solid #cbd5e1;
+      color: #64748b;
+      transition: all 0.25s;
+    }
+    .drag-step-pill.lit {
+      background: #fef08a;
+      border-color: #eab308;
+      color: #854d0e;
+      transform: scale(1.06);
+    }
+
+    /* ==========================================================================
+       9. GIAI ĐOẠN 2: THỰC HÀNH (PRACTICE PHASE)
+       ========================================================================== */
+    .practice-wrapper {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      height: 100%;
+    }
+
+    .practice-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 10px 20px;
+      background: rgba(255, 255, 255, 0.94);
+      border-radius: 20px;
+      border: 3px solid #bae6fd;
+      box-shadow: 0 4px 12px rgba(30, 58, 95, 0.08);
+    }
+
+    .practice-task-info {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+
+    .practice-instruction {
+      font-size: 20px;
+      font-weight: 800;
+      color: var(--text-dark);
+    }
+
+    .practice-counter {
+      background: var(--green-soft);
+      border: 2px solid var(--green-main);
+      color: #15803d;
+      font-size: 20px;
+      font-weight: 900;
+      padding: 6px 18px;
+      border-radius: var(--radius-pill);
+      white-space: nowrap;
+    }
+
+    .practice-arena {
+      position: relative;
+      flex: 1;
+      border-radius: 26px;
+      border: 4px solid #ffffff;
+      box-shadow: var(--shadow-soft);
+      overflow: hidden;
+      background: linear-gradient(180deg, #d8f3ff 0%, #eefbff 58%, #b9f3c6 58%, #8be2a3 100%);
+    }
+
+    /* Các đối tượng trong từng thử thách */
+    .game-item {
+      position: absolute;
+      cursor: pointer;
+      transition: transform 0.18s ease, opacity 0.25s ease;
+    }
+
+    /* Thử thách 1: Ngôi sao */
+    .star-item {
+      width: 96px;
+      height: 96px;
+      animation: starPulse 2.4s ease-in-out infinite;
+    }
+    .star-item:hover {
+      transform: scale(1.18);
+    }
+    .star-item.collected {
+      pointer-events: none;
+      transform: scale(1.5) rotate(35deg);
+      opacity: 0;
+    }
+    @keyframes starPulse {
+      0%, 100% { transform: scale(1) rotate(-4deg); }
+      50% { transform: scale(1.08) rotate(4deg); }
+    }
+
+    /* Thử thách 2: Bóng bay */
+    .balloon-item {
+      width: 100px;
+      height: 135px;
+      animation: balloonFloat 3.2s ease-in-out infinite;
+    }
+    .balloon-item:hover {
+      transform: scale(1.08);
+    }
+    .balloon-item.popped {
+      pointer-events: none;
+      animation: popOut 0.3s ease forwards;
+    }
+    @keyframes balloonFloat {
+      0%, 100% { transform: translateY(0px); }
+      50% { transform: translateY(-12px); }
+    }
+    @keyframes popOut {
+      0% { transform: scale(1); opacity: 1; }
+      50% { transform: scale(1.35); opacity: 0.7; }
+      100% { transform: scale(0.2); opacity: 0; }
+    }
+
+    /* Thử thách 3: Rương kho báu */
+    .chest-item {
+      width: 132px;
+      height: 122px;
+    }
+    .chest-item:hover:not(.opened) {
+      transform: scale(1.07);
+    }
+    .chest-item.opened {
+      cursor: default;
+    }
+    .chest-item.shake {
+      animation: gentleShake 0.4s ease;
+    }
+
+    /* Thử thách 4: Trứng & Gà con */
+    .egg-item {
+      width: 118px;
+      height: 136px;
+    }
+    .egg-item:hover:not(.hatched) {
+      transform: scale(1.07);
+    }
+    .egg-item.hatched {
+      cursor: default;
+    }
+    .egg-item.wobble {
+      animation: gentleShake 0.42s ease;
+    }
+
+    @keyframes gentleShake {
+      0%, 100% { transform: rotate(0deg); }
+      25% { transform: rotate(-8deg); }
+      50% { transform: rotate(8deg); }
+      75% { transform: rotate(-5deg); }
+    }
+
+    /* Thử thách 5: Trái cây & Giỏ */
+    .fruit-item {
+      width: 92px;
+      height: 92px;
+      cursor: grab;
+      z-index: 20;
+      touch-action: none;
+    }
+    .fruit-item.dragging {
+      cursor: grabbing;
+      transform: scale(1.16);
+      z-index: 60;
+      transition: none;
+      filter: drop-shadow(0 12px 14px rgba(0,0,0,0.22));
+    }
+    .fruit-item.in-basket {
+      pointer-events: none;
+      cursor: default;
+      z-index: 15;
+      transition: left 0.25s ease, top 0.25s ease, transform 0.25s ease;
+    }
+
+    .basket-zone {
+      position: absolute;
+      right: 46px;
+      bottom: 24px;
+      width: 245px;
+      height: 175px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: flex-end;
+      z-index: 10;
+      transition: transform 0.2s;
+    }
+    .basket-zone.highlight {
+      transform: scale(1.07);
+      filter: drop-shadow(0 0 14px rgba(250, 204, 21, 0.9));
+    }
+    .basket-label {
+      position: absolute;
+      bottom: -4px;
+      background: #fef3c7;
+      border: 2px solid #f59e0b;
+      color: #b45309;
+      font-size: 16px;
+      font-weight: 800;
+      padding: 3px 14px;
+      border-radius: var(--radius-pill);
+    }
+
+    /* Lớp phản hồi trực quan (Banner khen ngợi / Nhắc nhở nhẹ nhàng) */
+    .feedback-toast {
+      position: absolute;
+      top: 14px;
+      left: 50%;
+      transform: translateX(-50%) translateY(-20px);
+      z-index: 80;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 10px 22px;
+      border-radius: var(--radius-pill);
+      font-size: 21px;
+      font-weight: 800;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.22s, transform 0.22s;
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+      white-space: nowrap;
+    }
+    .feedback-toast.show {
+      opacity: 1;
+      transform: translateX(-50%) translateY(0);
+    }
+    .feedback-toast.success {
+      background: #dcfce7;
+      border: 3px solid #22c55e;
+      color: #15803d;
+    }
+    .feedback-toast.hint {
+      background: #fef3c7;
+      border: 3px solid #f59e0b;
+      color: #b45309;
+    }
+
+    /* Hộp hỗ trợ mini khi học sinh thao tác nhầm */
+    .mini-help-box {
+      position: absolute;
+      left: 16px;
+      bottom: 16px;
+      z-index: 75;
+      display: none;
+      align-items: center;
+      gap: 12px;
+      background: rgba(255, 255, 255, 0.96);
+      border: 3px solid #fbbf24;
+      border-radius: 20px;
+      padding: 10px 16px;
+      box-shadow: 0 8px 18px rgba(30, 58, 95, 0.16);
+      max-width: 440px;
+    }
+    .mini-help-box.show {
+      display: flex;
+      animation: fadeInScreen 0.25s ease;
+    }
+    .mini-help-text {
+      font-size: 16px;
+      font-weight: 800;
+      color: var(--text-dark);
+      line-height: 1.35;
+    }
+
+    /* Thanh hoàn thành thực hành */
+    .practice-complete-overlay {
+      position: absolute;
+      inset: 0;
+      z-index: 90;
+      background: rgba(255, 255, 255, 0.84);
+      display: none;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 16px;
+      text-align: center;
+      animation: fadeInScreen 0.3s ease;
+    }
+    .practice-complete-overlay.show {
+      display: flex;
+    }
+    .complete-title {
+      font-size: 34px;
+      font-weight: 900;
+      color: #15803d;
+    }
+    .complete-sub {
+      font-size: 22px;
+      font-weight: 700;
+      color: var(--text-dark);
+    }
+
+    /* Hiệu ứng pháo giấy / ngôi sao nhẹ nhàng (tối ưu hiệu năng) */
+    .burst-particle {
+      position: absolute;
+      pointer-events: none;
+      z-index: 85;
+      font-size: 24px;
+      animation: particleFly 0.8s ease-out forwards;
+    }
+    @keyframes particleFly {
+      0% { opacity: 1; transform: translate(0, 0) scale(0.7); }
+      100% { opacity: 0; transform: translate(var(--dx), var(--dy)) scale(1.25); }
+    }
+
+    /* ==========================================================================
+       10. GIAI ĐOẠN 3 (GHI NHỚ) & PHẦN CỦNG CỐ CUỐI TRÒ CHƠI (QUIZ)
+       ========================================================================== */
+    .quiz-card {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      padding: 22px 32px;
+    }
+
+    .quiz-top {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .quiz-progress-badge {
+      background: var(--pink-soft);
+      color: #be185d;
+      border: 2px solid #f9a8d4;
+      font-size: 18px;
+      font-weight: 800;
+      padding: 6px 18px;
+      border-radius: var(--radius-pill);
+    }
+
+    .quiz-body {
+      flex: 1;
+      display: grid;
+      grid-template-columns: 0.85fr 1.35fr;
+      gap: 28px;
+      align-items: center;
+      padding: 14px 0;
+    }
+
+    .quiz-visual-box {
+      background: linear-gradient(180deg, #f0f9ff, #e0f2fe);
+      border: 4px solid #7dd3fc;
+      border-radius: 24px;
+      height: 100%;
+      min-height: 280px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 16px;
+    }
+
+    .quiz-question-col {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    .quiz-question-text {
+      font-size: 26px;
+      font-weight: 900;
+      color: var(--text-dark);
+      line-height: 1.4;
+      background: var(--yellow-soft);
+      border: 3px solid #fcd34d;
+      border-radius: 20px;
+      padding: 16px 22px;
+    }
+
+    .quiz-options {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .quiz-opt-btn {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      width: 100%;
+      padding: 14px 20px;
+      background: #ffffff;
+      border: 3px solid #93c5fd;
+      border-radius: 18px;
+      font-family: var(--font-main);
+      font-size: 22px;
+      font-weight: 800;
+      color: var(--text-dark);
+      cursor: pointer;
+      text-align: left;
+      transition: all 0.16s;
+      box-shadow: 0 4px 0 #cbd5e1;
+    }
+    .quiz-opt-btn:hover:not(:disabled) {
+      background: #eff6ff;
+      border-color: var(--blue-main);
+      transform: translateX(4px);
+    }
+    .quiz-opt-btn .opt-letter {
+      width: 38px;
+      height: 38px;
+      border-radius: 50%;
+      background: var(--blue-soft);
+      color: var(--blue-main);
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 19px;
+      font-weight: 900;
+      flex-shrink: 0;
+    }
+    .quiz-opt-btn.correct {
+      background: #dcfce7;
+      border-color: #22c55e;
+      color: #15803d;
+      box-shadow: 0 4px 0 #86efac;
+    }
+    .quiz-opt-btn.correct .opt-letter {
+      background: #22c55e;
+      color: #fff;
+    }
+    .quiz-opt-btn.wrong {
+      background: #fef3c7;
+      border-color: #f59e0b;
+      color: #b45309;
+      animation: gentleShake 0.35s ease;
+    }
+
+    .quiz-feedback-bar {
+      min-height: 54px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+    }
+
+    .quiz-feedback-msg {
+      font-size: 21px;
+      font-weight: 800;
+      padding: 8px 18px;
+      border-radius: var(--radius-pill);
+      display: none;
+    }
+    .quiz-feedback-msg.show { display: inline-flex; align-items: center; gap: 8px; }
+    .quiz-feedback-msg.ok { background: #dcfce7; color: #15803d; border: 2px solid #22c55e; }
+    .quiz-feedback-msg.retry { background: #fef3c7; color: #b45309; border: 2px solid #f59e0b; }
+
+    /* ==========================================================================
+       11. MÀN HÌNH TỔNG KẾT (SUMMARY SCREEN)
+       ========================================================================== */
+    .summary-card {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      padding: 18px 28px;
+    }
+
+    .summary-header {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 22px;
+      background: linear-gradient(135deg, #fef9c3, #fce7f3);
+      border: 3px solid #fcd34d;
+      border-radius: 22px;
+      padding: 12px 24px;
+    }
+
+    .summary-title {
+      font-size: 30px;
+      font-weight: 900;
+      color: #b45309;
+    }
+    .summary-sub {
+      font-size: 19px;
+      font-weight: 700;
+      color: var(--text-dark);
+      margin-top: 4px;
+    }
+
+    .summary-stats-row {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 14px;
+      margin: 12px 0;
+    }
+
+    .stat-box {
+      background: #f8fafc;
+      border: 3px solid #bae6fd;
+      border-radius: 18px;
+      padding: 10px 14px;
+      text-align: center;
+    }
+    .stat-value {
+      font-size: 28px;
+      font-weight: 900;
+      color: #0369a1;
+    }
+    .stat-label {
+      font-size: 15px;
+      font-weight: 700;
+      color: var(--text-mid);
+    }
+
+    .result-table {
+      width: 100%;
+      border-collapse: collapse;
+      border-radius: 16px;
+      overflow: hidden;
+      border: 2px solid #bae6fd;
+    }
+    .result-table th {
+      background: #e0f2fe;
+      color: #0369a1;
+      font-size: 17px;
+      font-weight: 800;
+      padding: 9px 14px;
+      text-align: left;
+    }
+    .result-table td {
+      background: #ffffff;
+      border-top: 2px solid #e2e8f0;
+      font-size: 17px;
+      font-weight: 700;
+      padding: 8px 14px;
+    }
+    .status-badge-ok {
+      display: inline-block;
+      background: #dcfce7;
+      color: #15803d;
+      padding: 3px 12px;
+      border-radius: var(--radius-pill);
+      font-weight: 800;
+    }
+    .status-badge-pending {
+      display: inline-block;
+      background: #fef3c7;
+      color: #b45309;
+      padding: 3px 12px;
+      border-radius: var(--radius-pill);
+      font-weight: 800;
+    }
+
+    .summary-actions {
+      display: flex;
+      justify-content: center;
+      flex-wrap: wrap;
+      gap: 14px;
+      margin-top: 12px;
+    }
+
+    /* ==========================================================================
+       12. MÀN HÌNH ÔN LẠI 5 THAO TÁC (REVIEW ALL SCREEN)
+       ========================================================================== */
+    .review-card {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      padding: 18px 24px;
+    }
+
+    .review-grid {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 14px;
+      flex: 1;
+      margin: 10px 0 14px;
+    }
+
+    .review-item {
+      background: #ffffff;
+      border: 3px solid #93c5fd;
+      border-radius: 20px;
+      padding: 12px 10px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: space-between;
+      text-align: center;
+      box-shadow: 0 5px 12px rgba(30, 58, 95, 0.08);
+    }
+    .review-item-title {
+      font-size: 18px;
+      font-weight: 900;
+      color: #be185d;
+      background: var(--pink-soft);
+      padding: 5px 10px;
+      border-radius: 12px;
+      width: 100%;
+    }
+    .review-item-svg {
+      width: 120px;
+      height: 120px;
+      margin: 6px 0;
+    }
+    .review-item-desc {
+      font-size: 15px;
+      font-weight: 700;
+      color: var(--text-dark);
+      line-height: 1.4;
+      background: #f8fafc;
+      padding: 8px;
+      border-radius: 12px;
+      width: 100%;
+    }
+
+    /* Đáp ứng màn hình nhỏ hơn 1200px */
+    @media (max-width: 1180px) {
+      .step-pill span.step-label { display: none; }
+      .game-title-main { font-size: 28px; }
+      .home-icons-row, .menu-grid, .review-grid { gap: 10px; }
+    }
+  </style>
+</head>
+<body>
+  <div id="app">
+    <!-- ======================================================================
+         PHÔNG NỀN THIÊN NHIÊN: CẦU VỒNG, MÂY, ĐỒI CỎ, CÂY HOA
+         ====================================================================== -->
+    <div class="scenery-bg" aria-hidden="true">
+      <!-- Cầu vồng pastel -->
+      <svg style="position:absolute; top:2%; right:4%; width:360px; opacity:0.55;" viewBox="0 0 360 180">
+        <path d="M20,180 A160,160 0 0,1 340,180" fill="none" stroke="#fda4af" stroke-width="14"/>
+        <path d="M34,180 A146,146 0 0,1 326,180" fill="none" stroke="#fde047" stroke-width="14"/>
+        <path d="M48,180 A132,132 0 0,1 312,180" fill="none" stroke="#86efac" stroke-width="14"/>
+        <path d="M62,180 A118,118 0 0,1 298,180" fill="none" stroke="#93c5fd" stroke-width="14"/>
+      </svg>
+      <!-- Mây trôi -->
+      <svg class="cloud c1" viewBox="0 0 160 80">
+        <path d="M30,65 Q10,65 10,48 Q10,32 28,30 Q36,12 58,14 Q76,6 92,20 Q114,16 124,34 Q146,36 146,52 Q146,65 128,65 Z" fill="#ffffff"/>
+      </svg>
+      <svg class="cloud c2" viewBox="0 0 160 80">
+        <path d="M30,65 Q10,65 10,48 Q10,32 28,30 Q36,12 58,14 Q76,6 92,20 Q114,16 124,34 Q146,36 146,52 Q146,65 128,65 Z" fill="#ffffff"/>
+      </svg>
+      <svg class="cloud c3" viewBox="0 0 160 80">
+        <path d="M30,65 Q10,65 10,48 Q10,32 28,30 Q36,12 58,14 Q76,6 92,20 Q114,16 124,34 Q146,36 146,52 Q146,65 128,65 Z" fill="#ffffff"/>
+      </svg>
+      <!-- Đồi cỏ và cây cối dưới chân màn hình -->
+      <svg style="position:absolute; bottom:0; left:0; width:100%; height:40%;" viewBox="0 0 1440 320" preserveAspectRatio="none">
+        <path d="M0,120 Q360,30 720,110 T1440,90 L1440,320 L0,320 Z" fill="#a7f3d0"/>
+        <path d="M0,180 Q420,100 840,175 T1440,150 L1440,320 L0,320 Z" fill="#86efac"/>
+      </svg>
+    </div>
+
+    <!-- ======================================================================
+         THANH ĐIỀU HƯỚNG & TIẾN TRÌNH TRÊN CÙNG
+         ====================================================================== -->
+    <header id="topBar" class="top-bar hidden">
+      <div class="top-left">
+        <button class="btn-home-mini" id="btnTopHome" title="Về trang chủ">
+          <span>🏠</span> Trang chủ
+        </button>
+        <div class="current-action-badge" id="topActionTitle">Di chuyển chuột</div>
+      </div>
+
+      <!-- Thanh tiến trình 5 thử thách -->
+      <nav class="progress-steps" id="progressSteps" aria-label="Tiến trình 5 thử thách"></nav>
+
+      <!-- Bộ đếm ngôi sao thưởng -->
+      <div class="star-counter" title="Ngôi sao thưởng">
+        <span>⭐</span> <span id="starCountDisplay">0</span>
+      </div>
+    </header>
+
+    <!-- ======================================================================
+         KHU VỰC HIỂN THỊ CÁC MÀN HÌNH
+         ====================================================================== -->
+    <main class="main-stage">
+
+      <!-- 1. MÀN HÌNH BẮT ĐẦU -->
+      <section id="screen-home" class="screen active">
+        <div class="home-layout">
+          <div class="game-title-box">
+            <div class="game-title-main">BÉ CÙNG CHUỘT NHÍ</div>
+            <div class="game-title-sub">KHÁM PHÁ 5 THAO TÁC VỚI CHUỘT</div>
+          </div>
+
+          <div class="home-hero">
+            <div class="mascot-wrap" id="homeMascot"></div>
+            <div class="speech-bubble">
+              “Chào bạn! Hãy cùng mình học cách sử dụng chuột máy tính nhé!”
+            </div>
+          </div>
+
+          <div class="home-icons-row" id="homeIconsRow"></div>
+
+          <div class="home-actions">
+            <button class="btn btn-green" id="btnStartGame">▶ Bắt đầu</button>
+            <button class="btn btn-blue" id="btnOpenMenu">📚 Chọn bài luyện tập</button>
+          </div>
+        </div>
+      </section>
+
+      <!-- 2. MÀN HÌNH CHỌN BÀI LUYỆN TẬP -->
+      <section id="screen-menu" class="screen">
+        <div class="card menu-container">
+          <h2 class="section-heading">Chọn bài luyện tập cùng Chuột Nhí</h2>
+          <div class="menu-grid" id="practiceMenuGrid"></div>
+          <div class="menu-footer">
+            <button class="btn btn-purple btn-sm" id="btnMenuReview">📖 Ôn lại 5 thao tác</button>
+            <button class="btn btn-amber btn-sm" id="btnMenuQuiz">❓ Làm 5 câu củng cố</button>
+            <button class="btn btn-blue btn-sm" id="btnMenuHome">🏠 Về trang chủ</button>
+          </div>
+        </div>
+      </section>
+
+      <!-- 3. GIAI ĐOẠN 1: HỌC VÀ QUAN SÁT -->
+      <section id="screen-learn" class="screen">
+        <div class="card learn-card">
+          <div class="learn-header">
+            <div class="learn-title" id="learnTitle">Thử thách 1: Di chuyển chuột</div>
+            <span class="phase-tag">Giai đoạn 1: Học và quan sát</span>
+          </div>
+
+          <div class="learn-body">
+            <div class="learn-text-panel">
+              <div class="instruction-box">
+                <h3>Cách thực hiện:</h3>
+                <p id="learnDescription"></p>
+              </div>
+              <div class="mascot-tip">
+                <div class="mascot-tip-avatar" id="learnMascot"></div>
+                <div class="mascot-tip-text" id="learnTipText">
+                  Bạn hãy quan sát kỹ hình chuột máy tính bên cạnh rồi bấm nút “Thực hành” nhé!
+                </div>
+              </div>
+            </div>
+
+            <div class="learn-demo-panel">
+              <div id="learnDemoContainer" style="width:100%; display:flex; flex-direction:column; align-items:center; justify-content:center;"></div>
+              <div class="demo-caption" id="learnDemoCaption">Không nhấn nút chuột</div>
+            </div>
+          </div>
+
+          <div class="learn-footer">
+            <button class="btn btn-amber" id="btnReplayDemo">🔄 Xem lại cách làm</button>
+            <button class="btn btn-green" id="btnGoPractice">🎮 Thực hành</button>
+          </div>
+        </div>
+      </section>
+
+      <!-- 4. GIAI ĐOẠN 2: THỰC HÀNH -->
+      <section id="screen-practice" class="screen">
+        <div class="practice-wrapper">
+          <div class="practice-header">
+            <div class="practice-task-info">
+              <span class="phase-tag" style="background:#dcfce7; color:#15803d; border-color:#86efac;">Giai đoạn 2: Thực hành</span>
+              <span class="practice-instruction" id="practiceInstruction"></span>
+            </div>
+            <div style="display:flex; align-items:center; gap:10px;">
+              <button class="btn-home-mini" id="btnBackToLearn" title="Xem lại hướng dẫn">💡 Xem cách làm</button>
+              <div class="practice-counter" id="practiceCounter">0 / 5</div>
+            </div>
+          </div>
+
+          <div class="practice-arena" id="practiceArena">
+            <!-- Thông báo khen / nhắc -->
+            <div class="feedback-toast" id="practiceToast"></div>
+            <!-- Hộp hỗ trợ mini khi làm sai -->
+            <div class="mini-help-box" id="miniHelpBox">
+              <div id="miniHelpSvg" style="width:68px; height:68px; flex-shrink:0;"></div>
+              <div class="mini-help-text" id="miniHelpText"></div>
+            </div>
+            <!-- Khu vực các đối tượng trò chơi -->
+            <div id="practiceStage" style="position:absolute; inset:0;"></div>
+            <!-- Lớp phủ khi hoàn thành 5/5 -->
+            <div class="practice-complete-overlay" id="practiceCompleteOverlay">
+              <div style="width:110px; height:110px;" id="completeMascot"></div>
+              <div class="complete-title">🎉 Tuyệt vời! Bạn đã hoàn thành phần thực hành!</div>
+              <div class="complete-sub">Bây giờ hãy trả lời 1 câu hỏi nhỏ để ghi nhớ tên thao tác nhé!</div>
+              <button class="btn btn-pink" id="btnGoMemory">➡ Sang phần Ghi nhớ</button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- 5. GIAI ĐOẠN 3 (GHI NHỚ) & CỦNG CỐ KIẾN THỨC CUỐI TRÒ CHƠI -->
+      <section id="screen-quiz" class="screen">
+        <div class="card quiz-card">
+          <div class="quiz-top">
+            <span class="phase-tag" id="quizPhaseTag">Giai đoạn 3: Ghi nhớ</span>
+            <span class="quiz-progress-badge" id="quizProgressBadge">Câu hỏi ghi nhớ</span>
+          </div>
+
+          <div class="quiz-body">
+            <div class="quiz-visual-box" id="quizVisualBox"></div>
+
+            <div class="quiz-question-col">
+              <div class="quiz-question-text" id="quizQuestionText"></div>
+              <div class="quiz-options" id="quizOptions"></div>
+            </div>
+          </div>
+
+          <div class="quiz-feedback-bar">
+            <div class="quiz-feedback-msg" id="quizFeedbackMsg"></div>
+            <button class="btn btn-green" id="btnQuizNext" style="display:none;">Tiếp theo ➡</button>
+          </div>
+        </div>
+      </section>
+
+      <!-- 6. MÀN HÌNH TỔNG KẾT -->
+      <section id="screen-summary" class="screen">
+        <div class="card summary-card">
+          <div class="summary-header">
+            <div id="summaryTrophy" style="width:86px; height:86px;"></div>
+            <div style="text-align:center;">
+              <div class="summary-title">CHÚC MỪNG BÉ ĐÃ HOÀN THÀNH!</div>
+              <div class="summary-sub">Chuột Nhí rất tự hào về bạn! Bạn đã làm quen rất giỏi với 5 thao tác chuột!</div>
+            </div>
+            <div id="summaryMascot" style="width:86px; height:86px;"></div>
+          </div>
+
+          <div class="summary-stats-row">
+            <div class="stat-box">
+              <div class="stat-value" id="statPracticeTotal">0 / 25</div>
+              <div class="stat-label">Nhiệm vụ thực hành hoàn thành</div>
+            </div>
+            <div class="stat-box">
+              <div class="stat-value" id="statQuizFirstTry">0 / 5</div>
+              <div class="stat-label">Câu củng cố đúng ngay lần đầu</div>
+            </div>
+            <div class="stat-box">
+              <div class="stat-value" id="statTotalStars">⭐ 0</div>
+              <div class="stat-label">Tổng số ngôi sao thưởng</div>
+            </div>
+          </div>
+
+          <table class="result-table">
+            <thead>
+              <tr>
+                <th>STT</th>
+                <th>Tên thao tác</th>
+                <th>Trò chơi thực hành</th>
+                <th>Kết quả</th>
+                <th>Trạng thái</th>
+              </tr>
+            </thead>
+            <tbody id="summaryTableBody"></tbody>
+          </table>
+
+          <div class="summary-actions">
+            <button class="btn btn-green btn-sm" id="btnSummaryReplay">🔄 Chơi lại</button>
+            <button class="btn btn-blue btn-sm" id="btnSummaryPractice">🎮 Luyện tập thêm</button>
+            <button class="btn btn-purple btn-sm" id="btnSummaryReview">📖 Ôn lại 5 thao tác</button>
+            <button class="btn btn-amber btn-sm" id="btnSummaryHome">🏠 Về trang chủ</button>
+          </div>
+        </div>
+      </section>
+
+      <!-- 7. MÀN HÌNH ÔN LẠI 5 THAO TÁC -->
+      <section id="screen-review" class="screen">
+        <div class="card review-card">
+          <h2 class="section-heading" style="margin-bottom:4px;">📖 Ôn lại 5 thao tác cơ bản với chuột</h2>
+          <div class="review-grid" id="reviewGrid"></div>
+          <div style="display:flex; justify-content:center; gap:16px;">
+            <button class="btn btn-blue btn-sm" id="btnReviewBack">⬅ Quay lại</button>
+            <button class="btn btn-green btn-sm" id="btnReviewHome">🏠 Về trang chủ</button>
+          </div>
+        </div>
+      </section>
+
+    </main>
+  </div>
+
+  <script>
+    /* ==========================================================================
+       PHẦN 1: DỮ LIỆU 5 THỬ THÁCH & CÂU HỎI CỦNG CỐ
+       ========================================================================== */
+    const PRAISES = ["Giỏi quá!", "Chính xác!", "Bạn làm rất tốt!"];
+
+    const CHALLENGES = [
+      {
+        id: 0,
+        key: "move",
+        name: "Di chuyển chuột",
+        shortName: "Di chuyển",
+        gameTitle: "Thu thập ngôi sao",
+        howTo: "Di chuyển chuột trên mặt phẳng để con trỏ chuột di chuyển trên màn hình.",
+        caption: "Di chuyển chuột – Không nhấn nút",
+        tip: "Đặt nhẹ tay lên chuột và di chuyển chuột trên bàn, không cần bấm nút nào nhé!",
+        practiceDesc: "Di chuyển con trỏ chuột chạm vào 5 ngôi sao trong khu vườn (không cần nhấn nút).",
+        memoryQ: "Di chuyển chuột trên mặt phẳng để con trỏ di chuyển trên màn hình là thao tác nào?",
+        memoryOptions: ["Di chuyển chuột", "Nháy chuột", "Kéo thả chuột"],
+        hintText: "Chỉ cần di chuyển con trỏ chạm vào ngôi sao, không cần nhấn nút chuột nhé!"
+      },
+      {
+        id: 1,
+        key: "click",
+        name: "Nháy chuột",
+        shortName: "Nháy chuột",
+        gameTitle: "Làm nổ bóng bay",
+        howTo: "Nhấn nút trái chuột một lần rồi thả tay.",
+        caption: "Nút trái – 1 lần",
+        tip: "Dùng ngón trỏ nhấn nhẹ vào nút bên trái của chuột một lần rồi thả ra nhé!",
+        practiceDesc: "Nháy nút trái chuột 1 lần vào từng quả bóng bay để làm nổ 5 quả bóng.",
+        memoryQ: "Nhấn nút trái chuột một lần rồi thả tay là thao tác nào?",
+        memoryOptions: ["Nháy chuột", "Nháy nút phải chuột", "Nháy đúp chuột"],
+        hintText: "Bạn thử lại nhé! Hãy nhấn nút TRÁI chuột 1 lần rồi thả tay!"
+      },
+      {
+        id: 2,
+        key: "rightclick",
+        name: "Nháy nút phải chuột",
+        shortName: "Nháy phải",
+        gameTitle: "Khám phá kho báu",
+        howTo: "Nhấn nút phải chuột một lần rồi thả tay.",
+        caption: "Nút phải – 1 lần",
+        tip: "Dùng ngón giữa nhấn vào nút bên phải của chuột một lần rồi thả ra nhé!",
+        practiceDesc: "Nháy nút phải chuột vào từng chiếc rương để mở 5 rương kho báu.",
+        memoryQ: "Nhấn nút phải chuột một lần rồi thả tay là thao tác nào?",
+        memoryOptions: ["Nháy nút phải chuột", "Nháy chuột", "Kéo thả chuột"],
+        hintText: "Bạn thử lại nhé! Hãy nhấn nút PHẢI chuột 1 lần để mở rương!"
+      },
+      {
+        id: 3,
+        key: "dblclick",
+        name: "Nháy đúp chuột",
+        shortName: "Nháy đúp",
+        gameTitle: "Giúp gà con chào đời",
+        howTo: "Nhấn nhanh nút trái chuột hai lần liên tiếp.",
+        caption: "Nút trái – 2 lần liên tiếp",
+        tip: "Nhấn nút trái chuột thật nhanh 2 lần liên tiếp (tách – tách) nhé!",
+        practiceDesc: "Nháy đúp chuột (nhấn nhanh nút trái 2 lần) vào từng quả trứng để giúp 5 gà con nở.",
+        memoryQ: "Nhấn nhanh nút trái chuột hai lần liên tiếp là thao tác nào?",
+        memoryOptions: ["Nháy đúp chuột", "Nháy chuột", "Nháy nút phải chuột"],
+        hintText: "Hãy nhấn nhanh nút trái chuột hai lần nhé!"
+      },
+      {
+        id: 4,
+        key: "drag",
+        name: "Kéo thả chuột",
+        shortName: "Kéo thả",
+        gameTitle: "Bé thu hoạch trái cây",
+        howTo: "Nhấn và giữ nút trái chuột, di chuyển chuột đến vị trí cần thiết rồi thả tay.",
+        caption: "Giữ nút trái → Di chuyển → Thả tay",
+        tip: "Nhớ làm đủ 3 bước: Nhấn giữ nút trái, kéo quả vào giỏ rồi mới thả tay ra nhé!",
+        practiceDesc: "Nhấn giữ nút trái chuột, kéo từng quả trái cây vào giỏ rồi thả tay ra.",
+        memoryQ: "Nhấn giữ nút trái chuột, di chuyển chuột rồi thả tay là thao tác nào?",
+        memoryOptions: ["Kéo thả chuột", "Di chuyển chuột", "Nháy đúp chuột"],
+        hintText: "Bạn thử lại nhé! Nhấn giữ nút trái chuột, kéo quả vào trong giỏ rồi mới thả tay!"
+      }
+    ];
+
+    /* 5 câu hỏi củng cố cuối trò chơi */
+    const FINAL_QUIZ = [
+      {
+        actionKey: "move",
+        question: "Câu 1: Di chuyển chuột trên mặt phẳng để con trỏ di chuyển trên màn hình là thao tác nào?",
+        correct: "Di chuyển chuột",
+        options: ["Di chuyển chuột", "Nháy chuột", "Kéo thả chuột"]
+      },
+      {
+        actionKey: "click",
+        question: "Câu 2: Nhấn nút trái chuột một lần rồi thả tay là thao tác nào?",
+        correct: "Nháy chuột",
+        options: ["Nháy chuột", "Nháy nút phải chuột", "Nháy đúp chuột"]
+      },
+      {
+        actionKey: "rightclick",
+        question: "Câu 3: Nhấn nút phải chuột một lần rồi thả tay là thao tác nào?",
+        correct: "Nháy nút phải chuột",
+        options: ["Nháy nút phải chuột", "Nháy chuột", "Di chuyển chuột"]
+      },
+      {
+        actionKey: "dblclick",
+        question: "Câu 4: Nhấn nhanh nút trái chuột hai lần liên tiếp là thao tác nào?",
+        correct: "Nháy đúp chuột",
+        options: ["Nháy đúp chuột", "Nháy chuột", "Kéo thả chuột"]
+      },
+      {
+        actionKey: "drag",
+        question: "Câu 5: Nhấn giữ nút trái chuột, di chuyển chuột rồi thả tay là thao tác nào?",
+        correct: "Kéo thả chuột",
+        options: ["Kéo thả chuột", "Di chuyển chuột", "Nháy nút phải chuột"]
+      }
+    ];
+
+    /* ==========================================================================
+       PHẦN 2: TRẠNG THÁI TRÒ CHƠI (GAME STATE)
+       ========================================================================== */
+    const state = {
+      currentScreen: "home",
+      previousScreen: "home",
+      mode: "story", // "story" (chơi tuần tự) hoặc "single" (luyện tập 1 bài)
+      currentChallengeIdx: 0,
+      stars: 0,
+      // Theo dõi số nhiệm vụ thực hành hoàn thành của từng thử thách (tối đa 5 mỗi bài)
+      practiceScores: [0, 0, 0, 0, 0],
+      // Trạng thái hoàn thành toàn bộ thử thách (thực hành + ghi nhớ)
+      completedChallenges: [false, false, false, false, false],
+      // Trạng thái phần củng cố 5 câu
+      finalQuizIdx: 0,
+      finalQuizFirstTryCorrect: 0,
+      finalQuizHadWrongCurrent: false,
+      quizMode: "memory", // "memory" (giai đoạn 3) hoặc "final" (5 câu củng cố)
+      praiseIdx: 0,
+      dragDemoTimer: null,
+      toastTimer: null
+    };
+
+    /* ==========================================================================
+       PHẦN 3: THƯ VIỆN ĐỒ HỌA SVG HOẠT HÌNH 2D (CHUỘT NHÍ, CHUỘT MÁY TÍNH, VẬT PHẨM)
+       ========================================================================== */
+
+    /** Nhân vật Chuột Nhí dễ thương */
+    function getMascotSVG(happy = false) {
+      return `
+        <svg viewBox="0 0 180 180" width="100%" height="100%">
+          <!-- Tai chuột -->
+          <circle cx="48" cy="48" r="32" fill="#94a3b8" stroke="#475569" stroke-width="4"/>
+          <circle cx="48" cy="48" r="20" fill="#fbcfe8"/>
+          <circle cx="132" cy="48" r="32" fill="#94a3b8" stroke="#475569" stroke-width="4"/>
+          <circle cx="132" cy="48" r="20" fill="#fbcfe8"/>
+          <!-- Thân -->
+          <ellipse cx="90" cy="142" rx="44" ry="30" fill="#38bdf8" stroke="#0284c7" stroke-width="4"/>
+          <!-- Cổ áo vàng -->
+          <path d="M62,126 Q90,142 118,126" fill="none" stroke="#fde047" stroke-width="7" stroke-linecap="round"/>
+          <!-- Đầu -->
+          <ellipse cx="90" cy="88" rx="50" ry="44" fill="#cbd5e1" stroke="#475569" stroke-width="4"/>
+          <!-- Má hồng -->
+          <ellipse cx="56" cy="98" rx="9" ry="6" fill="#f9a8d4" opacity="0.8"/>
+          <ellipse cx="124" cy="98" rx="9" ry="6" fill="#f9a8d4" opacity="0.8"/>
+          <!-- Mắt -->
+          ${happy ? `
+            <path d="M64,82 Q72,72 80,82" fill="none" stroke="#1e293b" stroke-width="4.5" stroke-linecap="round"/>
+            <path d="M100,82 Q108,72 116,82" fill="none" stroke="#1e293b" stroke-width="4.5" stroke-linecap="round"/>
+          ` : `
+            <circle cx="72" cy="82" r="7.5" fill="#1e293b"/>
+            <circle cx="75" cy="79" r="2.5" fill="#ffffff"/>
+            <circle cx="108" cy="82" r="7.5" fill="#1e293b"/>
+            <circle cx="111" cy="79" r="2.5" fill="#ffffff"/>
+          `}
+          <!-- Mũi hồng & miệng cười -->
+          <ellipse cx="90" cy="95" rx="7" ry="5" fill="#f472b6"/>
+          <path d="M78,104 Q90,115 102,104" fill="none" stroke="#1e293b" stroke-width="3.5" stroke-linecap="round"/>
+          <!-- Râu -->
+          <line x1="42" y1="90" x2="22" y2="86" stroke="#475569" stroke-width="2.5" stroke-linecap="round"/>
+          <line x1="42" y1="98" x2="22" y2="102" stroke="#475569" stroke-width="2.5" stroke-linecap="round"/>
+          <line x1="138" y1="90" x2="158" y2="86" stroke="#475569" stroke-width="2.5" stroke-linecap="round"/>
+          <line x1="138" y1="98" x2="158" y2="102" stroke="#475569" stroke-width="2.5" stroke-linecap="round"/>
+          <!-- Bàn tay vẫy -->
+          <circle cx="42" cy="138" r="11" fill="#cbd5e1" stroke="#475569" stroke-width="3.5"/>
+          <circle cx="138" cy="138" r="11" fill="#cbd5e1" stroke="#475569" stroke-width="3.5"/>
+        </svg>
+      `;
+    }
+
+    /** Cúp vàng tổng kết */
+    function getTrophySVG() {
+      return `
+        <svg viewBox="0 0 120 120" width="100%" height="100%">
+          <path d="M32,26 H88 V52 C88,72 74,84 60,84 C46,84 32,72 32,52 Z" fill="#facc15" stroke="#ca8a04" stroke-width="4"/>
+          <path d="M32,34 C16,34 16,58 34,60" fill="none" stroke="#eab308" stroke-width="6" stroke-linecap="round"/>
+          <path d="M88,34 C104,34 104,58 86,60" fill="none" stroke="#eab308" stroke-width="6" stroke-linecap="round"/>
+          <rect x="52" y="84" width="16" height="16" fill="#eab308" stroke="#ca8a04" stroke-width="3"/>
+          <rect x="34" y="100" width="52" height="12" rx="6" fill="#d97706"/>
+          <polygon points="60,36 64,46 75,47 67,54 69,65 60,59 51,65 53,54 45,47 56,46" fill="#fffbeb"/>
+        </svg>
+      `;
+    }
+
+    /** Biểu tượng nhỏ gọn cho từng thao tác (dùng ở Trang chủ, Menu, Ôn tập, Hỗ trợ mini) */
+    function getMouseIconSVG(key, animated = false) {
+      if (key === "move") {
+        return `
+          <svg viewBox="0 0 140 140" width="100%" height="100%">
+            <!-- Mũi tên 4 hướng -->
+            <path d="M70,10 L62,22 H78 Z" fill="#0284c7"/>
+            <path d="M70,130 L62,118 H78 Z" fill="#0284c7"/>
+            <path d="M10,70 L22,62 V78 Z" fill="#0284c7"/>
+            <path d="M130,70 L118,62 V78 Z" fill="#0284c7"/>
+            <!-- Thân chuột -->
+            <g class="${animated ? 'anim-mouse-move' : ''}">
+              <rect x="44" y="32" width="52" height="76" rx="26" fill="#ffffff" stroke="#334155" stroke-width="4"/>
+              <line x1="44" y1="64" x2="96" y2="64" stroke="#334155" stroke-width="3"/>
+              <line x1="70" y1="32" x2="70" y2="64" stroke="#334155" stroke-width="3"/>
+              <rect x="66" y="42" width="8" height="15" rx="4" fill="#94a3b8"/>
+            </g>
+          </svg>
+        `;
+      }
+      if (key === "click") {
+        return `
+          <svg viewBox="0 0 140 140" width="100%" height="100%">
+            <rect x="38" y="24" width="64" height="92" rx="32" fill="#ffffff" stroke="#334155" stroke-width="4"/>
+            <!-- Nút trái nổi bật -->
+            <path d="M38,62 V56 A32,32 0 0,1 70,24 V62 Z" fill="#fb7185" stroke="#334155" stroke-width="3.5" class="${animated ? 'anim-left-click' : ''}"/>
+            <path d="M70,24 A32,32 0 0,1 102,56 V62 H70 Z" fill="#f1f5f9" stroke="#334155" stroke-width="3.5"/>
+            <rect x="65" y="38" width="10" height="18" rx="5" fill="#64748b"/>
+            <circle cx="52" cy="42" r="14" fill="none" stroke="#e11d48" stroke-width="3.5" class="${animated ? 'anim-click-ring' : ''}"/>
+            <text x="53" y="54" font-size="18" font-weight="900" fill="#ffffff" text-anchor="middle">1</text>
+          </svg>
+        `;
+      }
+      if (key === "rightclick") {
+        return `
+          <svg viewBox="0 0 140 140" width="100%" height="100%">
+            <rect x="38" y="24" width="64" height="92" rx="32" fill="#ffffff" stroke="#334155" stroke-width="4"/>
+            <path d="M38,62 V56 A32,32 0 0,1 70,24 V62 Z" fill="#f1f5f9" stroke="#334155" stroke-width="3.5"/>
+            <!-- Nút phải nổi bật -->
+            <path d="M70,24 A32,32 0 0,1 102,56 V62 H70 Z" fill="#60a5fa" stroke="#334155" stroke-width="3.5" class="${animated ? 'anim-right-click' : ''}"/>
+            <rect x="65" y="38" width="10" height="18" rx="5" fill="#64748b"/>
+            <circle cx="88" cy="42" r="14" fill="none" stroke="#2563eb" stroke-width="3.5" class="${animated ? 'anim-click-ring' : ''}"/>
+            <text x="87" y="54" font-size="18" font-weight="900" fill="#ffffff" text-anchor="middle">1</text>
+          </svg>
+        `;
+      }
+      if (key === "dblclick") {
+        return `
+          <svg viewBox="0 0 140 140" width="100%" height="100%">
+            <rect x="38" y="24" width="64" height="92" rx="32" fill="#ffffff" stroke="#334155" stroke-width="4"/>
+            <path d="M38,62 V56 A32,32 0 0,1 70,24 V62 Z" fill="#fb7185" stroke="#334155" stroke-width="3.5" class="${animated ? 'anim-double-click' : ''}"/>
+            <path d="M70,24 A32,32 0 0,1 102,56 V62 H70 Z" fill="#f1f5f9" stroke="#334155" stroke-width="3.5"/>
+            <rect x="65" y="38" width="10" height="18" rx="5" fill="#64748b"/>
+            <!-- Số 1 và số 2 -->
+            <g class="${animated ? 'anim-num-1' : ''}">
+              <circle cx="24" cy="36" r="14" fill="#f59e0b"/>
+              <text x="24" y="42" font-size="18" font-weight="900" fill="#ffffff" text-anchor="middle">1</text>
+            </g>
+            <g class="${animated ? 'anim-num-2' : ''}">
+              <circle cx="24" cy="70" r="14" fill="#ec4899"/>
+              <text x="24" y="76" font-size="18" font-weight="900" fill="#ffffff" text-anchor="middle">2</text>
+            </g>
+          </svg>
+        `;
+      }
+      // drag
+      return `
+        <svg viewBox="0 0 140 140" width="100%" height="100%">
+          <rect x="20" y="34" width="54" height="78" rx="27" fill="#ffffff" stroke="#334155" stroke-width="4"/>
+          <path d="M20,68 V61 A27,27 0 0,1 47,34 V68 Z" fill="#fbbf24" stroke="#334155" stroke-width="3.5"/>
+          <path d="M47,34 A27,27 0 0,1 74,61 V68 H47 Z" fill="#f1f5f9" stroke="#334155" stroke-width="3.5"/>
+          <rect x="43" y="46" width="8" height="15" rx="4" fill="#64748b"/>
+          <!-- Mũi tên kéo sang phải -->
+          <path d="M84,72 H116" stroke="#10b981" stroke-width="7" stroke-linecap="round"/>
+          <path d="M108,58 L126,72 L108,86 Z" fill="#10b981"/>
+        </svg>
+      `;
+    }
+
+    /** Hoạt ảnh minh họa lớn chi tiết cho Giai đoạn 1 (Học và quan sát) */
+    function renderLearnDemo(key) {
+      clearInterval(state.dragDemoTimer);
+      const container = document.getElementById("learnDemoContainer");
+
+      if (key === "move") {
+        container.innerHTML = `
+          <svg viewBox="0 0 460 220" width="100%" style="max-width:450px;">
+            <!-- Màn hình máy tính nhỏ bên trái -->
+            <rect x="16" y="16" width="210" height="145" rx="14" fill="#ffffff" stroke="#0284c7" stroke-width="5"/>
+            <rect x="28" y="28" width="186" height="118" rx="8" fill="#e0f2fe"/>
+            <rect x="96" y="161" width="50" height="16" fill="#0284c7"/>
+            <rect x="72" y="177" width="98" height="10" rx="5" fill="#0369a1"/>
+            <!-- Ngôi sao trang trí trên màn hình -->
+            <text x="55" y="65" font-size="22">⭐</text>
+            <text x="160" y="115" font-size="22">⭐</text>
+            <!-- Con trỏ chuột di chuyển -->
+            <g class="anim-cursor-move">
+              <polygon points="110,85 110,120 120,111 128,126 135,122 127,108 140,107" fill="#1e293b" stroke="#ffffff" stroke-width="2"/>
+            </g>
+            <!-- Mũi tên nối -->
+            <text x="242" y="102" font-size="28" font-weight="900" fill="#0284c7">↔</text>
+            <!-- Bàn di chuột bên phải -->
+            <rect x="280" y="34" width="164" height="154" rx="22" fill="#bbf7d0" stroke="#22c55e" stroke-width="4" stroke-dasharray="8 6"/>
+            <g class="anim-mouse-move">
+              <rect x="334" y="66" width="56" height="84" rx="28" fill="#ffffff" stroke="#334155" stroke-width="4"/>
+              <line x1="334" y1="100" x2="390" y2="100" stroke="#334155" stroke-width="3"/>
+              <line x1="362" y1="66" x2="362" y2="100" stroke="#334155" stroke-width="3"/>
+              <rect x="358" y="76" width="8" height="16" rx="4" fill="#94a3b8"/>
+            </g>
+          </svg>
+        `;
+      } else if (key === "click") {
+        container.innerHTML = `
+          <svg viewBox="0 0 360 220" width="100%" style="max-width:350px;">
+            <rect x="120" y="22" width="120" height="174" rx="60" fill="#ffffff" stroke="#334155" stroke-width="5"/>
+            <!-- Nút trái nổi bật -->
+            <path d="M120,96 V82 A60,60 0 0,1 180,22 V96 Z" fill="#fb7185" stroke="#334155" stroke-width="4" class="anim-left-click"/>
+            <!-- Nút phải -->
+            <path d="M180,22 A60,60 0 0,1 240,82 V96 H180 Z" fill="#f1f5f9" stroke="#334155" stroke-width="4"/>
+            <!-- Con lăn -->
+            <rect x="172" y="48" width="16" height="32" rx="8" fill="#64748b"/>
+            <!-- Vòng sóng nhấn -->
+            <circle cx="148" cy="58" r="22" fill="none" stroke="#e11d48" stroke-width="4" class="anim-click-ring"/>
+            <!-- Nhãn chỉ nút trái -->
+            <path d="M40,56 H112" stroke="#e11d48" stroke-width="4" stroke-linecap="round"/>
+            <polygon points="116,56 102,48 102,64" fill="#e11d48"/>
+            <rect x="6" y="34" width="86" height="42" rx="14" fill="#ffe4e6" stroke="#e11d48" stroke-width="3"/>
+            <text x="49" y="61" font-size="16" font-weight="900" fill="#be123c" text-anchor="middle">Nút trái</text>
+          </svg>
+        `;
+      } else if (key === "rightclick") {
+        container.innerHTML = `
+          <svg viewBox="0 0 360 220" width="100%" style="max-width:350px;">
+            <rect x="120" y="22" width="120" height="174" rx="60" fill="#ffffff" stroke="#334155" stroke-width="5"/>
+            <!-- Nút trái -->
+            <path d="M120,96 V82 A60,60 0 0,1 180,22 V96 Z" fill="#f1f5f9" stroke="#334155" stroke-width="4"/>
+            <!-- Nút phải nổi bật -->
+            <path d="M180,22 A60,60 0 0,1 240,82 V96 H180 Z" fill="#60a5fa" stroke="#334155" stroke-width="4" class="anim-right-click"/>
+            <!-- Con lăn -->
+            <rect x="172" y="48" width="16" height="32" rx="8" fill="#64748b"/>
+            <!-- Vòng sóng nhấn -->
+            <circle cx="212" cy="58" r="22" fill="none" stroke="#2563eb" stroke-width="4" class="anim-click-ring"/>
+            <!-- Nhãn chỉ nút phải -->
+            <path d="M248,56 H312" stroke="#2563eb" stroke-width="4" stroke-linecap="round"/>
+            <polygon points="244,56 258,48 258,64" fill="#2563eb"/>
+            <rect x="266" y="34" width="88" height="42" rx="14" fill="#dbeafe" stroke="#2563eb" stroke-width="3"/>
+            <text x="310" y="61" font-size="16" font-weight="900" fill="#1d4ed8" text-anchor="middle">Nút phải</text>
+          </svg>
+        `;
+      } else if (key === "dblclick") {
+        container.innerHTML = `
+          <svg viewBox="0 0 380 220" width="100%" style="max-width:370px;">
+            <rect x="140" y="22" width="120" height="174" rx="60" fill="#ffffff" stroke="#334155" stroke-width="5"/>
+            <path d="M140,96 V82 A60,60 0 0,1 200,22 V96 Z" fill="#fb7185" stroke="#334155" stroke-width="4" class="anim-double-click"/>
+            <path d="M200,22 A60,60 0 0,1 260,82 V96 H200 Z" fill="#f1f5f9" stroke="#334155" stroke-width="4"/>
+            <rect x="192" y="48" width="16" height="32" rx="8" fill="#64748b"/>
+            <!-- Số 1 -->
+            <g class="anim-num-1">
+              <circle cx="76" cy="58" r="26" fill="#f59e0b" stroke="#ffffff" stroke-width="4"/>
+              <text x="76" y="68" font-size="28" font-weight="900" fill="#ffffff" text-anchor="middle">1</text>
+            </g>
+            <!-- Số 2 -->
+            <g class="anim-num-2">
+              <circle cx="76" cy="126" r="26" fill="#ec4899" stroke="#ffffff" stroke-width="4"/>
+              <text x="76" y="136" font-size="28" font-weight="900" fill="#ffffff" text-anchor="middle">2</text>
+            </g>
+            <text x="320" y="88" font-size="18" font-weight="900" fill="#be185d" text-anchor="middle">Nhấn nhanh</text>
+            <text x="320" y="114" font-size="18" font-weight="900" fill="#be185d" text-anchor="middle">2 lần!</text>
+          </svg>
+        `;
+      } else if (key === "drag") {
+        // Hoạt ảnh 3 bước kéo thả
+        container.innerHTML = `
+          <div class="drag-demo-steps">
+            <div class="drag-step-pill lit" id="dragStep1">Bước 1: Nhấn giữ nút trái</div>
+            <div class="drag-step-pill" id="dragStep2">Bước 2: Di chuyển chuột</div>
+            <div class="drag-step-pill" id="dragStep3">Bước 3: Thả nút trái</div>
+          </div>
+          <svg viewBox="0 0 440 165" width="100%" style="max-width:430px;">
+            <!-- Đích (giỏ mini) -->
+            <rect x="310" y="54" width="100" height="78" rx="16" fill="#fef3c7" stroke="#f59e0b" stroke-width="4" stroke-dasharray="7 5"/>
+            <text x="360" y="100" font-size="16" font-weight="800" fill="#b45309" text-anchor="middle">Đích đến</text>
+            <!-- Quả táo & chuột di chuyển theo 3 bước -->
+            <g id="dragDemoGroup" style="transition: transform 1.1s ease-in-out;">
+              <circle cx="88" cy="88" r="26" fill="#ef4444" stroke="#b91c1c" stroke-width="3"/>
+              <path d="M88,62 Q94,48 104,52" fill="none" stroke="#15803d" stroke-width="4" stroke-linecap="round"/>
+              <!-- Hình chuột mini kèm theo -->
+              <rect x="64" y="100" width="46" height="58" rx="22" fill="#ffffff" stroke="#334155" stroke-width="3"/>
+              <path id="dragDemoLeftBtn" d="M64,126 V122 A22,22 0 0,1 87,100 V126 Z" fill="#f59e0b" stroke="#334155" stroke-width="2.5"/>
+              <line x1="87" y1="100" x2="87" y2="126" stroke="#334155" stroke-width="2.5"/>
+              <line x1="64" y1="126" x2="110" y2="126" stroke="#334155" stroke-width="2.5"/>
+            </g>
+          </svg>
+        `;
+        let step = 1;
+        const runStep = () => {
+          const s1 = document.getElementById("dragStep1");
+          const s2 = document.getElementById("dragStep2");
+          const s3 = document.getElementById("dragStep3");
+          const grp = document.getElementById("dragDemoGroup");
+          const btn = document.getElementById("dragDemoLeftBtn");
+          if (!s1 || !grp) return;
+
+          s1.classList.toggle("lit", step === 1);
+          s2.classList.toggle("lit", step === 2);
+          s3.classList.toggle("lit", step === 3);
+
+          if (step === 1) {
+            grp.style.transition = "none";
+            grp.style.transform = "translateX(0px)";
+            btn.setAttribute("fill", "#ef4444"); // nhấn giữ
+          } else if (step === 2) {
+            grp.style.transition = "transform 1.1s ease-in-out";
+            grp.style.transform = "translateX(272px)";
+            btn.setAttribute("fill", "#ef4444"); // vẫn giữ
+          } else {
+            grp.style.transform = "translateX(272px)";
+            btn.setAttribute("fill", "#f1f5f9"); // thả tay
+          }
+          step = step >= 3 ? 1 : step + 1;
+        };
+        runStep();
+        state.dragDemoTimer = setInterval(runStep, 1500);
+      }
+    }
+
+    /* ==========================================================================
+       PHẦN 4: ĐIỀU HƯỚNG MÀN HÌNH & CẬP NHẬT GIAO DIỆN CHUNG
+       ========================================================================== */
+    function showScreen(screenId) {
+      clearInterval(state.dragDemoTimer);
+      state.previousScreen = state.currentScreen;
+      state.currentScreen = screenId;
+
+      document.querySelectorAll(".screen").forEach(s => s.classList.remove("active"));
+      document.getElementById("screen-" + screenId).classList.add("active");
+
+      const topBar = document.getElementById("topBar");
+      if (screenId === "home") {
+        topBar.classList.add("hidden");
+      } else {
+        topBar.classList.remove("hidden");
+      }
+      renderTopBar();
+    }
+
+    function renderTopBar() {
+      document.getElementById("starCountDisplay").textContent = state.stars;
+
+      const titleBadge = document.getElementById("topActionTitle");
+      if (state.currentScreen === "menu") {
+        titleBadge.textContent = "Chọn bài luyện tập";
+      } else if (state.currentScreen === "review") {
+        titleBadge.textContent = "Ôn lại 5 thao tác";
+      } else if (state.currentScreen === "summary") {
+        titleBadge.textContent = "Tổng kết kết quả";
+      } else if (state.currentScreen === "quiz" && state.quizMode === "final") {
+        titleBadge.textContent = "Củng cố kiến thức";
+      } else {
+        titleBadge.textContent = CHALLENGES[state.currentChallengeIdx].name;
+      }
+
+      const stepsContainer = document.getElementById("progressSteps");
+      stepsContainer.innerHTML = CHALLENGES.map((c, idx) => {
+        const isDone = state.completedChallenges[idx];
+        const isActive = (state.currentScreen === "learn" || state.currentScreen === "practice" || (state.currentScreen === "quiz" && state.quizMode === "memory")) && state.currentChallengeIdx === idx;
+        return `
+          <div class="step-pill ${isDone ? 'done' : ''} ${isActive ? 'active' : ''}">
+            <span class="step-num">${isDone ? '✓' : idx + 1}</span>
+            <span class="step-label">${c.shortName}</span>
+          </div>
+        `;
+      }).join("");
+    }
+
+    function addStar(count = 1) {
+      state.stars += count;
+      document.getElementById("starCountDisplay").textContent = state.stars;
+    }
+
+    function nextPraise() {
+      const text = PRAISES[state.praiseIdx % PRAISES.length];
+      state.praiseIdx++;
+      return text;
+    }
+
+    /** Hiệu ứng ngôi sao/pháo giấy nhẹ nhàng tại tọa độ (x, y) trong khu vực chơi */
+    function spawnBurst(container, x, y) {
+      const symbols = ["⭐", "✨", "🌟", "🎉", "💛"];
+      for (let i = 0; i < 7; i++) {
+        const el = document.createElement("div");
+        el.className = "burst-particle";
+        el.textContent = symbols[i % symbols.length];
+        const angle = (Math.PI * 2 * i) / 7 + Math.random() * 0.4;
+        const dist = 42 + Math.random() * 34;
+        el.style.left = x + "px";
+        el.style.top = y + "px";
+        el.style.setProperty("--dx", Math.cos(angle) * dist + "px");
+        el.style.setProperty("--dy", Math.sin(angle) * dist + "px");
+        container.appendChild(el);
+        setTimeout(() => el.remove(), 820);
+      }
+    }
+
+    function showPracticeToast(type, message) {
+      const toast = document.getElementById("practiceToast");
+      clearTimeout(state.toastTimer);
+      toast.className = "feedback-toast show " + type;
+      toast.innerHTML = (type === "success" ? "✅ " : "💡 ") + message;
+      state.toastTimer = setTimeout(() => {
+        toast.classList.remove("show");
+      }, 2100);
+    }
+
+    function showMiniHelp(challengeKey, message) {
+      const box = document.getElementById("miniHelpBox");
+      document.getElementById("miniHelpSvg").innerHTML = getMouseIconSVG(challengeKey, true);
+      document.getElementById("miniHelpText").textContent = message;
+      box.classList.add("show");
+    }
+
+    function hideMiniHelp() {
+      document.getElementById("miniHelpBox").classList.remove("show");
+    }
+
+    /* ==========================================================================
+       PHẦN 5: KHỞI TẠO MÀN HÌNH TRANG CHỦ, MENU & ÔN TẬP
+       ========================================================================== */
+    function initStaticViews() {
+      document.getElementById("homeMascot").innerHTML = getMascotSVG(true);
+      document.getElementById("learnMascot").innerHTML = getMascotSVG(false);
+      document.getElementById("completeMascot").innerHTML = getMascotSVG(true);
+      document.getElementById("summaryMascot").innerHTML = getMascotSVG(true);
+      document.getElementById("summaryTrophy").innerHTML = getTrophySVG();
+
+      // 5 biểu tượng trên màn hình Bắt đầu
+      const homeIcons = document.getElementById("homeIconsRow");
+      homeIcons.innerHTML = CHALLENGES.map(c => `
+        <div class="home-icon-card">
+          <div class="icon-svg">${getMouseIconSVG(c.key, false)}</div>
+          <div class="icon-label">${c.name}</div>
+        </div>
+      `).join("");
+
+      // 5 thẻ trong màn hình Ôn lại 5 thao tác
+      const reviewGrid = document.getElementById("reviewGrid");
+      reviewGrid.innerHTML = CHALLENGES.map(c => `
+        <div class="review-item">
+          <div class="review-item-title">${c.name}</div>
+          <div class="review-item-svg">${getMouseIconSVG(c.key, true)}</div>
+          <div class="review-item-desc">${c.howTo}</div>
+        </div>
+      `).join("");
+    }
+
+    function renderPracticeMenu() {
+      const grid = document.getElementById("practiceMenuGrid");
+      grid.innerHTML = CHALLENGES.map((c, idx) => {
+        const done = state.completedChallenges[idx];
+        return `
+          <div class="lesson-card ${done ? 'completed' : ''}" data-idx="${idx}">
+            <span class="lesson-num">Thử thách ${idx + 1}</span>
+            <div style="width:94px; height:94px;">${getMouseIconSVG(c.key, false)}</div>
+            <div class="lesson-title">${c.name}</div>
+            <div class="lesson-game-name">🎯 ${c.gameTitle}</div>
+            <div class="lesson-status">${done ? '✅ Đã hoàn thành' : '▶ Bấm để học'}</div>
+          </div>
+        `;
+      }).join("");
+
+      grid.querySelectorAll(".lesson-card").forEach(card => {
+        card.addEventListener("click", () => {
+          const idx = Number(card.dataset.idx);
+          state.mode = "single";
+          startChallengeLearn(idx);
+        });
+      });
+    }
+
+    /* ==========================================================================
+       PHẦN 6: GIAI ĐOẠN 1 – HỌC VÀ QUAN SÁT
+       ========================================================================== */
+    function startChallengeLearn(idx) {
+      state.currentChallengeIdx = idx;
+      const c = CHALLENGES[idx];
+      document.getElementById("learnTitle").textContent = `Thử thách ${idx + 1}: ${c.name}`;
+      document.getElementById("learnDescription").textContent = c.howTo;
+      document.getElementById("learnTipText").textContent = c.tip;
+      document.getElementById("learnDemoCaption").textContent = c.caption;
+
+      showScreen("learn");
+      renderLearnDemo(c.key);
+    }
+
+    /* ==========================================================================
+       PHẦN 7: GIAI ĐOẠN 2 – THỰC HÀNH (5 TRÒ CHƠI TƯƠNG TÁC THẬT)
+       ========================================================================== */
+    function startChallengePractice(idx) {
+      state.currentChallengeIdx = idx;
+      const c = CHALLENGES[idx];
+      showScreen("practice");
+
+      document.getElementById("practiceInstruction").textContent = c.practiceDesc;
+      document.getElementById("practiceCompleteOverlay").classList.remove("show");
+      hideMiniHelp();
+
+      const stage = document.getElementById("practiceStage");
+      stage.innerHTML = "";
+
+      let doneCount = 0;
+      const updateCounter = () => {
+        document.getElementById("practiceCounter").textContent = `Hoàn thành: ${doneCount} / 5`;
+        if (doneCount > state.practiceScores[idx]) {
+          state.practiceScores[idx] = doneCount;
+        }
+        if (doneCount >= 5) {
+          setTimeout(() => {
+            document.getElementById("practiceCompleteOverlay").classList.add("show");
+          }, 550);
+        }
+      };
+      updateCounter();
+
+      // Vô hiệu hóa menu ngữ cảnh chuột phải trên toàn bộ khu vực chơi
+      const arena = document.getElementById("practiceArena");
+      arena.oncontextmenu = (e) => {
+        e.preventDefault();
+        return false;
+      };
+
+      /* ---------- THỬ THÁCH 1: DI CHUYỂN CHUỘT (THU THẬP NGÔI SAO) ---------- */
+      if (c.key === "move") {
+        const positions = [
+          { left: "11%", top: "18%" },
+          { left: "34%", top: "56%" },
+          { left: "54%", top: "16%" },
+          { left: "76%", top: "52%" },
+          { left: "84%", top: "18%" }
+        ];
+        positions.forEach((pos, i) => {
+          const el = document.createElement("div");
+          el.className = "game-item star-item";
+          el.style.left = pos.left;
+          el.style.top = pos.top;
+          el.style.animationDelay = (i * 0.35) + "s";
+          el.dataset.done = "false";
+          el.innerHTML = `
+            <svg viewBox="0 0 100 100" width="100%" height="100%">
+              <polygon points="50,6 63,35 95,38 71,59 78,91 50,74 22,91 29,59 5,38 37,35"
+                fill="#fde047" stroke="#f59e0b" stroke-width="5" stroke-linejoin="round"/>
+              <circle cx="40" cy="48" r="4" fill="#78350f"/>
+              <circle cx="60" cy="48" r="4" fill="#78350f"/>
+              <path d="M43,58 Q50,65 57,58" fill="none" stroke="#78350f" stroke-width="3.5" stroke-linecap="round"/>
+            </svg>
+          `;
+          // Chỉ cần di chuyển con trỏ chuột chạm vào (mouseenter)
+          el.addEventListener("mouseenter", () => {
+            if (el.dataset.done === "true") return;
+            el.dataset.done = "true";
+            el.classList.add("collected");
+            doneCount++;
+            addStar(1);
+            updateCounter();
+            showPracticeToast("success", nextPraise() + " (+1 ⭐)");
+            const rect = el.getBoundingClientRect();
+            const stageRect = stage.getBoundingClientRect();
+            spawnBurst(stage, rect.left - stageRect.left + 40, rect.top - stageRect.top + 40);
+          });
+          stage.appendChild(el);
+        });
+      }
+
+      /* ---------- THỬ THÁCH 2: NHÁY CHUỘT (LÀM NỔ BÓNG BAY) ---------- */
+      else if (c.key === "click") {
+        const balloons = [
+          { left: "10%", top: "24%", color: "#fb7185", stroke: "#e11d48" },
+          { left: "28%", top: "14%", color: "#38bdf8", stroke: "#0284c7" },
+          { left: "46%", top: "28%", color: "#facc15", stroke: "#ca8a04" },
+          { left: "65%", top: "16%", color: "#a78bfa", stroke: "#7c3aed" },
+          { left: "82%", top: "26%", color: "#4ade80", stroke: "#16a34a" }
+        ];
+        balloons.forEach((b, i) => {
+          const el = document.createElement("div");
+          el.className = "game-item balloon-item";
+          el.style.left = b.left;
+          el.style.top = b.top;
+          el.style.animationDelay = (i * 0.4) + "s";
+          el.dataset.done = "false";
+          el.innerHTML = `
+            <svg viewBox="0 0 100 135" width="100%" height="100%">
+              <path d="M50,96 Q44,114 54,132" fill="none" stroke="#64748b" stroke-width="3"/>
+              <ellipse cx="50" cy="48" rx="38" ry="44" fill="${b.color}" stroke="${b.stroke}" stroke-width="4"/>
+              <polygon points="44,92 56,92 50,99" fill="${b.stroke}"/>
+              <ellipse cx="36" cy="32" rx="8" ry="14" fill="#ffffff" opacity="0.45" transform="rotate(-18 36 32)"/>
+              <circle cx="38" cy="52" r="3.5" fill="#1e293b"/>
+              <circle cx="62" cy="52" r="3.5" fill="#1e293b"/>
+              <path d="M43,62 Q50,69 57,62" fill="none" stroke="#1e293b" stroke-width="3" stroke-linecap="round"/>
+            </svg>
+          `;
+          // Nháy nút TRÁI chuột
+          el.addEventListener("mousedown", (e) => {
+            if (el.dataset.done === "true") return;
+            if (e.button === 0) {
+              el.dataset.done = "true";
+              el.classList.add("popped");
+              doneCount++;
+              addStar(1);
+              hideMiniHelp();
+              updateCounter();
+              showPracticeToast("success", nextPraise() + " Bóng nổ rồi! (+1 ⭐)");
+              const rect = el.getBoundingClientRect();
+              const stageRect = stage.getBoundingClientRect();
+              spawnBurst(stage, rect.left - stageRect.left + 48, rect.top - stageRect.top + 48);
+            } else if (e.button === 2) {
+              // Không tính nháy nút phải
+              showPracticeToast("hint", "Bạn thử lại nhé! Dùng nút TRÁI chuột nhé!");
+              showMiniHelp("click", c.hintText);
+            }
+          });
+          el.addEventListener("contextmenu", (e) => e.preventDefault());
+          stage.appendChild(el);
+        });
+      }
+
+      /* ---------- THỬ THÁCH 3: NHÁY NÚT PHẢI CHUỘT (KHÁM PHÁ KHO BÁU) ---------- */
+      else if (c.key === "rightclick") {
+        const chests = [
+          { left: "9%", top: "48%" },
+          { left: "27%", top: "24%" },
+          { left: "45%", top: "52%" },
+          { left: "63%", top: "24%" },
+          { left: "80%", top: "48%" }
+        ];
+        const closedChestSVG = `
+          <svg viewBox="0 0 130 120" width="100%" height="100%">
+            <rect x="14" y="48" width="102" height="58" rx="10" fill="#b45309" stroke="#78350f" stroke-width="4"/>
+            <path d="M14,50 C14,22 116,22 116,50 Z" fill="#d97706" stroke="#78350f" stroke-width="4"/>
+            <rect x="14" y="46" width="102" height="10" fill="#fbbf24" stroke="#78350f" stroke-width="3"/>
+            <rect x="54" y="42" width="22" height="24" rx="5" fill="#fde047" stroke="#78350f" stroke-width="3"/>
+            <circle cx="65" cy="54" r="4" fill="#78350f"/>
+          </svg>
+        `;
+        const openChestSVG = `
+          <svg viewBox="0 0 130 120" width="100%" height="100%">
+            <!-- Nắp mở -->
+            <path d="M16,44 C16,12 114,12 114,44 Z" fill="#92400e" stroke="#78350f" stroke-width="4"/>
+            <!-- Kim cương lấp lánh -->
+            <polygon points="45,54 35,38 55,38" fill="#38bdf8" stroke="#0284c7" stroke-width="2.5"/>
+            <polygon points="65,54 50,30 80,30" fill="#f472b6" stroke="#db2777" stroke-width="2.5"/>
+            <polygon points="85,54 75,38 95,38" fill="#fde047" stroke="#ca8a04" stroke-width="2.5"/>
+            <text x="58" y="24" font-size="18">✨</text>
+            <!-- Thân rương -->
+            <rect x="14" y="52" width="102" height="54" rx="10" fill="#b45309" stroke="#78350f" stroke-width="4"/>
+            <rect x="14" y="52" width="102" height="10" fill="#fbbf24" stroke="#78350f" stroke-width="3"/>
+          </svg>
+        `;
+        chests.forEach((pos) => {
+          const el = document.createElement("div");
+          el.className = "game-item chest-item";
+          el.style.left = pos.left;
+          el.style.top = pos.top;
+          el.dataset.done = "false";
+          el.innerHTML = closedChestSVG;
+
+          el.addEventListener("contextmenu", (e) => {
+            e.preventDefault();
+            if (el.dataset.done === "true") return;
+            el.dataset.done = "true";
+            el.classList.add("opened");
+            el.innerHTML = openChestSVG;
+            doneCount++;
+            addStar(1);
+            hideMiniHelp();
+            updateCounter();
+            showPracticeToast("success", nextPraise() + " Tìm thấy kim cương! (+1 ⭐)");
+            const rect = el.getBoundingClientRect();
+            const stageRect = stage.getBoundingClientRect();
+            spawnBurst(stage, rect.left - stageRect.left + 64, rect.top - stageRect.top + 40);
+          });
+
+          // Nháy nút trái không mở rương
+          el.addEventListener("mousedown", (e) => {
+            if (el.dataset.done === "true") return;
+            if (e.button === 0) {
+              el.classList.remove("shake");
+              void el.offsetWidth;
+              el.classList.add("shake");
+              showPracticeToast("hint", "Bạn thử lại nhé! Hãy nhấn nút PHẢI chuột!");
+              showMiniHelp("rightclick", c.hintText);
+            }
+          });
+          stage.appendChild(el);
+        });
+      }
+
+      /* ---------- THỬ THÁCH 4: NHÁY ĐÚP CHUỘT (GIÚP GÀ CON CHÀO ĐỜI) ---------- */
+      else if (c.key === "dblclick") {
+        const eggs = [
+          { left: "10%", top: "44%", spot: "#f9a8d4" },
+          { left: "28%", top: "24%", spot: "#93c5fd" },
+          { left: "46%", top: "46%", spot: "#fcd34d" },
+          { left: "64%", top: "24%", spot: "#a7f3d0" },
+          { left: "81%", top: "44%", spot: "#c4b5fd" }
+        ];
+        const getEggSVG = (spotColor) => `
+          <svg viewBox="0 0 120 136" width="100%" height="100%">
+            <ellipse cx="60" cy="72" rx="42" ry="52" fill="#fffbeb" stroke="#d97706" stroke-width="4"/>
+            <circle cx="44" cy="54" r="10" fill="${spotColor}" opacity="0.8"/>
+            <circle cx="76" cy="78" r="12" fill="${spotColor}" opacity="0.8"/>
+            <circle cx="52" cy="96" r="7" fill="${spotColor}" opacity="0.8"/>
+          </svg>
+        `;
+        const chickSVG = `
+          <svg viewBox="0 0 120 136" width="100%" height="100%">
+            <!-- Gà con đáng yêu -->
+            <circle cx="60" cy="58" r="34" fill="#fde047" stroke="#ca8a04" stroke-width="4"/>
+            <!-- Mào nhỏ -->
+            <path d="M55,24 Q60,12 65,24" fill="#f59e0b" stroke="#ca8a04" stroke-width="3"/>
+            <!-- Mắt -->
+            <circle cx="48" cy="52" r="4.5" fill="#1e293b"/>
+            <circle cx="72" cy="52" r="4.5" fill="#1e293b"/>
+            <!-- Má hồng -->
+            <ellipse cx="38" cy="60" rx="5" ry="3.5" fill="#fb7185" opacity="0.7"/>
+            <ellipse cx="82" cy="60" rx="5" ry="3.5" fill="#fb7185" opacity="0.7"/>
+            <!-- Mỏ cam -->
+            <polygon points="54,60 66,60 60,70" fill="#f97316"/>
+            <!-- Vỏ trứng dưới -->
+            <path d="M20,78 L34,90 L48,78 L60,92 L74,78 L88,90 L100,78 C98,110 82,126 60,126 C38,126 22,110 20,78 Z"
+              fill="#fffbeb" stroke="#d97706" stroke-width="4" stroke-linejoin="round"/>
+          </svg>
+        `;
+
+        eggs.forEach((egg) => {
+          const el = document.createElement("div");
+          el.className = "game-item egg-item";
+          el.style.left = egg.left;
+          el.style.top = egg.top;
+          el.dataset.done = "false";
+          el.innerHTML = getEggSVG(egg.spot);
+
+          let singleClickTimer = null;
+
+          // Chỉ nháy 1 lần -> không nở, nhắc nháy đúp
+          el.addEventListener("click", (e) => {
+            if (el.dataset.done === "true" || e.button !== 0) return;
+            clearTimeout(singleClickTimer);
+            singleClickTimer = setTimeout(() => {
+              if (el.dataset.done === "true") return;
+              el.classList.remove("wobble");
+              void el.offsetWidth;
+              el.classList.add("wobble");
+              showPracticeToast("hint", "Hãy nhấn nhanh nút trái chuột hai lần nhé!");
+              showMiniHelp("dblclick", c.hintText);
+            }, 380);
+          });
+
+          // Nháy đúp nút trái -> trứng nở
+          el.addEventListener("dblclick", (e) => {
+            e.preventDefault();
+            clearTimeout(singleClickTimer);
+            if (el.dataset.done === "true") return;
+            el.dataset.done = "true";
+            el.classList.add("hatched");
+            el.innerHTML = chickSVG;
+            doneCount++;
+            addStar(1);
+            hideMiniHelp();
+            updateCounter();
+            showPracticeToast("success", nextPraise() + " Gà con nở rồi! (+1 ⭐)");
+            const rect = el.getBoundingClientRect();
+            const stageRect = stage.getBoundingClientRect();
+            spawnBurst(stage, rect.left - stageRect.left + 58, rect.top - stageRect.top + 50);
+          });
+
+          el.addEventListener("contextmenu", (e) => {
+            e.preventDefault();
+            if (el.dataset.done === "true") return;
+            showPracticeToast("hint", "Hãy nhấn nhanh nút TRÁI chuột hai lần nhé!");
+            showMiniHelp("dblclick", c.hintText);
+          });
+
+          stage.appendChild(el);
+        });
+      }
+
+      /* ---------- THỬ THÁCH 5: KÉO THẢ CHUỘT (BÉ THU HOẠCH TRÁI CÂY) ---------- */
+      else if (c.key === "drag") {
+        // Vẽ chiếc giỏ lớn bên phải
+        const basket = document.createElement("div");
+        basket.className = "basket-zone";
+        basket.innerHTML = `
+          <svg viewBox="0 0 240 160" width="100%" height="100%">
+            <!-- Quai giỏ -->
+            <path d="M52,64 C52,8 188,8 188,64" fill="none" stroke="#b45309" stroke-width="11" stroke-linecap="round"/>
+            <!-- Thân giỏ -->
+            <path d="M24,62 H216 L194,142 C190,152 178,154 120,154 C62,154 50,152 46,142 Z"
+              fill="#f59e0b" stroke="#92400e" stroke-width="5"/>
+            <!-- Nan đan -->
+            <line x1="36" y1="90" x2="204" y2="90" stroke="#b45309" stroke-width="4"/>
+            <line x1="42" y1="118" x2="198" y2="118" stroke="#b45309" stroke-width="4"/>
+            <line x1="82" y1="62" x2="90" y2="152" stroke="#b45309" stroke-width="4"/>
+            <line x1="120" y1="62" x2="120" y2="154" stroke="#b45309" stroke-width="4"/>
+            <line x1="158" y1="62" x2="150" y2="152" stroke="#b45309" stroke-width="4"/>
+            <!-- Miệng giỏ -->
+            <rect x="18" y="54" width="204" height="16" rx="8" fill="#fbbf24" stroke="#92400e" stroke-width="4"/>
+          </svg>
+          <div class="basket-label">🧺 Giỏ trái cây</div>
+        `;
+        stage.appendChild(basket);
+
+        const fruits = [
+          {
+            name: "Táo đỏ", left: 8, top: 14,
+            svg: `<svg viewBox="0 0 90 90"><circle cx="45" cy="52" r="30" fill="#ef4444" stroke="#b91c1c" stroke-width="4"/><path d="M45,22 Q48,8 58,12" fill="none" stroke="#78350f" stroke-width="4" stroke-linecap="round"/><ellipse cx="58" cy="20" rx="11" ry="6" fill="#22c55e" transform="rotate(-20 58 20)"/><ellipse cx="34" cy="42" rx="5" ry="10" fill="#fff" opacity="0.4" transform="rotate(-15 34 42)"/></svg>`
+          },
+          {
+            name: "Cam tươi", left: 26, top: 20,
+            svg: `<svg viewBox="0 0 90 90"><circle cx="45" cy="50" r="30" fill="#fb923c" stroke="#ea580c" stroke-width="4"/><ellipse cx="52" cy="18" rx="11" ry="6" fill="#22c55e" transform="rotate(-25 52 18)"/><circle cx="35" cy="42" r="3" fill="#fed7aa"/><circle cx="55" cy="56" r="3" fill="#fed7aa"/><circle cx="42" cy="64" r="3" fill="#fed7aa"/></svg>`
+          },
+          {
+            name: "Chuối vàng", left: 44, top: 14,
+            svg: `<svg viewBox="0 0 90 90"><path d="M22,64 C32,78 68,70 76,26 C64,46 42,56 22,52 Z" fill="#fde047" stroke="#ca8a04" stroke-width="4" stroke-linejoin="round"/><rect x="72" y="18" width="8" height="10" rx="3" fill="#78350f"/></svg>`
+          },
+          {
+            name: "Nho tím", left: 16, top: 54,
+            svg: `<svg viewBox="0 0 90 90"><path d="M45,14 V26" stroke="#15803d" stroke-width="4" stroke-linecap="round"/><circle cx="34" cy="36" r="11" fill="#a855f7" stroke="#7e22ce" stroke-width="3"/><circle cx="56" cy="36" r="11" fill="#a855f7" stroke="#7e22ce" stroke-width="3"/><circle cx="45" cy="44" r="11" fill="#c084fc" stroke="#7e22ce" stroke-width="3"/><circle cx="36" cy="56" r="11" fill="#a855f7" stroke="#7e22ce" stroke-width="3"/><circle cx="54" cy="56" r="11" fill="#a855f7" stroke="#7e22ce" stroke-width="3"/><circle cx="45" cy="70" r="11" fill="#9333ea" stroke="#7e22ce" stroke-width="3"/></svg>`
+          },
+          {
+            name: "Dâu tây", left: 37, top: 54,
+            svg: `<svg viewBox="0 0 90 90"><path d="M45,80 C24,70 18,46 24,32 C30,22 60,22 66,32 C72,46 66,70 45,80 Z" fill="#f43f5e" stroke="#be123c" stroke-width="4"/><path d="M28,28 Q45,14 62,28 L52,32 L45,24 L38,32 Z" fill="#22c55e"/><circle cx="36" cy="46" r="2.5" fill="#fef08a"/><circle cx="54" cy="46" r="2.5" fill="#fef08a"/><circle cx="45" cy="58" r="2.5" fill="#fef08a"/><circle cx="38" cy="64" r="2.5" fill="#fef08a"/><circle cx="52" cy="64" r="2.5" fill="#fef08a"/></svg>`
+          }
+        ];
+
+        fruits.forEach((f, idxFruit) => {
+          const el = document.createElement("div");
+          el.className = "game-item fruit-item";
+          el.style.left = f.left + "%";
+          el.style.top = f.top + "%";
+          el.dataset.done = "false";
+          el.dataset.origLeft = f.left + "%";
+          el.dataset.origTop = f.top + "%";
+          el.innerHTML = f.svg;
+
+          // Kéo thả thực thụ bằng mousedown (nút trái) -> mousemove -> mouseup
+          el.addEventListener("mousedown", (e) => {
+            if (el.dataset.done === "true") return;
+            if (e.button !== 0) {
+              showPracticeToast("hint", "Hãy nhấn giữ nút TRÁI chuột để kéo nhé!");
+              showMiniHelp("drag", c.hintText);
+              return;
+            }
+            e.preventDefault();
+
+            const stageRect = stage.getBoundingClientRect();
+            const elRect = el.getBoundingClientRect();
+            const offsetX = e.clientX - elRect.left;
+            const offsetY = e.clientY - elRect.top;
+            const startClientX = e.clientX;
+            const startClientY = e.clientY;
+            let movedDistance = 0;
+
+            el.classList.add("dragging");
+
+            const onMouseMove = (moveEvent) => {
+              movedDistance = Math.hypot(moveEvent.clientX - startClientX, moveEvent.clientY - startClientY);
+              let newLeft = moveEvent.clientX - stageRect.left - offsetX;
+              let newTop = moveEvent.clientY - stageRect.top - offsetY;
+
+              // Giữ trái cây trong khung chơi
+              newLeft = Math.max(0, Math.min(stageRect.width - elRect.width, newLeft));
+              newTop = Math.max(0, Math.min(stageRect.height - elRect.height, newTop));
+
+              el.style.left = newLeft + "px";
+              el.style.top = newTop + "px";
+
+              // Kiểm tra có đang di chuột qua giỏ không để làm nổi bật giỏ
+              const bRect = basket.getBoundingClientRect();
+              const fRect = el.getBoundingClientRect();
+              const fCenterX = fRect.left + fRect.width / 2;
+              const fCenterY = fRect.top + fRect.height / 2;
+              const overBasket = fCenterX >= bRect.left && fCenterX <= bRect.right && fCenterY >= bRect.top && fCenterY <= bRect.bottom;
+              basket.classList.toggle("highlight", overBasket);
+            };
+
+            const onMouseUp = () => {
+              document.removeEventListener("mousemove", onMouseMove);
+              document.removeEventListener("mouseup", onMouseUp);
+              el.classList.remove("dragging");
+              basket.classList.remove("highlight");
+
+              const bRect = basket.getBoundingClientRect();
+              const fRect = el.getBoundingClientRect();
+              const fCenterX = fRect.left + fRect.width / 2;
+              const fCenterY = fRect.top + fRect.height / 2;
+              const droppedInBasket = fCenterX >= bRect.left && fCenterX <= bRect.right && fCenterY >= bRect.top && fCenterY <= bRect.bottom;
+
+              // Yêu cầu phải thực sự kéo (di chuyển > 15px) và thả trong giỏ
+              if (droppedInBasket && movedDistance > 15) {
+                el.dataset.done = "true";
+                el.classList.add("in-basket");
+                // Xếp gọn trái cây vào miệng giỏ
+                const slotX = bRect.left - stageRect.left + 32 + (doneCount * 32);
+                const slotY = bRect.top - stageRect.top + 18 + (doneCount % 2) * 14;
+                el.style.left = slotX + "px";
+                el.style.top = slotY + "px";
+                el.style.transform = "scale(0.75)";
+
+                doneCount++;
+                addStar(1);
+                hideMiniHelp();
+                updateCounter();
+                showPracticeToast("success", nextPraise() + ` Thu hoạch ${f.name}! (+1 ⭐)`);
+                spawnBurst(stage, slotX + 35, slotY + 35);
+              } else {
+                // Trả về vị trí ban đầu
+                el.style.transition = "left 0.25s ease, top 0.25s ease";
+                el.style.left = el.dataset.origLeft;
+                el.style.top = el.dataset.origTop;
+                setTimeout(() => { el.style.transition = ""; }, 260);
+
+                if (movedDistance <= 15) {
+                  showPracticeToast("hint", "Nhấn giữ nút trái chuột rồi KÉO quả vào giỏ nhé!");
+                } else {
+                  showPracticeToast("hint", "Bạn thử lại nhé! Kéo quả vào trong giỏ rồi mới thả tay!");
+                }
+                showMiniHelp("drag", c.hintText);
+              }
+            };
+
+            document.addEventListener("mousemove", onMouseMove);
+            document.addEventListener("mouseup", onMouseUp);
+          });
+
+          stage.appendChild(el);
+        });
+      }
+    }
+
+    /* ==========================================================================
+       PHẦN 8: GIAI ĐOẠN 3 (GHI NHỚ) & CỦNG CỐ KIẾN THỨC (5 CÂU CUỐI)
+       ========================================================================== */
+    function shuffleArray(arr) {
+      const copy = [...arr];
+      for (let i = copy.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [copy[i], copy[j]] = [copy[j], copy[i]];
+      }
+      return copy;
+    }
+
+    /** Mở câu hỏi Giai đoạn 3 (Ghi nhớ) ngay sau khi hoàn thành thực hành */
+    function startMemoryQuiz(idx) {
+      state.quizMode = "memory";
+      state.currentChallengeIdx = idx;
+      const c = CHALLENGES[idx];
+      showScreen("quiz");
+
+      document.getElementById("quizPhaseTag").textContent = "Giai đoạn 3: Ghi nhớ";
+      document.getElementById("quizProgressBadge").textContent = `Thử thách ${idx + 1} / 5`;
+
+      renderQuizQuestion({
+        actionKey: c.key,
+        question: c.memoryQ,
+        correct: c.name,
+        options: shuffleArray(c.memoryOptions),
+        nextLabel: state.mode === "single"
+          ? "📚 Quay về chọn bài"
+          : (idx < 4 ? "➡ Thử thách tiếp theo" : "🏆 Sang phần Củng cố (5 câu)"),
+        onCorrect: () => {
+          state.completedChallenges[idx] = true;
+          addStar(1);
+          renderTopBar();
+        },
+        onNext: () => {
+          if (state.mode === "single") {
+            renderPracticeMenu();
+            showScreen("menu");
+          } else if (idx < 4) {
+            startChallengeLearn(idx + 1);
+          } else {
+            startFinalQuiz();
+          }
+        }
+      });
+    }
+
+    /** Mở phần củng cố kiến thức cuối trò chơi (5 câu) */
+    function startFinalQuiz() {
+      state.quizMode = "final";
+      state.finalQuizIdx = 0;
+      state.finalQuizFirstTryCorrect = 0;
+      showScreen("quiz");
+      loadFinalQuizItem();
+    }
+
+    function loadFinalQuizItem() {
+      const idx = state.finalQuizIdx;
+      const item = FINAL_QUIZ[idx];
+      state.finalQuizHadWrongCurrent = false;
+
+      document.getElementById("quizPhaseTag").textContent = "Củng cố kiến thức";
+      document.getElementById("quizProgressBadge").textContent = `Câu ${idx + 1} / 5`;
+
+      renderQuizQuestion({
+        actionKey: item.actionKey,
+        question: item.question,
+        correct: item.correct,
+        options: shuffleArray(item.options),
+        nextLabel: idx < FINAL_QUIZ.length - 1 ? "Câu tiếp theo ➡" : "🏆 Xem tổng kết",
+        onWrong: () => {
+          state.finalQuizHadWrongCurrent = true;
+        },
+        onCorrect: () => {
+          if (!state.finalQuizHadWrongCurrent) {
+            state.finalQuizFirstTryCorrect++;
+          }
+          addStar(1);
+        },
+        onNext: () => {
+          if (idx < FINAL_QUIZ.length - 1) {
+            state.finalQuizIdx++;
+            loadFinalQuizItem();
+          } else {
+            showSummaryScreen();
+          }
+        }
+      });
+    }
+
+    /** Hàm dùng chung để hiển thị 1 câu hỏi trắc nghiệm 3 phương án */
+    function renderQuizQuestion({ actionKey, question, correct, options, nextLabel, onWrong, onCorrect, onNext }) {
+      const visualBox = document.getElementById("quizVisualBox");
+      visualBox.innerHTML = `
+        <div style="width:185px; height:185px;">${getMouseIconSVG(actionKey, true)}</div>
+        <div style="margin-top:10px; font-size:17px; font-weight:800; color:#0369a1;">Quan sát hình và chọn đáp án đúng nhé!</div>
+      `;
+
+      document.getElementById("quizQuestionText").textContent = question;
+      const optsContainer = document.getElementById("quizOptions");
+      const fbMsg = document.getElementById("quizFeedbackMsg");
+      const nextBtn = document.getElementById("btnQuizNext");
+
+      fbMsg.className = "quiz-feedback-msg";
+      fbMsg.textContent = "";
+      nextBtn.style.display = "none";
+      nextBtn.textContent = nextLabel;
+      nextBtn.onclick = onNext;
+
+      const letters = ["A", "B", "C"];
+      let solved = false;
+
+      optsContainer.innerHTML = "";
+      options.forEach((optText, i) => {
+        const btn = document.createElement("button");
+        btn.className = "quiz-opt-btn";
+        btn.innerHTML = `<span class="opt-letter">${letters[i]}</span> <span>${optText}</span>`;
+        btn.addEventListener("click", () => {
+          if (solved) return;
+          if (optText === correct) {
+            solved = true;
+            btn.classList.add("correct");
+            optsContainer.querySelectorAll("button").forEach(b => b.disabled = true);
+            fbMsg.className = "quiz-feedback-msg show ok";
+            fbMsg.innerHTML = `✅ ${nextPraise()} Đáp án đúng là “${correct}”! (+1 ⭐)`;
+            nextBtn.style.display = "inline-flex";
+            if (onCorrect) onCorrect();
+          } else {
+            btn.classList.remove("wrong");
+            void btn.offsetWidth;
+            btn.classList.add("wrong");
+            fbMsg.className = "quiz-feedback-msg show retry";
+            fbMsg.innerHTML = `💡 Bạn thử lại nhé! Hãy đọc kỹ mô tả và quan sát hình chuột bên cạnh!`;
+            if (onWrong) onWrong();
+          }
+        });
+        optsContainer.appendChild(btn);
+      });
+    }
+
+    /* ==========================================================================
+       PHẦN 9: MÀN HÌNH TỔNG KẾT & CHƠI LẠI
+       ========================================================================== */
+    function showSummaryScreen() {
+      showScreen("summary");
+
+      const totalPractice = state.practiceScores.reduce((sum, v) => sum + v, 0);
+      document.getElementById("statPracticeTotal").textContent = `${totalPractice} / 25`;
+      document.getElementById("statQuizFirstTry").textContent = `${state.finalQuizFirstTryCorrect} / 5`;
+      document.getElementById("statTotalStars").textContent = `⭐ ${state.stars}`;
+
+      const tbody = document.getElementById("summaryTableBody");
+      tbody.innerHTML = CHALLENGES.map((c, idx) => {
+        const score = state.practiceScores[idx];
+        const done = state.completedChallenges[idx];
+        return `
+          <tr>
+            <td>${idx + 1}</td>
+            <td style="color:#0369a1;">${c.name}</td>
+            <td>${c.gameTitle}</td>
+            <td>${score} / 5 nhiệm vụ</td>
+            <td>
+              ${done
+                ? '<span class="status-badge-ok">✅ Đã hoàn thành</span>'
+                : '<span class="status-badge-pending">⏳ Chưa hoàn thành</span>'}
+            </td>
+          </tr>
+        `;
+      }).join("");
+    }
+
+    function resetAllProgress() {
+      state.stars = 0;
+      state.practiceScores = [0, 0, 0, 0, 0];
+      state.completedChallenges = [false, false, false, false, false];
+      state.finalQuizIdx = 0;
+      state.finalQuizFirstTryCorrect = 0;
+      state.finalQuizHadWrongCurrent = false;
+      state.currentChallengeIdx = 0;
+    }
+
+    /* ==========================================================================
+       PHẦN 10: GẮN SỰ KIỆN CHO TẤT CẢ CÁC NÚT ĐIỀU HƯỚNG
+       ========================================================================== */
+    function bindEvents() {
+      // Trang chủ
+      document.getElementById("btnStartGame").addEventListener("click", () => {
+        state.mode = "story";
+        startChallengeLearn(0);
+      });
+      document.getElementById("btnOpenMenu").addEventListener("click", () => {
+        renderPracticeMenu();
+        showScreen("menu");
+      });
+
+      // Thanh trên cùng
+      document.getElementById("btnTopHome").addEventListener("click", () => {
+        showScreen("home");
+      });
+
+      // Menu chọn bài
+      document.getElementById("btnMenuHome").addEventListener("click", () => showScreen("home"));
+      document.getElementById("btnMenuReview").addEventListener("click", () => showScreen("review"));
+      document.getElementById("btnMenuQuiz").addEventListener("click", () => startFinalQuiz());
+
+      // Giai đoạn 1: Học và quan sát
+      document.getElementById("btnReplayDemo").addEventListener("click", () => {
+        const key = CHALLENGES[state.currentChallengeIdx].key;
+        renderLearnDemo(key);
+      });
+      document.getElementById("btnGoPractice").addEventListener("click", () => {
+        startChallengePractice(state.currentChallengeIdx);
+      });
+
+      // Giai đoạn 2: Thực hành
+      document.getElementById("btnBackToLearn").addEventListener("click", () => {
+        startChallengeLearn(state.currentChallengeIdx);
+      });
+      document.getElementById("btnGoMemory").addEventListener("click", () => {
+        startMemoryQuiz(state.currentChallengeIdx);
+      });
+
+      // Màn hình Tổng kết
+      document.getElementById("btnSummaryReplay").addEventListener("click", () => {
+        resetAllProgress();
+        state.mode = "story";
+        startChallengeLearn(0);
+      });
+      document.getElementById("btnSummaryPractice").addEventListener("click", () => {
+        renderPracticeMenu();
+        showScreen("menu");
+      });
+      document.getElementById("btnSummaryReview").addEventListener("click", () => {
+        showScreen("review");
+      });
+      document.getElementById("btnSummaryHome").addEventListener("click", () => {
+        showScreen("home");
+      });
+
+      // Màn hình Ôn lại 5 thao tác
+      document.getElementById("btnReviewBack").addEventListener("click", () => {
+        const target = state.previousScreen === "summary" ? "summary" : "menu";
+        if (target === "menu") renderPracticeMenu();
+        showScreen(target);
+      });
+      document.getElementById("btnReviewHome").addEventListener("click", () => {
+        showScreen("home");
+      });
+    }
+
+    // Khởi chạy ứng dụng khi tải xong trang
+    window.addEventListener("DOMContentLoaded", () => {
+      initStaticViews();
+      bindEvents();
+      showScreen("home");
+    });
+  </script>
+</body>
+</html>
