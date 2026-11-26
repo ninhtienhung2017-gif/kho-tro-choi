@@ -1,0 +1,3062 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Hành Trình Giải Cứu Vương Quốc Bàn Phím - Tin Học Lớp 3</title>
+  <style>
+    /* =====================================================================
+       1. RESET & NỀN TỔNG THỂ (CHẠY 100% NGOẠI TUYẾN - KHÔNG CẦN CDN)
+       ===================================================================== */
+    *, *::before, *::after {
+      box-sizing: border-box;
+      user-select: none;
+      -webkit-user-select: none;
+    }
+
+    html, body {
+      margin: 0;
+      padding: 0;
+      width: 100%;
+      height: 100%;
+      font-family: 'Segoe UI', 'Tahoma', 'Arial', sans-serif;
+      color: #1e293b;
+      background: linear-gradient(135deg, #dff4ff 0%, #f3e8ff 50%, #fef3c7 100%);
+      overflow-x: hidden;
+    }
+
+    body {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 10px;
+      min-height: 100vh;
+    }
+
+    button {
+      font-family: inherit;
+      border: none;
+      outline: none;
+    }
+
+    svg {
+      display: block;
+      max-width: 100%;
+    }
+
+    .hidden {
+      display: none !important;
+    }
+
+    /* =====================================================================
+       2. KHUNG SÂN KHẤU 16:9 TỐI ƯU CHO 1366x768 & 1920x1080
+       ===================================================================== */
+    .game-stage {
+      width: 100%;
+      max-width: 1200px;
+      height: min(calc(100vh - 20px), 680px);
+      min-height: 540px;
+      background: linear-gradient(180deg, #f0f9ff 0%, #ffffff 55%, #fdf4ff 100%);
+      border: 5px solid #ffffff;
+      border-radius: 26px;
+      box-shadow: 0 18px 45px rgba(59, 130, 246, 0.18), 0 8px 18px rgba(139, 92, 246, 0.12);
+      position: relative;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+
+    @media (max-width: 960px) {
+      body { padding: 6px; }
+      .game-stage {
+        height: auto;
+        min-height: calc(100vh - 12px);
+        border-radius: 18px;
+      }
+    }
+
+    /* Đám mây trang trí nền */
+    .bg-decor {
+      pointer-events: none;
+      position: absolute;
+      inset: 0;
+      overflow: hidden;
+      opacity: 0.45;
+      z-index: 0;
+    }
+    .bg-blob-1 {
+      position: absolute; top: -40px; left: -40px;
+      width: 210px; height: 210px; border-radius: 50%;
+      background: #bae6fd; filter: blur(36px);
+    }
+    .bg-blob-2 {
+      position: absolute; top: 40px; right: 30px;
+      width: 250px; height: 250px; border-radius: 50%;
+      background: #e9d5ff; filter: blur(42px);
+    }
+    .bg-blob-3 {
+      position: absolute; bottom: 0; left: 33%;
+      width: 280px; height: 160px; border-radius: 50%;
+      background: #fef3c7; filter: blur(36px);
+    }
+
+    /* =====================================================================
+       3. HEADER (THANH ĐIỀU KHIỂN, 6 PHA LÊ, ĐIỂM SỐ)
+       ===================================================================== */
+    .game-header {
+      position: relative;
+      z-index: 20;
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      padding: 8px 16px;
+      background: rgba(255, 255, 255, 0.9);
+      border-bottom: 2px solid #e0f2fe;
+      flex-shrink: 0;
+    }
+
+    .header-group {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .progress-pill {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      background: #eef2ff;
+      padding: 5px 12px;
+      border-radius: 16px;
+      border: 2px solid #e0e7ff;
+    }
+
+    .progress-label {
+      font-size: 12px;
+      font-weight: 800;
+      color: #4338ca;
+    }
+
+    .crystal-bar {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .crystal-slot {
+      width: 30px;
+      height: 30px;
+      border-radius: 50%;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      border: 2px solid #cbd5e1;
+      background: #e2e8f0;
+      opacity: 0.55;
+      cursor: pointer;
+      padding: 0;
+      transition: transform 0.15s ease;
+    }
+    .crystal-slot:hover { transform: scale(1.12); }
+    .crystal-slot.earned {
+      background: #ffffff;
+      border-color: #fcd34d;
+      opacity: 1;
+      box-shadow: 0 2px 6px rgba(245, 158, 11, 0.25);
+    }
+    .crystal-svg {
+      width: 20px;
+      height: 20px;
+    }
+
+    .progress-divider {
+      width: 2px;
+      height: 20px;
+      background: #c7d2fe;
+    }
+
+    .score-box {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      font-weight: 900;
+      color: #312e81;
+      font-size: 15px;
+    }
+    .score-max {
+      font-size: 12px;
+      color: #6366f1;
+      font-weight: 700;
+    }
+
+    /* =====================================================================
+       4. KHU VỰC NỘI DUNG CHÍNH (MAIN)
+       ===================================================================== */
+    .game-main {
+      position: relative;
+      z-index: 10;
+      flex: 1;
+      min-height: 0;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      padding: 10px 18px;
+      overflow-y: auto;
+    }
+
+    /* =====================================================================
+       5. FOOTER - ROBOT HƯỚNG DẪN Ở GÓC DƯỚI TRÁI (KHÔNG TRÀN, KHÔNG CHE)
+       ===================================================================== */
+    .robot-footer {
+      position: relative;
+      z-index: 20;
+      padding: 8px 16px;
+      background: rgba(255, 255, 255, 0.9);
+      border-top: 2px solid #e0f2fe;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      flex-shrink: 0;
+    }
+
+    .robot-wrap {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      flex: 1;
+      min-width: 0;
+    }
+
+    .robot-avatar {
+      width: 58px;
+      height: 58px;
+      min-width: 58px;
+      min-height: 58px;
+      max-width: 58px;
+      max-height: 58px;
+      flex-shrink: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .robot-avatar svg {
+      width: 58px;
+      height: 58px;
+      filter: drop-shadow(0 3px 4px rgba(15, 23, 42, 0.14));
+    }
+
+    .robot-bubble {
+      background: #f0f9ff;
+      border: 2px solid #bae6fd;
+      border-radius: 16px;
+      padding: 7px 14px;
+      flex: 1;
+      min-width: 0;
+    }
+
+    .robot-bubble-head {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 2px;
+    }
+
+    .robot-name {
+      font-size: 11px;
+      font-weight: 900;
+      text-transform: uppercase;
+      letter-spacing: 0.4px;
+      color: #0284c7;
+    }
+
+    .robot-badge {
+      font-size: 11px;
+      font-weight: 800;
+      padding: 1px 8px;
+      border-radius: 999px;
+    }
+    .robot-badge.happy { background: #d1fae5; color: #047857; }
+    .robot-badge.hint  { background: #fef3c7; color: #92400e; }
+
+    .robot-speech {
+      margin: 0;
+      font-size: 14px;
+      font-weight: 700;
+      color: #1e293b;
+      line-height: 1.35;
+    }
+
+    .footer-action {
+      flex-shrink: 0;
+    }
+
+    /* =====================================================================
+       6. NÚT BẤM HOẠT HÌNH 3D & BẢNG MÀU
+       ===================================================================== */
+    .btn-game {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      border-radius: 13px;
+      font-weight: 800;
+      cursor: pointer;
+      transition: transform 0.14s ease, box-shadow 0.14s ease, filter 0.14s ease;
+      box-shadow: 0 4px 0 rgba(0, 0, 0, 0.18);
+    }
+    .btn-game:hover:not(:disabled) {
+      transform: translateY(-2px);
+      filter: brightness(1.04);
+      box-shadow: 0 6px 0 rgba(0, 0, 0, 0.18);
+    }
+    .btn-game:active:not(:disabled) {
+      transform: translateY(2px);
+      box-shadow: 0 2px 0 rgba(0, 0, 0, 0.18);
+    }
+    .btn-game:disabled {
+      opacity: 0.55;
+      cursor: not-allowed;
+    }
+
+    .btn-sm { padding: 6px 12px; font-size: 13px; }
+    .btn-md { padding: 9px 18px; font-size: 14px; }
+    .btn-lg { padding: 11px 26px; font-size: 16px; border-radius: 16px; }
+
+    .btn-sky     { background: #0ea5e9; color: #ffffff; }
+    .btn-amber   { background: #fbbf24; color: #451a03; }
+    .btn-yellow  { background: #fde047; color: #422006; }
+    .btn-emerald { background: #34d399; color: #064e3b; }
+    .btn-green   { background: #10b981; color: #ffffff; }
+    .btn-rose    { background: #fb7185; color: #ffffff; }
+    .btn-rose-dk { background: #f43f5e; color: #ffffff; }
+    .btn-slate   { background: #e2e8f0; color: #334155; }
+    .btn-grad-blue   { background: linear-gradient(90deg, #0ea5e9, #4f46e5); color: #ffffff; }
+    .btn-grad-orange { background: linear-gradient(90deg, #fbbf24, #f97316); color: #ffffff; }
+    .btn-grad-purple { background: linear-gradient(90deg, #6366f1, #a855f7); color: #ffffff; }
+
+    /* =====================================================================
+       7. PHÍM BÀN PHÍM ẢO, GỜ NỔI F/J, MÀU 10 NGÓN TAY THỐNG NHẤT
+       ===================================================================== */
+    .kb-key {
+      display: inline-flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      border-radius: 8px;
+      border: 2px solid #cbd5e1;
+      border-bottom-width: 4px;
+      background: #ffffff;
+      font-weight: 800;
+      color: #334155;
+      transition: all 0.14s ease;
+      position: relative;
+      line-height: 1;
+      flex-shrink: 0;
+    }
+    .kb-key.clickable:hover {
+      transform: translateY(-2px);
+      border-color: #38bdf8;
+      background-color: #e0f2fe;
+      cursor: pointer;
+    }
+    .kb-key.active-press {
+      transform: translateY(3px);
+      border-bottom-width: 2px;
+      filter: brightness(0.93);
+    }
+    .kb-key.target-pulse {
+      animation: keyPulse 1s infinite;
+      border-color: #f59e0b !important;
+      box-shadow: 0 0 0 4px rgba(245, 158, 11, 0.38);
+      z-index: 5;
+    }
+    .kb-key.correct-key {
+      background: #bbf7d0 !important;
+      border-color: #22c55e !important;
+      color: #14532d !important;
+    }
+    .kb-key.wrong-key {
+      background: #fecaca !important;
+      border-color: #ef4444 !important;
+      animation: shake 0.35s ease;
+    }
+
+    /* Gờ nổi trên phím F và J */
+    .bump-bar {
+      position: absolute;
+      bottom: 3px;
+      width: 48%;
+      height: 3.5px;
+      background: #0f172a;
+      border-radius: 99px;
+      opacity: 0.78;
+    }
+
+    /* Màu 10 ngón tay thống nhất toàn bộ trò chơi */
+    .f-l-pinky  { background-color: #fbcfe8; border-color: #ec4899; color: #831843; }
+    .f-l-ring   { background-color: #fed7aa; border-color: #f97316; color: #7c2d12; }
+    .f-l-middle { background-color: #fef08a; border-color: #eab308; color: #713f12; }
+    .f-l-index  { background-color: #bbf7d0; border-color: #22c55e; color: #14532d; }
+    .f-thumb    { background-color: #e2e8f0; border-color: #64748b; color: #1e293b; }
+    .f-r-index  { background-color: #bae6fd; border-color: #0ea5e9; color: #0c4a6e; }
+    .f-r-middle { background-color: #c7d2fe; border-color: #6366f1; color: #312e81; }
+    .f-r-ring   { background-color: #e9d5ff; border-color: #a855f7; color: #581c87; }
+    .f-r-pinky  { background-color: #fecdd3; border-color: #f43f5e; color: #881337; }
+
+    /* =====================================================================
+       8. BỐ CỤC CHUNG CHO CÁC MÀN CHƠI
+       ===================================================================== */
+    .screen-col {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: space-between;
+      flex: 1;
+      gap: 8px;
+      width: 100%;
+    }
+
+    .screen-center {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      flex: 1;
+      gap: 12px;
+      width: 100%;
+    }
+
+    .mission-head {
+      text-align: center;
+    }
+
+    .mission-pill {
+      display: inline-block;
+      padding: 3px 12px;
+      border-radius: 999px;
+      font-size: 11px;
+      font-weight: 800;
+      letter-spacing: 0.3px;
+    }
+    .pill-sky     { background: #e0f2fe; color: #0369a1; }
+    .pill-purple  { background: #f3e8ff; color: #7e22ce; }
+    .pill-emerald { background: #d1fae5; color: #047857; }
+    .pill-amber   { background: #fef3c7; color: #92400e; }
+    .pill-pink    { background: #fce7f3; color: #be185d; }
+    .pill-rose    { background: #ffe4e6; color: #be123c; }
+
+    .mission-title {
+      margin: 4px 0 0 0;
+      font-size: 20px;
+      font-weight: 900;
+      color: #1e293b;
+      line-height: 1.25;
+    }
+
+    /* =====================================================================
+       9. TRANG CHỦ (HOME)
+       ===================================================================== */
+    .home-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 4px 14px;
+      border-radius: 999px;
+      background: #fef3c7;
+      border: 2px solid #fcd34d;
+      color: #92400e;
+      font-weight: 800;
+      font-size: 12px;
+      margin-bottom: 6px;
+    }
+
+    .home-title {
+      margin: 0;
+      font-size: 30px;
+      font-weight: 900;
+      line-height: 1.2;
+      color: #0369a1;
+      background: linear-gradient(90deg, #0284c7, #4f46e5, #9333ea);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .home-sub {
+      margin: 6px 0 0 0;
+      color: #475569;
+      font-weight: 700;
+      font-size: 14px;
+    }
+
+    .missions-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 10px;
+      width: 100%;
+      max-width: 920px;
+    }
+    @media (max-width: 780px) {
+      .missions-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    }
+
+    .mission-card {
+      text-align: left;
+      padding: 12px 14px;
+      border-radius: 16px;
+      border: 2px solid #bae6fd;
+      background: #ffffff;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      align-items: stretch;
+    }
+    .mission-card.done {
+      background: #ecfdf5;
+      border-color: #6ee7b7;
+    }
+    .mission-card-top {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 6px;
+      width: 100%;
+    }
+    .mission-icon { font-size: 26px; line-height: 1; }
+    .tag-row { display: flex; align-items: center; gap: 4px; }
+    .tag-done {
+      font-size: 11px; font-weight: 900; padding: 2px 7px;
+      border-radius: 999px; background: #10b981; color: #ffffff;
+    }
+    .tag-pts {
+      font-size: 11px; font-weight: 900; padding: 2px 7px;
+      border-radius: 999px; background: #e0e7ff; color: #4338ca;
+    }
+    .mission-card-name {
+      margin-top: 6px;
+      font-weight: 900;
+      color: #1e293b;
+      font-size: 14px;
+      line-height: 1.3;
+    }
+    .mission-card-foot {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-top: 4px;
+      font-size: 12px;
+      font-weight: 700;
+      color: #64748b;
+    }
+    .badge-self {
+      font-size: 11px;
+      font-weight: 900;
+      color: #d97706;
+    }
+
+    .home-actions {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 12px;
+    }
+
+    /* =====================================================================
+       10. NHIỆM VỤ 1: BÀN PHÍM 4 KHU VỰC (HÌNH 31 SGK)
+       ===================================================================== */
+    .full-kb-board {
+      width: 100%;
+      max-width: 1020px;
+      background: #f1f5f9;
+      border: 4px solid #cbd5e1;
+      border-radius: 22px;
+      padding: 12px;
+      box-shadow: inset 0 2px 6px rgba(0, 0, 0, 0.06);
+    }
+
+    .kb-zone {
+      border: 3px dashed transparent;
+      border-radius: 14px;
+      padding: 7px;
+      transition: all 0.2s ease;
+      cursor: pointer;
+      position: relative;
+      background: rgba(255, 255, 255, 0.85);
+    }
+    .kb-zone:hover {
+      background: rgba(56, 189, 248, 0.14);
+      border-color: #38bdf8;
+      transform: scale(1.01);
+    }
+    .kb-zone.zone-correct {
+      background: rgba(34, 197, 94, 0.18) !important;
+      border: 3px solid #22c55e !important;
+      box-shadow: 0 0 18px rgba(34, 197, 94, 0.3);
+    }
+    .kb-zone.zone-wrong {
+      background: rgba(239, 68, 68, 0.14) !important;
+      border-color: #ef4444 !important;
+      animation: shake 0.35s ease;
+    }
+
+    .zone-num {
+      position: absolute;
+      top: -10px;
+      left: -8px;
+      width: 26px;
+      height: 26px;
+      border-radius: 50%;
+      color: #ffffff;
+      font-weight: 900;
+      font-size: 13px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+      z-index: 4;
+    }
+    .zn-1 { background: #f43f5e; }
+    .zn-2 { background: #0ea5e9; }
+    .zn-3 { background: #f59e0b; }
+    .zn-4 { background: #a855f7; }
+
+    .m1-top-row {
+      display: grid;
+      grid-template-columns: 9fr 3fr;
+      gap: 10px;
+      margin-bottom: 10px;
+      align-items: center;
+    }
+    .m1-body-row {
+      display: grid;
+      grid-template-columns: 7.2fr 2.1fr 2.7fr;
+      gap: 10px;
+      align-items: stretch;
+    }
+    @media (max-width: 900px) {
+      .m1-top-row { grid-template-columns: 1fr; }
+      .m1-body-row { grid-template-columns: 1fr; }
+    }
+
+    .m1-fn-keys {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 4px;
+      justify-content: space-between;
+      padding-left: 16px;
+    }
+    .m1-fn-keys .kb-key {
+      padding: 5px 8px;
+      font-size: 11px;
+      background: #fff1f2;
+    }
+
+    .m1-leds {
+      text-align: center;
+      font-size: 11px;
+      font-weight: 800;
+      color: #64748b;
+    }
+
+    .m1-main-rows {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      justify-content: center;
+    }
+    .m1-main-line {
+      display: flex;
+      gap: 3px;
+      justify-content: center;
+    }
+    .m1-k-std   { width: 32px; height: 30px; font-size: 11px; }
+    .m1-k-wide  { padding: 0 7px; height: 30px; font-size: 10px; }
+    .m1-k-space { flex: 1; height: 30px; font-size: 10px; }
+
+    .m1-nav-col {
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      gap: 8px;
+      padding-top: 10px;
+    }
+    .m1-nav-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 4px;
+    }
+    .m1-nav-grid .kb-key { height: 28px; font-size: 10px; background: #fffbeb; }
+
+    .m1-num-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 4px;
+      margin-top: 8px;
+    }
+    .m1-num-grid .kb-key { height: 29px; font-size: 11px; background: #faf5ff; }
+
+    .note-chip {
+      padding: 5px 12px;
+      background: #ffffff;
+      border-radius: 12px;
+      border: 1.5px solid #e2e8f0;
+      font-size: 12px;
+      font-weight: 700;
+      color: #475569;
+    }
+
+    /* =====================================================================
+       11. NHIỆM VỤ 2: KÉO THẢ 5 HÀNG PHÍM
+       ===================================================================== */
+    .m2-layout {
+      display: grid;
+      grid-template-columns: 4fr 8fr;
+      gap: 12px;
+      width: 100%;
+      max-width: 1020px;
+      align-items: center;
+    }
+    @media (max-width: 860px) {
+      .m2-layout { grid-template-columns: 1fr; }
+    }
+
+    .m2-cards-box {
+      background: rgba(255, 255, 255, 0.92);
+      border: 2px solid #e9d5ff;
+      border-radius: 18px;
+      padding: 10px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+    .m2-cards-title {
+      font-size: 11px;
+      font-weight: 900;
+      color: #7e22ce;
+      text-transform: uppercase;
+      text-align: center;
+    }
+    .m2-cards-list {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+    .m2-card {
+      padding: 9px 12px;
+      border-radius: 12px;
+      font-size: 13px;
+      text-align: center;
+    }
+    .m2-card.locked {
+      opacity: 0.35;
+      text-decoration: line-through;
+      pointer-events: none;
+    }
+    .selected-ring {
+      box-shadow: 0 0 0 4px #facc15 !important;
+    }
+
+    .m2-rows-board {
+      background: #f1f5f9;
+      border: 4px solid #cbd5e1;
+      border-radius: 22px;
+      padding: 10px;
+      display: flex;
+      flex-direction: column;
+      gap: 7px;
+    }
+    .m2-row-drop {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 5px 7px;
+      border-radius: 14px;
+      background: #ffffff;
+      border: 2px dashed #cbd5e1;
+      cursor: pointer;
+      transition: all 0.18s ease;
+    }
+    .m2-row-drop.placed-num    { background: #ffe4e6; border: 2px solid #fb7185; }
+    .m2-row-drop.placed-top    { background: #fef3c7; border: 2px solid #fbbf24; }
+    .m2-row-drop.placed-home   { background: #d1fae5; border: 2px solid #34d399; }
+    .m2-row-drop.placed-bottom { background: #e0f2fe; border: 2px solid #38bdf8; }
+    .m2-row-drop.placed-space  { background: #f3e8ff; border: 2px solid #c084fc; }
+
+    .m2-slot {
+      width: 175px;
+      flex-shrink: 0;
+      text-align: center;
+      padding: 7px 6px;
+      border-radius: 10px;
+      background: #f1f5f9;
+      color: #94a3b8;
+      font-weight: 800;
+      font-size: 11px;
+      border: 1.5px solid #e2e8f0;
+    }
+    .m2-slot.filled {
+      background: #ffffff;
+      color: #0f172a;
+      border: 2px solid #34d399;
+      font-weight: 900;
+    }
+    .m2-keys-line {
+      display: flex;
+      gap: 4px;
+      flex: 1;
+      justify-content: center;
+      overflow: hidden;
+    }
+    .m2-keys-line .kb-key { width: 29px; height: 30px; font-size: 11px; }
+    .m2-keys-line .kb-key.is-space { width: auto; flex: 1; padding: 0 8px; font-size: 11px; }
+
+    /* =====================================================================
+       12. BÀN PHÍM CHÍNH TƯƠNG TÁC (NV3, NV5, NV6) & ĐÔI BÀN TAY SVG
+       ===================================================================== */
+    .main-kb-box {
+      width: 100%;
+      max-width: 680px;
+      background: #f1f5f9;
+      border: 4px solid #cbd5e1;
+      border-radius: 20px;
+      padding: 10px;
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+      box-shadow: inset 0 2px 6px rgba(0, 0, 0, 0.05);
+    }
+    .main-kb-row {
+      display: flex;
+      justify-content: center;
+      gap: 5px;
+    }
+    .main-kb-key {
+      width: 44px;
+      height: 40px;
+      font-size: 15px;
+    }
+    .main-kb-space {
+      width: 260px;
+      height: 36px;
+      font-size: 12px;
+    }
+
+    .hands-svg-wrap {
+      width: 100%;
+      max-width: 390px;
+      margin: 0 auto;
+    }
+    .hands-svg-wrap svg {
+      width: 100%;
+      height: auto;
+      max-height: 130px;
+      margin: 0 auto;
+    }
+
+    .hands-panel {
+      width: 100%;
+      max-width: 470px;
+      background: rgba(255, 255, 255, 0.92);
+      border: 2px solid #bae6fd;
+      border-radius: 16px;
+      padding: 6px 10px;
+      text-align: center;
+    }
+
+    /* =====================================================================
+       13. NHIỆM VỤ 3, 4, 5, 6 - CÁC THÀNH PHẦN ĐẶC THÙ
+       ===================================================================== */
+    .status-pair {
+      display: flex;
+      gap: 12px;
+      justify-content: center;
+    }
+    .status-chip {
+      padding: 6px 16px;
+      border-radius: 12px;
+      font-weight: 900;
+      font-size: 13px;
+      border: 2px solid #e2e8f0;
+      background: #ffffff;
+      color: #94a3b8;
+    }
+    .status-chip.found {
+      background: #d1fae5;
+      border-color: #34d399;
+      color: #065f46;
+    }
+
+    .token-row {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 14px;
+    }
+    .finger-token {
+      padding: 8px 18px;
+      border-radius: 14px;
+      border: 2px solid;
+      font-weight: 900;
+      font-size: 14px;
+    }
+    .finger-token.used {
+      opacity: 0.4;
+      pointer-events: none;
+    }
+
+    .home-row-zoom {
+      width: 100%;
+      max-width: 720px;
+      background: #f1f5f9;
+      border: 4px solid #cbd5e1;
+      border-radius: 20px;
+      padding: 12px;
+    }
+    .home-row-zoom-title {
+      text-align: center;
+      font-size: 11px;
+      font-weight: 900;
+      color: #64748b;
+      margin-bottom: 8px;
+    }
+    .home-row-keys {
+      display: flex;
+      justify-content: center;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+    .zoom-key {
+      width: 56px;
+      height: 62px;
+      font-size: 17px;
+      cursor: pointer;
+    }
+    .zoom-key-tall {
+      width: 58px;
+      height: 74px;
+      font-size: 17px;
+      cursor: pointer;
+    }
+    .mini-tag {
+      font-size: 10px;
+      padding: 2px 6px;
+      border-radius: 8px;
+      color: #ffffff;
+      font-weight: 900;
+      margin-top: 3px;
+    }
+
+    /* Trắc nghiệm câu hỏi */
+    .quiz-box {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      width: 100%;
+      max-width: 650px;
+    }
+    .quiz-opt {
+      text-align: left;
+      justify-content: flex-start;
+      padding: 12px 18px;
+      border-radius: 16px;
+      background: #ffffff;
+      border: 2px solid #bae6fd;
+      font-size: 15px;
+      font-weight: 800;
+      color: #1e293b;
+      width: 100%;
+    }
+    .quiz-opt:hover { border-color: #38bdf8; }
+    .quiz-opt.opt-correct { background: #d1fae5; border-color: #10b981; color: #064e3b; }
+    .quiz-opt.opt-wrong   { background: #ffe4e6; border-color: #f43f5e; color: #881337; }
+
+    /* Nút chọn ngón tay (NV4 & NV6) */
+    .finger-btn-row {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 6px;
+      max-width: 860px;
+    }
+    .finger-btn {
+      padding: 7px 12px;
+      border-radius: 11px;
+      border: 2px solid;
+      font-size: 12px;
+      font-weight: 800;
+    }
+    .finger-btn-grid {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 8px;
+      width: 100%;
+      max-width: 760px;
+    }
+
+    /* Chuỗi gõ phím (NV5 & NV6) */
+    .seq-strip {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      background: #ffffff;
+      padding: 8px 16px;
+      border-radius: 16px;
+      border: 2px solid #fbcfe8;
+    }
+    .seq-char {
+      width: 38px;
+      height: 40px;
+      border-radius: 10px;
+      font-weight: 900;
+      font-size: 18px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border: 2px solid #e2e8f0;
+      background: #f1f5f9;
+      color: #94a3b8;
+      transition: all 0.15s ease;
+    }
+    .seq-char.done {
+      background: #10b981;
+      border-color: #059669;
+      color: #ffffff;
+    }
+    .seq-char.cur {
+      background: #fcd34d;
+      border-color: #f59e0b;
+      color: #0f172a;
+      transform: scale(1.1);
+      box-shadow: 0 3px 10px rgba(245, 158, 11, 0.35);
+    }
+    .seq-sep {
+      margin: 0 4px;
+      color: #cbd5e1;
+      font-weight: 900;
+    }
+
+    .typing-layout {
+      display: grid;
+      grid-template-columns: 7.5fr 4.5fr;
+      gap: 10px;
+      width: 100%;
+      max-width: 1040px;
+      align-items: center;
+    }
+    @media (max-width: 880px) {
+      .typing-layout { grid-template-columns: 1fr; }
+    }
+
+    .info-bar {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 8px;
+      font-size: 12px;
+      font-weight: 800;
+    }
+    .info-pill-sky   { padding: 4px 12px; border-radius: 10px; background: #f0f9ff; border: 1.5px solid #bae6fd; color: #075985; }
+    .info-pill-ok    { padding: 4px 12px; border-radius: 10px; background: #d1fae5; color: #047857; }
+    .info-pill-err   { padding: 4px 12px; border-radius: 10px; background: #ffe4e6; color: #be123c; }
+    .info-pill-warn  { padding: 6px 14px; border-radius: 12px; background: #fff1f2; border: 2px solid #fecdd3; color: #9f1239; font-size: 13px; }
+    .info-pill-quote { padding: 10px 14px; border-radius: 14px; background: #fffbeb; border: 2px solid #fcd34d; color: #1e293b; font-size: 14px; font-weight: 700; width: 100%; max-width: 650px; }
+
+    /* Thanh chuyển 3 tình huống NV6 */
+    .sit-nav {
+      display: flex;
+      justify-content: center;
+      gap: 8px;
+    }
+    .sit-btn {
+      padding: 5px 12px;
+      border-radius: 10px;
+      font-size: 12px;
+      font-weight: 900;
+      border: 2px solid #e2e8f0;
+      background: #ffffff;
+      color: #475569;
+      cursor: pointer;
+    }
+    .sit-btn.active { background: #4f46e5; border-color: #4338ca; color: #ffffff; }
+    .sit-btn.done   { background: #d1fae5; border-color: #34d399; color: #065f46; }
+
+    /* Minh họa hoạt ảnh trở về hàng cơ sở (NV6 - TH3) */
+    .demo-return-card {
+      width: 100%;
+      max-width: 650px;
+      background: #ecfdf5;
+      border: 2px solid #6ee7b7;
+      border-radius: 20px;
+      padding: 12px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 10px;
+    }
+    .demo-mini-kb {
+      background: #f1f5f9;
+      border: 2px solid #cbd5e1;
+      border-radius: 14px;
+      padding: 12px 18px;
+      display: flex;
+      flex-direction: column;
+      gap: 7px;
+      align-items: center;
+    }
+    .demo-mini-row {
+      display: flex;
+      gap: 7px;
+      align-items: center;
+    }
+    .demo-mini-key {
+      width: 38px;
+      height: 34px;
+      font-size: 12px;
+    }
+    .demo-dot {
+      position: absolute;
+      bottom: -4px;
+      left: 50%;
+      margin-left: -12px;
+      width: 24px;
+      height: 24px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 11px;
+      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.25);
+    }
+
+    /* =====================================================================
+       14. KHO BÁU & MODAL
+       ===================================================================== */
+    .treasure-crystals {
+      display: flex;
+      justify-content: center;
+      gap: 10px;
+    }
+    .treasure-crystal-orb {
+      width: 44px;
+      height: 44px;
+      border-radius: 50%;
+      background: #ffffff;
+      border: 2px solid #fcd34d;
+      box-shadow: 0 4px 12px rgba(245, 158, 11, 0.25);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .treasure-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 8px;
+      width: 100%;
+      max-width: 660px;
+    }
+    .treasure-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 8px 12px;
+      border-radius: 14px;
+      border: 2px solid #fcd34d;
+      background: #ffffff;
+      text-align: left;
+    }
+    .treasure-item.done {
+      background: #ecfdf5;
+      border-color: #6ee7b7;
+    }
+
+    .modal-overlay {
+      position: absolute;
+      inset: 0;
+      z-index: 50;
+      background: rgba(15, 23, 42, 0.48);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 16px;
+    }
+    .modal-card {
+      background: #ffffff;
+      border-radius: 24px;
+      border: 4px solid #bae6fd;
+      box-shadow: 0 20px 50px rgba(15, 23, 42, 0.3);
+      max-width: 430px;
+      width: 100%;
+      padding: 22px;
+      text-align: center;
+    }
+    .modal-icon { font-size: 44px; margin-bottom: 6px; }
+    .modal-title { margin: 0 0 8px 0; font-size: 20px; font-weight: 900; color: #1e293b; }
+    .modal-body { margin: 0 0 18px 0; font-size: 14px; font-weight: 700; color: #475569; line-height: 1.5; }
+    .modal-btns { display: flex; justify-content: center; gap: 10px; }
+
+    /* =====================================================================
+       15. KÉO THẢ POINTER & HOẠT ẢNH
+       ===================================================================== */
+    .drag-item {
+      touch-action: none;
+      cursor: grab;
+    }
+    .drag-item:active { cursor: grabbing; }
+    .drag-ghost {
+      position: fixed;
+      pointer-events: none;
+      z-index: 9999;
+      transform: translate(-50%, -50%) scale(1.06);
+      box-shadow: 0 14px 28px rgba(0, 0, 0, 0.24);
+      opacity: 0.95;
+    }
+    .drop-zone-hover {
+      outline: 3px dashed #0284c7 !important;
+      background-color: #e0f2fe !important;
+      transform: scale(1.02);
+    }
+
+    @keyframes robotFloat {
+      0%, 100% { transform: translateY(0px); }
+      50% { transform: translateY(-4px); }
+    }
+    @keyframes robotJump {
+      0%, 100% { transform: translateY(0) scale(1); }
+      30% { transform: translateY(-16px) scale(1.06); }
+      50% { transform: translateY(0) scale(0.96); }
+      75% { transform: translateY(-10px) scale(1.03); }
+    }
+    @keyframes armWave {
+      0%, 100% { transform: rotate(0deg); }
+      50% { transform: rotate(-16deg); }
+    }
+    @keyframes keyPulse {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.07); }
+    }
+    @keyframes shake {
+      0%, 100% { transform: translateX(0); }
+      25% { transform: translateX(-6px); }
+      50% { transform: translateX(6px); }
+      75% { transform: translateX(-4px); }
+    }
+    @keyframes crystalPop {
+      0% { transform: scale(0.2) rotate(-25deg); opacity: 0; }
+      60% { transform: scale(1.3) rotate(10deg); opacity: 1; }
+      100% { transform: scale(1) rotate(0deg); opacity: 1; }
+    }
+    @keyframes fingerDemoUp {
+      0%, 100% { transform: translateY(0); }
+      35%, 65% { transform: translateY(-38px); }
+    }
+    @keyframes fingerDemoDown {
+      0%, 100% { transform: translateY(0); }
+      35%, 65% { transform: translateY(38px); }
+    }
+
+    .robot-idle { animation: robotFloat 3s ease-in-out infinite; }
+    .robot-jump { animation: robotJump 0.75s ease-in-out; }
+    .robot-arm-right { transform-origin: 85px 66px; animation: armWave 2.2s ease-in-out infinite; }
+    .crystal-earned { animation: crystalPop 0.6s ease-out forwards; }
+    .demo-return-up { animation: fingerDemoUp 2.2s ease-in-out infinite; }
+    .demo-return-down { animation: fingerDemoDown 2.2s ease-in-out infinite; }
+
+    /* Pháo giấy Canvas */
+    #confettiCanvas {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      z-index: 60;
+    }
+
+    /* Thanh cuộn tinh gọn */
+    ::-webkit-scrollbar { width: 6px; height: 6px; }
+    ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 99px; }
+  </style>
+</head>
+<body>
+
+  <!-- KHUNG TRÒ CHƠI CHÍNH (TỈ LỆ 16:9, GỌN TRONG MÀN HÌNH 1366x768 & 1920x1080) -->
+  <div id="gameStage" class="game-stage">
+    <!-- Canvas pháo giấy cho màn chiến thắng -->
+    <canvas id="confettiCanvas"></canvas>
+
+    <!-- Nền mây hoạt hình pastel trang trí -->
+    <div class="bg-decor">
+      <div class="bg-blob-1"></div>
+      <div class="bg-blob-2"></div>
+      <div class="bg-blob-3"></div>
+    </div>
+
+    <!-- THANH ĐIỀU KHIỂN TRÊN CÙNG (HEADER) -->
+    <header class="game-header">
+      <div class="header-group">
+        <button id="btnHome" title="Về trang chủ" class="btn-game btn-sm btn-sky">
+          <span>🏠</span><span>Trang chủ</span>
+        </button>
+        <button id="btnTreasureNav" title="Xem kho báu & tổng kết" class="btn-game btn-sm btn-amber">
+          <span>💎</span><span>Kho báu</span>
+        </button>
+      </div>
+
+      <!-- 6 Viên pha lê tiến độ + Điểm số -->
+      <div class="progress-pill">
+        <span class="progress-label">PHA LÊ:</span>
+        <div id="crystalBar" class="crystal-bar"></div>
+        <div class="progress-divider"></div>
+        <div class="score-box">
+          <span>⭐</span>
+          <span id="scoreDisplay">0</span>
+          <span class="score-max">/ 100</span>
+        </div>
+      </div>
+
+      <div class="header-group">
+        <button id="btnHint" title="Xem gợi ý" class="btn-game btn-sm btn-yellow">
+          <span>💡</span><span>Gợi ý</span>
+        </button>
+        <button id="btnSound" title="Bật/tắt âm thanh" class="btn-game btn-sm btn-emerald">
+          🔊
+        </button>
+        <button id="btnRestart" title="Chơi lại từ đầu" class="btn-game btn-sm btn-rose">
+          <span>🔄</span><span>Chơi lại</span>
+        </button>
+      </div>
+    </header>
+
+    <!-- KHU VỰC NỘI DUNG CHÍNH CỦA TỪNG MÀN CHƠI -->
+    <main id="mainContent" class="game-main"></main>
+
+    <!-- KHU VỰC ROBOT HƯỚNG DẪN Ở GÓC DƯỚI TRÁI (KHÔNG CHE NỘI DUNG) -->
+    <footer id="robotFooter" class="robot-footer">
+      <div class="robot-wrap">
+        <!-- SVG Chú Robot Bàn Phím (có kích thước cố định 58x58) -->
+        <div id="robotAvatar" class="robot-avatar robot-idle">
+          <svg width="58" height="58" viewBox="0 0 110 110">
+            <line x1="55" y1="18" x2="55" y2="8" stroke="#6366f1" stroke-width="4" stroke-linecap="round"/>
+            <circle cx="55" cy="7" r="5" fill="#fbbf24" stroke="#d97706" stroke-width="2"/>
+            <rect x="14" y="34" width="8" height="16" rx="4" fill="#38bdf8"/>
+            <rect x="88" y="34" width="8" height="16" rx="4" fill="#38bdf8"/>
+            <rect x="22" y="18" width="66" height="44" rx="14" fill="#e0f2fe" stroke="#0284c7" stroke-width="3.5"/>
+            <rect x="30" y="25" width="50" height="29" rx="9" fill="#0f172a"/>
+            <circle cx="43" cy="38" r="4.5" fill="#38bdf8"/>
+            <circle cx="67" cy="38" r="4.5" fill="#38bdf8"/>
+            <circle cx="44.5" cy="36.5" r="1.5" fill="#ffffff"/>
+            <circle cx="68.5" cy="36.5" r="1.5" fill="#ffffff"/>
+            <path d="M 46 46 Q 55 52 64 46" stroke="#4ade80" stroke-width="3" fill="none" stroke-linecap="round"/>
+            <rect x="30" y="64" width="50" height="32" rx="10" fill="#818cf8" stroke="#4338ca" stroke-width="3"/>
+            <rect x="38" y="72" width="10" height="8" rx="2" fill="#ffffff"/>
+            <rect x="50" y="72" width="10" height="8" rx="2" fill="#fde047"/>
+            <rect x="62" y="72" width="10" height="8" rx="2" fill="#ffffff"/>
+            <rect x="42" y="83" width="26" height="6" rx="2" fill="#bae6fd"/>
+            <path d="M 28 70 Q 15 74 16 86" stroke="#0284c7" stroke-width="6" stroke-linecap="round" fill="none"/>
+            <circle cx="16" cy="87" r="4.5" fill="#fbbf24"/>
+            <g class="robot-arm-right">
+              <path d="M 82 70 Q 95 64 98 52" stroke="#0284c7" stroke-width="6" stroke-linecap="round" fill="none"/>
+              <circle cx="98" cy="50" r="4.5" fill="#fbbf24"/>
+            </g>
+            <rect x="38" y="96" width="12" height="8" rx="4" fill="#334155"/>
+            <rect x="60" y="96" width="12" height="8" rx="4" fill="#334155"/>
+          </svg>
+        </div>
+
+        <div class="robot-bubble">
+          <div class="robot-bubble-head">
+            <span class="robot-name">🤖 Rô-bốt Bàn Phím</span>
+            <span id="robotStatusBadge" class="robot-badge hidden"></span>
+          </div>
+          <p id="robotSpeech" class="robot-speech">
+            Xin chào bạn nhỏ! Hãy giúp mình thu thập đủ 6 viên pha lê nhé!
+          </p>
+        </div>
+      </div>
+
+      <div id="footerAction" class="footer-action"></div>
+    </footer>
+
+    <!-- HỘP THOẠI XÁC NHẬN CHƠI LẠI / GỢI Ý -->
+    <div id="modalOverlay" class="modal-overlay hidden">
+      <div class="modal-card">
+        <div id="modalIcon" class="modal-icon">💡</div>
+        <h3 id="modalTitle" class="modal-title">Thông báo</h3>
+        <p id="modalBody" class="modal-body"></p>
+        <div id="modalButtons" class="modal-btns"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- TOÀN BỘ LOGIC TRÒ CHƠI (CHẠY NGOẠI TUYẾN HOÀN TOÀN) -->
+  <script>
+    /*************************************************************************
+     * 1. HỆ THỐNG ÂM THANH (WEB AUDIO API - KHÔNG CẦN FILE NGOÀI)
+     *************************************************************************/
+    const SoundFX = {
+      enabled: true,
+      ctx: null,
+      init() {
+        if (!this.ctx) {
+          const AudioCtx = window.AudioContext || window.webkitAudioContext;
+          if (AudioCtx) this.ctx = new AudioCtx();
+        }
+        if (this.ctx && this.ctx.state === 'suspended') {
+          this.ctx.resume();
+        }
+      },
+      playTone(freq, duration = 0.14, type = 'sine', volume = 0.14, delay = 0) {
+        if (!this.enabled) return;
+        try {
+          this.init();
+          if (!this.ctx) return;
+          const osc = this.ctx.createOscillator();
+          const gain = this.ctx.createGain();
+          osc.type = type;
+          osc.frequency.setValueAtTime(freq, this.ctx.currentTime + delay);
+          gain.gain.setValueAtTime(0.001, this.ctx.currentTime + delay);
+          gain.gain.exponentialRampToValueAtTime(volume, this.ctx.currentTime + delay + 0.02);
+          gain.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime + delay + duration);
+          osc.connect(gain);
+          gain.connect(this.ctx.destination);
+          osc.start(this.ctx.currentTime + delay);
+          osc.stop(this.ctx.currentTime + delay + duration + 0.02);
+        } catch (e) { /* Bỏ qua nếu trình duyệt hạn chế âm thanh */ }
+      },
+      click() { this.playTone(520, 0.07, 'triangle', 0.1); },
+      keyTap() { this.playTone(680, 0.06, 'sine', 0.1); },
+      correct() {
+        this.playTone(523.25, 0.12, 'triangle', 0.15, 0);
+        this.playTone(659.25, 0.12, 'triangle', 0.15, 0.09);
+        this.playTone(783.99, 0.22, 'triangle', 0.16, 0.18);
+      },
+      wrong() {
+        this.playTone(260, 0.16, 'sine', 0.12, 0);
+        this.playTone(220, 0.2, 'sine', 0.12, 0.12);
+      },
+      crystal() {
+        const notes = [523.25, 659.25, 783.99, 1046.5];
+        notes.forEach((n, i) => this.playTone(n, 0.2, 'triangle', 0.16, i * 0.09));
+      },
+      victory() {
+        const fanfare = [523.25, 659.25, 783.99, 1046.5, 783.99, 1046.5];
+        const times = [0, 0.12, 0.24, 0.38, 0.54, 0.68];
+        fanfare.forEach((n, i) => this.playTone(n, 0.26, 'triangle', 0.18, times[i]));
+      }
+    };
+
+    /*************************************************************************
+     * 2. DỮ LIỆU CỐT LÕI (BÀN PHÍM QWERTY, NGÓN TAY, 6 NHIỆM VỤ)
+     *************************************************************************/
+    const FINGERS = {
+      'l-pinky':  { id: 'l-pinky',  name: 'Ngón út tay trái',    short: 'Út trái',    color: '#ec4899', bg: '#fbcfe8', cls: 'f-l-pinky',  home: 'A' },
+      'l-ring':   { id: 'l-ring',   name: 'Ngón áp út tay trái', short: 'Áp út trái', color: '#f97316', bg: '#fed7aa', cls: 'f-l-ring',   home: 'S' },
+      'l-middle': { id: 'l-middle', name: 'Ngón giữa tay trái',  short: 'Giữa trái',  color: '#eab308', bg: '#fef08a', cls: 'f-l-middle', home: 'D' },
+      'l-index':  { id: 'l-index',  name: 'Ngón trỏ tay trái',   short: 'Trỏ trái',   color: '#22c55e', bg: '#bbf7d0', cls: 'f-l-index',  home: 'F' },
+      'thumb':    { id: 'thumb',    name: 'Hai ngón cái',        short: 'Ngón cái',   color: '#64748b', bg: '#e2e8f0', cls: 'f-thumb',    home: 'SPACE' },
+      'r-index':  { id: 'r-index',  name: 'Ngón trỏ tay phải',   short: 'Trỏ phải',   color: '#0ea5e9', bg: '#bae6fd', cls: 'f-r-index',  home: 'J' },
+      'r-middle': { id: 'r-middle', name: 'Ngón giữa tay phải',  short: 'Giữa phải',  color: '#6366f1', bg: '#c7d2fe', cls: 'f-r-middle', home: 'K' },
+      'r-ring':   { id: 'r-ring',   name: 'Ngón áp út tay phải', short: 'Áp út phải', color: '#a855f7', bg: '#e9d5ff', cls: 'f-r-ring',   home: 'L' },
+      'r-pinky':  { id: 'r-pinky',  name: 'Ngón út tay phải',    short: 'Út phải',    color: '#f43f5e', bg: '#fecdd3', cls: 'f-r-pinky',  home: ';' }
+    };
+
+    const KEY_TO_FINGER = {
+      '1':'l-pinky','Q':'l-pinky','A':'l-pinky','Z':'l-pinky',
+      '2':'l-ring','W':'l-ring','S':'l-ring','X':'l-ring',
+      '3':'l-middle','E':'l-middle','D':'l-middle','C':'l-middle',
+      '4':'l-index','5':'l-index','R':'l-index','T':'l-index','F':'l-index','G':'l-index','V':'l-index','B':'l-index',
+      '6':'r-index','7':'r-index','Y':'r-index','U':'r-index','H':'r-index','J':'r-index','N':'r-index','M':'r-index',
+      '8':'r-middle','I':'r-middle','K':'r-middle',',':'r-middle',
+      '9':'r-ring','O':'r-ring','L':'r-ring','.':'r-ring',
+      '0':'r-pinky','P':'r-pinky',';':'r-pinky','/':'r-pinky',
+      'SPACE':'thumb'
+    };
+
+    const MISSIONS_META = [
+      { id: 1, title: 'Khám phá bàn phím',     level: 'Nhận biết',     points: 10, color: '#38bdf8', icon: '🔍', crystalName: 'Pha lê Xanh Dương' },
+      { id: 2, title: 'Truy tìm hàng phím',    level: 'Nhận biết',     points: 10, color: '#a855f7', icon: '🧩', crystalName: 'Pha lê Tím' },
+      { id: 3, title: 'Bí mật hai phím có gờ', level: 'Thông hiểu',    points: 15, color: '#22c55e', icon: '✨', crystalName: 'Pha lê Lục Bảo' },
+      { id: 4, title: 'Đôi bàn tay thần kỳ',   level: 'Thông hiểu',    points: 15, color: '#f59e0b', icon: '🖐️', crystalName: 'Pha lê Hổ Phách' },
+      { id: 5, title: 'Thử thách gõ phím',     level: 'Vận dụng',      points: 20, color: '#ec4899', icon: '⌨️', crystalName: 'Pha lê Hồng Ngọc' },
+      { id: 6, title: 'Bậc thầy bàn phím',     level: 'Vận dụng cao',  points: 30, color: '#ef4444', icon: '👑', crystalName: 'Pha lê Mặt Trời' }
+    ];
+
+    const GameState = {
+      screen: 'home',
+      score: 0,
+      completed: { 1: false, 2: false, 3: false, 4: false, 5: false, 6: false },
+      m6SubDone: { 1: false, 2: false, 3: false },
+      hintUsedByMission: { 1: false, 2: false, 3: false, 4: false, 5: false, 6: false },
+      totalHintsUsed: 0,
+      activeKeyHandler: null,
+      currentHintText: 'Hãy chọn một thử thách để bắt đầu hành trình giải cứu Vương quốc Bàn phím nhé!'
+    };
+
+    /*************************************************************************
+     * 3. TIỆN ÍCH GIAO DIỆN, ROBOT, MODAL
+     *************************************************************************/
+    function setRobotSpeech(text, mood = 'normal') {
+      const el = document.getElementById('robotSpeech');
+      const avatar = document.getElementById('robotAvatar');
+      const badge = document.getElementById('robotStatusBadge');
+      el.innerHTML = text;
+
+      avatar.classList.remove('robot-jump');
+      void avatar.offsetWidth;
+
+      if (mood === 'happy') {
+        avatar.classList.add('robot-jump');
+        badge.textContent = 'Tuyệt vời!';
+        badge.className = 'robot-badge happy';
+      } else if (mood === 'hint') {
+        badge.textContent = 'Gợi ý nhỏ';
+        badge.className = 'robot-badge hint';
+      } else {
+        badge.className = 'robot-badge hidden';
+      }
+    }
+
+    function setFooterAction(html = '') {
+      document.getElementById('footerAction').innerHTML = html;
+    }
+
+    function showModal({ icon = '💡', title = 'Thông báo', body = '', buttons = [] }) {
+      document.getElementById('modalIcon').textContent = icon;
+      document.getElementById('modalTitle').textContent = title;
+      document.getElementById('modalBody').innerHTML = body;
+      const btnWrap = document.getElementById('modalButtons');
+      btnWrap.innerHTML = '';
+      buttons.forEach(b => {
+        const btn = document.createElement('button');
+        btn.className = `btn-game btn-md ${b.cls || 'btn-sky'}`;
+        btn.textContent = b.label;
+        btn.onclick = () => {
+          SoundFX.click();
+          hideModal();
+          if (b.onClick) b.onClick();
+        };
+        btnWrap.appendChild(btn);
+      });
+      document.getElementById('modalOverlay').classList.remove('hidden');
+    }
+
+    function hideModal() {
+      document.getElementById('modalOverlay').classList.add('hidden');
+    }
+
+    function renderCrystalSVG(color, glow = false) {
+      return `
+        <svg width="20" height="20" viewBox="0 0 32 32" class="crystal-svg ${glow ? 'crystal-earned' : ''}">
+          <polygon points="16,2 26,11 22,29 10,29 6,11" fill="${color}" stroke="#ffffff" stroke-width="1.8"/>
+          <polygon points="16,2 21,11 16,29 11,11" fill="rgba(255,255,255,0.35)"/>
+        </svg>
+      `;
+    }
+
+    function updateHeaderUI() {
+      document.getElementById('scoreDisplay').textContent = GameState.score;
+      const bar = document.getElementById('crystalBar');
+      bar.innerHTML = '';
+      MISSIONS_META.forEach(m => {
+        const earned = GameState.completed[m.id];
+        const btn = document.createElement('button');
+        btn.title = `Nhiệm vụ ${m.id}: ${m.title} (${earned ? 'Đã hoàn thành' : 'Chưa xong'})`;
+        btn.className = `crystal-slot ${earned ? 'earned' : ''}`;
+        btn.innerHTML = renderCrystalSVG(earned ? m.color : '#94a3b8', earned);
+        btn.onclick = () => {
+          SoundFX.click();
+          goToScreen('m' + m.id);
+        };
+        bar.appendChild(btn);
+      });
+    }
+
+    function awardMission(missionId) {
+      if (!GameState.completed[missionId]) {
+        GameState.completed[missionId] = true;
+        if (missionId !== 6) {
+          const meta = MISSIONS_META.find(m => m.id === missionId);
+          GameState.score += meta.points;
+        }
+        SoundFX.crystal();
+        updateHeaderUI();
+      }
+    }
+
+    function awardMission6Sub(subId) {
+      if (!GameState.m6SubDone[subId]) {
+        GameState.m6SubDone[subId] = true;
+        GameState.score += 10;
+        SoundFX.correct();
+        if (GameState.m6SubDone[1] && GameState.m6SubDone[2] && GameState.m6SubDone[3]) {
+          GameState.completed[6] = true;
+          SoundFX.crystal();
+        }
+        updateHeaderUI();
+      }
+    }
+
+    function clearKeyboardListener() {
+      if (GameState.activeKeyHandler) {
+        window.removeEventListener('keydown', GameState.activeKeyHandler);
+        GameState.activeKeyHandler = null;
+      }
+    }
+
+    function goToScreen(screenName) {
+      clearKeyboardListener();
+      stopConfetti();
+      if (document.activeElement && typeof document.activeElement.blur === 'function') {
+        document.activeElement.blur();
+      }
+      GameState.screen = screenName;
+      setFooterAction('');
+      updateHeaderUI();
+
+      switch (screenName) {
+        case 'home': renderHome(); break;
+        case 'm1': renderMission1(); break;
+        case 'm2': renderMission2(); break;
+        case 'm3': renderMission3(); break;
+        case 'm4': renderMission4(); break;
+        case 'm5': renderMission5(); break;
+        case 'm6': renderMission6(); break;
+        case 'treasure': renderTreasure(); break;
+      }
+    }
+
+    /*************************************************************************
+     * 4. HỆ THỐNG KÉO THẢ ĐA NỀN TẢNG (CHUỘT + CẢM ỨNG)
+     *************************************************************************/
+    function makeDraggable(el, payload, onDropCallback) {
+      el.classList.add('drag-item');
+      el.addEventListener('pointerdown', (e) => {
+        if (el.dataset.locked === 'true') return;
+        e.preventDefault();
+        SoundFX.click();
+
+        const ghost = el.cloneNode(true);
+        ghost.classList.add('drag-ghost');
+        ghost.style.width = el.offsetWidth + 'px';
+        ghost.style.left = e.clientX + 'px';
+        ghost.style.top = e.clientY + 'px';
+        document.body.appendChild(ghost);
+        el.style.opacity = '0.35';
+
+        let currentHover = null;
+
+        const onMove = (ev) => {
+          ghost.style.left = ev.clientX + 'px';
+          ghost.style.top = ev.clientY + 'px';
+          ghost.style.display = 'none';
+          const under = document.elementFromPoint(ev.clientX, ev.clientY);
+          ghost.style.display = '';
+          const dz = under ? under.closest('[data-dropzone]') : null;
+
+          if (currentHover && currentHover !== dz) {
+            currentHover.classList.remove('drop-zone-hover');
+          }
+          if (dz) {
+            dz.classList.add('drop-zone-hover');
+          }
+          currentHover = dz;
+        };
+
+        const onUp = () => {
+          window.removeEventListener('pointermove', onMove);
+          window.removeEventListener('pointerup', onUp);
+          window.removeEventListener('pointercancel', onUp);
+          ghost.remove();
+          el.style.opacity = '1';
+          if (currentHover) {
+            currentHover.classList.remove('drop-zone-hover');
+            onDropCallback(payload, currentHover.dataset.dropzone, currentHover, el);
+          }
+        };
+
+        window.addEventListener('pointermove', onMove);
+        window.addEventListener('pointerup', onUp);
+        window.addEventListener('pointercancel', onUp);
+      });
+    }
+
+    /*************************************************************************
+     * 5. COMPONENT VẼ ĐÔI BÀN TAY HOẠT HÌNH CHUẨN GIẢI PHẪU (SVG CỐ ĐỊNH TỈ LỆ)
+     *************************************************************************/
+    function renderHandsSVG({ highlightFinger = null, clickable = false, showLabels = true } = {}) {
+      const fStyle = (id) => {
+        const f = FINGERS[id];
+        const isHL = highlightFinger === id;
+        const stroke = isHL ? '#0f172a' : f.color;
+        const sw = isHL ? '4.5' : '2.5';
+        const cursorStyle = clickable ? 'style="cursor:pointer"' : '';
+        return { fill: f.bg, stroke, sw, cursorStyle, isHL };
+      };
+
+      const renderFingerPath = (id, x, y, w, h, rx, label) => {
+        const s = fStyle(id);
+        return `
+          <g ${s.cursorStyle} ${clickable ? `data-finger-click="${id}"` : ''}>
+            <rect x="${x}" y="${y}" width="${w}" height="${h}" rx="${rx}" fill="${s.fill}" stroke="${s.stroke}" stroke-width="${s.sw}" />
+            ${s.isHL ? `<circle cx="${x + w/2}" cy="${y + 12}" r="6" fill="#f59e0b" stroke="#fff" stroke-width="2"/>` : ''}
+            ${showLabels ? `<text x="${x + w/2}" y="${y + h - 8}" text-anchor="middle" font-size="10" font-weight="900" fill="#1e293b">${label}</text>` : ''}
+          </g>
+        `;
+      };
+
+      const tStyle = fStyle('thumb');
+      return `
+        <div class="hands-svg-wrap">
+          <svg width="390" height="130" viewBox="0 0 460 155">
+            <!-- BÀN TAY TRÁI -->
+            <g transform="translate(10, 5)">
+              <text x="95" y="146" text-anchor="middle" font-size="13" font-weight="900" fill="#0369a1">TAY TRÁI</text>
+              <rect x="25" y="72" width="136" height="56" rx="22" fill="#fff7ed" stroke="#fdba74" stroke-width="3"/>
+              ${renderFingerPath('l-pinky',  25, 32, 26, 52, 13, 'A')}
+              ${renderFingerPath('l-ring',   55, 16, 28, 66, 14, 'S')}
+              ${renderFingerPath('l-middle', 87, 8,  28, 74, 14, 'D')}
+              ${renderFingerPath('l-index',  119, 18, 28, 64, 14, 'F')}
+              <g ${tStyle.cursorStyle} ${clickable ? 'data-finger-click="thumb"' : ''}>
+                <rect x="150" y="74" width="44" height="26" rx="13" transform="rotate(-18 150 74)" fill="${tStyle.fill}" stroke="${tStyle.stroke}" stroke-width="${tStyle.sw}"/>
+                ${showLabels ? `<text x="174" y="83" text-anchor="middle" font-size="9" font-weight="900" fill="#334155">Cái</text>` : ''}
+              </g>
+            </g>
+
+            <!-- BÀN TAY PHẢI -->
+            <g transform="translate(245, 5)">
+              <text x="108" y="146" text-anchor="middle" font-size="13" font-weight="900" fill="#6d28d9">TAY PHẢI</text>
+              <rect x="42" y="72" width="136" height="56" rx="22" fill="#fff7ed" stroke="#fdba74" stroke-width="3"/>
+              <g ${tStyle.cursorStyle} ${clickable ? 'data-finger-click="thumb"' : ''}>
+                <rect x="10" y="61" width="44" height="26" rx="13" transform="rotate(18 10 61)" fill="${tStyle.fill}" stroke="${tStyle.stroke}" stroke-width="${tStyle.sw}"/>
+                ${showLabels ? `<text x="28" y="83" text-anchor="middle" font-size="9" font-weight="900" fill="#334155">Cái</text>` : ''}
+              </g>
+              ${renderFingerPath('r-index',  56, 18, 28, 64, 14, 'J')}
+              ${renderFingerPath('r-middle', 88, 8,  28, 74, 14, 'K')}
+              ${renderFingerPath('r-ring',   120, 16, 28, 66, 14, 'L')}
+              ${renderFingerPath('r-pinky',  152, 32, 26, 52, 13, ';')}
+            </g>
+          </svg>
+        </div>
+      `;
+    }
+
+    // Helper vẽ bàn phím chính (NV3, NV5, NV6)
+    function renderInteractiveMainKeyboard({ showBumps = true, colorByFinger = false, highlightKeys = [], targetKey = null } = {}) {
+      const rows = [
+        ['1','2','3','4','5','6','7','8','9','0'],
+        ['Q','W','E','R','T','Y','U','I','O','P'],
+        ['A','S','D','F','G','H','J','K','L',';'],
+        ['Z','X','C','V','B','N','M',',','.','/']
+      ];
+      return `
+        <div class="main-kb-box">
+          ${rows.map((row, rIdx) => `
+            <div class="main-kb-row" style="padding-left:${rIdx * 10}px">
+              ${row.map(k => {
+                const fId = KEY_TO_FINGER[k];
+                const fCls = colorByFinger && fId ? FINGERS[fId].cls : '';
+                const hlCls = highlightKeys.includes(k) ? 'correct-key' : '';
+                const tgCls = targetKey === k ? 'target-pulse' : '';
+                return `
+                  <div data-key="${k}" class="kb-key main-kb-key ${fCls} ${hlCls} ${tgCls}">
+                    ${k}
+                    ${showBumps && (k === 'F' || k === 'J') ? '<span class="bump-bar"></span>' : ''}
+                  </div>
+                `;
+              }).join('')}
+            </div>
+          `).join('')}
+          <div class="main-kb-row" style="margin-top:2px;">
+            <div data-key="SPACE" class="kb-key main-kb-space ${colorByFinger ? 'f-thumb' : ''} ${targetKey === 'SPACE' ? 'target-pulse' : ''}">
+              Phím dấu cách (Space)
+            </div>
+          </div>
+        </div>
+      `;
+    }
+
+    /*************************************************************************
+     * 6. MÀN HÌNH TRANG CHỦ (HOME)
+     *************************************************************************/
+    function renderHome() {
+      GameState.currentHintText = 'Em hãy nhấn nút "Bắt đầu hành trình" hoặc chọn từng thử thách bên dưới để thu thập đủ 6 viên pha lê nhé!';
+      setRobotSpeech('Ôi không! Sáu viên pha lê của Vương quốc Bàn phím đã biến mất! Em hãy giúp mình vượt qua sáu thử thách để mở kho báu nhé!', 'normal');
+
+      const completedCount = Object.values(GameState.completed).filter(Boolean).length;
+      const nextMission = MISSIONS_META.find(m => !GameState.completed[m.id]) || MISSIONS_META[0];
+
+      const main = document.getElementById('mainContent');
+      main.innerHTML = `
+        <div class="screen-center">
+          <div style="text-align:center; max-width:680px;">
+            <div class="home-badge">📚 Tin học Lớp 3 • Bài 5: Sử dụng bàn phím</div>
+            <h1 class="home-title">HÀNH TRÌNH GIẢI CỨU<br/>VƯƠNG QUỐC BÀN PHÍM</h1>
+            <p class="home-sub">
+              Vượt qua 6 thử thách • Đạt từ <b style="color:#d97706;">80 điểm</b> trở lên để mở rương kho báu!
+            </p>
+          </div>
+
+          <div class="missions-grid">
+            ${MISSIONS_META.map(m => {
+              const done = GameState.completed[m.id];
+              const noHintBadge = done && !GameState.hintUsedByMission[m.id];
+              return `
+                <button onclick="SoundFX.click(); goToScreen('m${m.id}')" class="btn-game mission-card ${done ? 'done' : ''}">
+                  <div class="mission-card-top">
+                    <span class="mission-icon">${m.icon}</span>
+                    <div class="tag-row">
+                      ${done ? '<span class="tag-done">✓ Xong</span>' : ''}
+                      <span class="tag-pts">${m.points}đ</span>
+                    </div>
+                  </div>
+                  <div class="mission-card-name">${m.id}. ${m.title}</div>
+                  <div class="mission-card-foot">
+                    <span>${m.level}</span>
+                    ${noHintBadge ? '<span class="badge-self">🏅 Tự chinh phục</span>' : ''}
+                  </div>
+                </button>
+              `;
+            }).join('')}
+          </div>
+
+          <div class="home-actions">
+            <button onclick="SoundFX.click(); goToScreen('m${nextMission.id}')" class="btn-game btn-lg btn-grad-blue">
+              <span>🚀</span>
+              <span>${completedCount === 0 ? 'Bắt đầu hành trình' : completedCount === 6 ? 'Luyện tập lại' : `Tiếp tục Nhiệm vụ ${nextMission.id}`}</span>
+            </button>
+            ${completedCount === 6 ? `
+              <button onclick="SoundFX.click(); goToScreen('treasure')" class="btn-game btn-lg btn-grad-orange">
+                <span>🏆</span><span>Mở Kho Báu Ngay!</span>
+              </button>
+            ` : ''}
+          </div>
+        </div>
+      `;
+    }
+
+    /*************************************************************************
+     * 7. NHIỆM VỤ 1: KHÁM PHÁ BÀN PHÍM (10 ĐIỂM)
+     *************************************************************************/
+    function renderMission1() {
+      GameState.currentHintText = 'Khu vực chính của bàn phím là khu vực số 2, nằm ở giữa và có rất nhiều phím chữ cái (Q, W, E, A, S, D...) và phím số!';
+      setRobotSpeech('Em hãy <b>nháy chuột vào khu vực chính của bàn phím</b>, nơi có nhiều phím nhất nhé!', 'normal');
+
+      const main = document.getElementById('mainContent');
+      main.innerHTML = `
+        <div class="screen-col">
+          <div class="mission-head">
+            <span class="mission-pill pill-sky">NHIỆM VỤ 1 • NHẬN BIẾT • 10 ĐIỂM</span>
+            <h2 class="mission-title">🔍 Khám phá 4 khu vực của bàn phím</h2>
+          </div>
+
+          <div class="full-kb-board">
+            <div class="m1-top-row">
+              <div id="zone1" data-zone="1" class="kb-zone">
+                <span class="zone-num zn-1">1</span>
+                <div class="m1-fn-keys">
+                  <div class="kb-key">Esc</div>
+                  ${['F1','F2','F3','F4','F5','F6','F7','F8','F9','F10','F11','F12'].map(k =>
+                    `<div class="kb-key">${k}</div>`
+                  ).join('')}
+                </div>
+              </div>
+              <div class="m1-leds">Đèn báo: Num • Caps • Scroll</div>
+            </div>
+
+            <div class="m1-body-row">
+              <!-- KHU VỰC 2: KHU VỰC CHÍNH -->
+              <div id="zone2" data-zone="2" class="kb-zone m1-main-rows">
+                <span class="zone-num zn-2">2</span>
+                ${[
+                  ['`','1','2','3','4','5','6','7','8','9','0','-','=','←'],
+                  ['Tab','Q','W','E','R','T','Y','U','I','O','P','[',']','\\'],
+                  ['Caps','A','S','D','F','G','H','J','K','L',';','\'','Enter'],
+                  ['Shift','Z','X','C','V','B','N','M',',','.','/','Shift'],
+                  ['Ctrl','Win','Alt','SPACE','Alt','Ctrl']
+                ].map(row => `
+                  <div class="m1-main-line">
+                    ${row.map(k => {
+                      const isSpace = k === 'SPACE';
+                      const isWide = ['Tab','Caps','Enter','Shift','←'].includes(k);
+                      const cls = isSpace ? 'm1-k-space' : isWide ? 'm1-k-wide' : 'm1-k-std';
+                      return `<div class="kb-key ${cls}">
+                        ${isSpace ? 'Space (Dấu cách)' : k}
+                        ${(k === 'F' || k === 'J') ? '<span class="bump-bar"></span>' : ''}
+                      </div>`;
+                    }).join('')}
+                  </div>
+                `).join('')}
+              </div>
+
+              <!-- KHU VỰC 3: PHÍM ĐIỀU HƯỚNG -->
+              <div id="zone3" data-zone="3" class="kb-zone m1-nav-col">
+                <span class="zone-num zn-3">3</span>
+                <div class="m1-nav-grid">
+                  ${['Ins','Hm','PU','Del','End','PD'].map(k => `<div class="kb-key">${k}</div>`).join('')}
+                </div>
+                <div class="m1-nav-grid">
+                  <div></div><div class="kb-key">↑</div><div></div>
+                  <div class="kb-key">←</div><div class="kb-key">↓</div><div class="kb-key">→</div>
+                </div>
+              </div>
+
+              <!-- KHU VỰC 4: BÀN PHÍM SỐ -->
+              <div id="zone4" data-zone="4" class="kb-zone">
+                <span class="zone-num zn-4">4</span>
+                <div class="m1-num-grid">
+                  ${['Num','/','*','-','7','8','9','+','4','5','6','+','1','2','3','↵','0','0','.','↵'].map(k =>
+                    `<div class="kb-key">${k}</div>`
+                  ).join('')}
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="note-chip">Hãy nháy trực tiếp vào 1 trong 4 khung đánh số trên bàn phím!</div>
+        </div>
+      `;
+
+      main.querySelectorAll('.kb-zone').forEach(z => {
+        z.addEventListener('click', () => {
+          const id = z.dataset.zone;
+          main.querySelectorAll('.kb-zone').forEach(el => el.classList.remove('zone-wrong'));
+          if (id === '2') {
+            z.classList.add('zone-correct');
+            awardMission(1);
+            setRobotSpeech('🎉 Chính xác rồi! Khu vực số 2 là <b>Khu vực chính của bàn phím</b>! Em nhận được <b>10 điểm</b> và Viên Pha lê Xanh Dương!', 'happy');
+            setFooterAction(`
+              <button onclick="SoundFX.click(); goToScreen('m2')" class="btn-game btn-md btn-green">
+                Nhiệm vụ 2 ➜
+              </button>
+            `);
+          } else {
+            z.classList.add('zone-wrong');
+            SoundFX.wrong();
+            setRobotSpeech('Chưa đúng rồi! Em hãy tìm khu vực có <b>nhiều phím chữ cái</b> nhất nhé!', 'hint');
+          }
+        });
+      });
+
+      if (GameState.completed[1]) {
+        document.getElementById('zone2').classList.add('zone-correct');
+        setFooterAction(`
+          <button onclick="SoundFX.click(); goToScreen('m2')" class="btn-game btn-md btn-green">
+            Nhiệm vụ 2 ➜
+          </button>
+        `);
+      }
+    }
+
+    /*************************************************************************
+     * 8. NHIỆM VỤ 2: TRUY TÌM HÀNG PHÍM (10 ĐIỂM)
+     *************************************************************************/
+    function renderMission2() {
+      GameState.currentHintText = 'Hàng phím số có 1, 2, 3...; Hàng trên có Q, W, E...; Hàng cơ sở có A, S, D, F, J...; Hàng dưới có Z, X, C...; Hàng cuối chứa phím Dấu cách (Space)!';
+      setRobotSpeech('Em hãy <b>kéo thả 5 thẻ tên</b> vào đúng các hàng phím trên khu vực chính nhé! (Hoặc nháy thẻ rồi nháy vào hàng cần đặt)', 'normal');
+
+      const rowsData = [
+        { id: 'num',    label: 'Hàng phím số',                 keys: ['1','2','3','4','5','6','7','8','9','0','-','='] },
+        { id: 'top',    label: 'Hàng phím trên',               keys: ['Q','W','E','R','T','Y','U','I','O','P','[',']'] },
+        { id: 'home',   label: 'Hàng phím cơ sở',              keys: ['A','S','D','F','G','H','J','K','L',';','\''] },
+        { id: 'bottom', label: 'Hàng phím dưới',               keys: ['Z','X','C','V','B','N','M',',','.','/'] },
+        { id: 'space',  label: 'Hàng phím chứa phím dấu cách', keys: ['Ctrl','Alt','Phím dấu cách (Space)','Alt','Ctrl'] }
+      ];
+
+      const shuffled = [rowsData[2], rowsData[0], rowsData[4], rowsData[1], rowsData[3]];
+      const placed = {};
+      let selectedCardId = null;
+
+      const main = document.getElementById('mainContent');
+      main.innerHTML = `
+        <div class="screen-col">
+          <div class="mission-head">
+            <span class="mission-pill pill-purple">NHIỆM VỤ 2 • NHẬN BIẾT • 10 ĐIỂM</span>
+            <h2 class="mission-title">🧩 Truy tìm tên 5 hàng phím</h2>
+          </div>
+
+          <div class="m2-layout">
+            <div class="m2-cards-box">
+              <div class="m2-cards-title">Kéo các thẻ tên này sang phải ➔</div>
+              <div id="m2Cards" class="m2-cards-list">
+                ${shuffled.map(r => `
+                  <div id="card-${r.id}" data-card-id="${r.id}" class="btn-game btn-grad-purple m2-card">
+                    🏷️ ${r.label}
+                  </div>
+                `).join('')}
+              </div>
+            </div>
+
+            <div class="m2-rows-board">
+              ${rowsData.map(r => `
+                <div id="rowWrap-${r.id}" data-dropzone="${r.id}" class="m2-row-drop">
+                  <div id="slot-${r.id}" class="m2-slot">Thả tên vào đây</div>
+                  <div class="m2-keys-line">
+                    ${r.keys.map(k => `
+                      <div class="kb-key ${k.includes('Space') ? 'is-space' : ''}">
+                        ${k}
+                        ${(k === 'F' || k === 'J') ? '<span class="bump-bar"></span>' : ''}
+                      </div>
+                    `).join('')}
+                  </div>
+                </div>
+              `).join('')}
+            </div>
+          </div>
+
+          <div></div>
+        </div>
+      `;
+
+      function handlePlacement(cardId, targetRowId) {
+        if (placed[targetRowId]) return;
+        const rowInfo = rowsData.find(r => r.id === targetRowId);
+        const cardEl = document.getElementById(`card-${cardId}`);
+
+        if (cardId === targetRowId) {
+          placed[targetRowId] = true;
+          SoundFX.correct();
+
+          const rowWrap = document.getElementById(`rowWrap-${targetRowId}`);
+          rowWrap.classList.add('placed-' + targetRowId);
+          const slot = document.getElementById(`slot-${targetRowId}`);
+          slot.classList.add('filled');
+          slot.textContent = '✓ ' + rowInfo.label;
+
+          cardEl.dataset.locked = 'true';
+          cardEl.classList.add('locked');
+          cardEl.classList.remove('selected-ring');
+          selectedCardId = null;
+
+          const doneCount = Object.keys(placed).length;
+          if (doneCount === 5) {
+            awardMission(2);
+            setRobotSpeech('🎉 Xuất sắc! Em đã nhận diện đúng cả 5 hàng phím! Nhận <b>10 điểm</b> và Viên Pha lê Tím nhé!', 'happy');
+            setFooterAction(`
+              <button onclick="SoundFX.click(); goToScreen('m3')" class="btn-game btn-md btn-green">
+                Nhiệm vụ 3 ➜
+              </button>
+            `);
+          } else {
+            setRobotSpeech(`Đúng rồi! Đó chính là <b>${rowInfo.label}</b>. Còn ${5 - doneCount} hàng nữa thôi!`, 'happy');
+          }
+        } else {
+          SoundFX.wrong();
+          const rowWrap = document.getElementById(`rowWrap-${targetRowId}`);
+          rowWrap.classList.add('zone-wrong');
+          setTimeout(() => rowWrap.classList.remove('zone-wrong'), 400);
+          setRobotSpeech('Ồ, chưa khớp rồi! Em hãy quan sát kỹ các chữ cái hoặc con số trên hàng phím đó nhé!', 'hint');
+        }
+      }
+
+      shuffled.forEach(r => {
+        const cardEl = document.getElementById(`card-${r.id}`);
+        makeDraggable(cardEl, r.id, (cardId, zoneId) => handlePlacement(cardId, zoneId));
+        cardEl.addEventListener('click', () => {
+          if (cardEl.dataset.locked === 'true') return;
+          SoundFX.click();
+          document.querySelectorAll('#m2Cards > div').forEach(c => c.classList.remove('selected-ring'));
+          selectedCardId = r.id;
+          cardEl.classList.add('selected-ring');
+        });
+      });
+
+      rowsData.forEach(r => {
+        const rowWrap = document.getElementById(`rowWrap-${r.id}`);
+        rowWrap.addEventListener('click', () => {
+          if (selectedCardId) handlePlacement(selectedCardId, r.id);
+        });
+      });
+    }
+
+    /*************************************************************************
+     * 9. NHIỆM VỤ 3: BÍ MẬT HAI PHÍM CÓ GỜ (15 ĐIỂM - 3 BƯỚC)
+     *************************************************************************/
+    function renderMission3() {
+      let step = 1;
+      let foundF = false;
+      let foundJ = false;
+      let placedLeftIndex = false;
+      let placedRightIndex = false;
+      let selectedToken = null;
+
+      function renderStep() {
+        const main = document.getElementById('mainContent');
+
+        if (step === 1) {
+          GameState.currentHintText = 'Em hãy quan sát kỹ hàng phím cơ sở (A S D F G H J K L ;). Có hai phím có vạch gờ nhỏ ở phía dưới!';
+          setRobotSpeech('Bước 1/3: Robot bị mất vị trí đặt hai ngón trỏ! Em hãy <b>nháy chuột vào 2 phím có gờ</b> trên bàn phím nhé!', 'normal');
+          main.innerHTML = `
+            <div class="screen-col">
+              <div class="mission-head">
+                <span class="mission-pill pill-emerald">NHIỆM VỤ 3 • BƯỚC 1/3 • 15 ĐIỂM</span>
+                <h2 class="mission-title">✨ Tìm hai phím có gờ trên hàng cơ sở</h2>
+              </div>
+
+              <div class="status-pair">
+                <div class="status-chip ${foundF ? 'found' : ''}">Phím có gờ 1: ${foundF ? 'F ✓' : '?'}</div>
+                <div class="status-chip ${foundJ ? 'found' : ''}">Phím có gờ 2: ${foundJ ? 'J ✓' : '?'}</div>
+              </div>
+
+              ${renderInteractiveMainKeyboard({ showBumps: true, highlightKeys: [foundF ? 'F' : '', foundJ ? 'J' : ''] })}
+            </div>
+          `;
+
+          main.querySelectorAll('[data-key]').forEach(kEl => {
+            kEl.classList.add('clickable');
+            kEl.addEventListener('click', () => {
+              const key = kEl.dataset.key;
+              if (key === 'F' || key === 'J') {
+                if (key === 'F') foundF = true;
+                if (key === 'J') foundJ = true;
+                SoundFX.correct();
+                if (foundF && foundJ) {
+                  setRobotSpeech('Giỏi quá! Chính là hai phím <b>F</b> và <b>J</b> có gờ nổi! Cùng sang Bước 2 nhé!', 'happy');
+                  setTimeout(() => { step = 2; renderStep(); }, 950);
+                } else {
+                  setRobotSpeech(`Đúng rồi! Em đã tìm thấy phím <b>${key}</b>. Hãy tìm thêm phím có gờ còn lại nhé!`, 'happy');
+                  renderStep();
+                }
+              } else {
+                SoundFX.wrong();
+                kEl.classList.add('wrong-key');
+                setTimeout(() => kEl.classList.remove('wrong-key'), 400);
+                setRobotSpeech('Phím này không có gờ! Em hãy nhìn kỹ hàng phím cơ sở (chứa A, S, D, F, G, H, J...) nhé!', 'hint');
+              }
+            });
+          });
+        } else if (step === 2) {
+          GameState.currentHintText = 'Ngón trỏ tay trái (màu xanh lá) đặt lên phím F. Ngón trỏ tay phải (màu xanh dương) đặt lên phím J. Không đặt nhầm vào G hay H nhé!';
+          setRobotSpeech('Bước 2/3: Em hãy <b>kéo Ngón trỏ trái đến phím F</b> và <b>Ngón trỏ phải đến phím J</b> nhé!', 'normal');
+          main.innerHTML = `
+            <div class="screen-col">
+              <div class="mission-head">
+                <span class="mission-pill pill-emerald">NHIỆM VỤ 3 • BƯỚC 2/3</span>
+                <h2 class="mission-title">👆 Đặt hai ngón trỏ đúng vị trí</h2>
+              </div>
+
+              <div class="token-row">
+                <div id="tokLeft" data-token="l-index" class="btn-game finger-token f-l-index ${placedLeftIndex ? 'used' : ''}">
+                  <span>👆</span><span>Ngón trỏ trái ${placedLeftIndex ? '(Đã đặt ✓)' : ''}</span>
+                </div>
+                <div id="tokRight" data-token="r-index" class="btn-game finger-token f-r-index ${placedRightIndex ? 'used' : ''}">
+                  <span>👆</span><span>Ngón trỏ phải ${placedRightIndex ? '(Đã đặt ✓)' : ''}</span>
+                </div>
+              </div>
+
+              <div class="home-row-zoom">
+                <div class="home-row-zoom-title">HÀNG PHÍM CƠ SỞ</div>
+                <div class="home-row-keys">
+                  ${['A','S','D','F','G','H','J','K','L',';'].map(k => {
+                    const isF = k === 'F';
+                    const isJ = k === 'J';
+                    const badge = (isF && placedLeftIndex) ? '<span class="mini-tag" style="background:#16a34a;">Trỏ trái</span>'
+                                : (isJ && placedRightIndex) ? '<span class="mini-tag" style="background:#0284c7;">Trỏ phải</span>' : '';
+                    return `
+                      <div data-dropzone="${k}" class="kb-key zoom-key ${(isF && placedLeftIndex) ? 'f-l-index' : (isJ && placedRightIndex) ? 'f-r-index' : ''}">
+                        <span>${k}</span>
+                        ${badge}
+                        ${(isF || isJ) ? '<span class="bump-bar"></span>' : ''}
+                      </div>
+                    `;
+                  }).join('')}
+                </div>
+              </div>
+
+              ${renderHandsSVG({ highlightFinger: !placedLeftIndex ? 'l-index' : 'r-index' })}
+            </div>
+          `;
+
+          const checkDrop = (tok, targetKey) => {
+            if (tok === 'l-index' && targetKey === 'F') {
+              placedLeftIndex = true;
+              SoundFX.correct();
+              setRobotSpeech('Chuẩn luôn! Ngón trỏ trái đặt lên phím <b>F</b>!', 'happy');
+            } else if (tok === 'r-index' && targetKey === 'J') {
+              placedRightIndex = true;
+              SoundFX.correct();
+              setRobotSpeech('Tuyệt vời! Ngón trỏ phải đặt lên phím <b>J</b>!', 'happy');
+            } else {
+              SoundFX.wrong();
+              setRobotSpeech('Chưa đúng vị trí rồi! Nhớ đặt <b>Ngón trỏ trái ở F</b> và <b>Ngón trỏ phải ở J</b> (không đặt vào G hay H nhé)!', 'hint');
+              return;
+            }
+            if (placedLeftIndex && placedRightIndex) {
+              setTimeout(() => { step = 3; renderStep(); }, 900);
+            } else {
+              renderStep();
+            }
+          };
+
+          const tL = document.getElementById('tokLeft');
+          const tR = document.getElementById('tokRight');
+          if (!placedLeftIndex) {
+            makeDraggable(tL, 'l-index', checkDrop);
+            tL.addEventListener('click', () => { selectedToken = 'l-index'; tL.classList.add('selected-ring'); tR.classList.remove('selected-ring'); });
+          }
+          if (!placedRightIndex) {
+            makeDraggable(tR, 'r-index', checkDrop);
+            tR.addEventListener('click', () => { selectedToken = 'r-index'; tR.classList.add('selected-ring'); tL.classList.remove('selected-ring'); });
+          }
+          main.querySelectorAll('[data-dropzone]').forEach(dz => {
+            dz.addEventListener('click', () => {
+              if (selectedToken) { checkDrop(selectedToken, dz.dataset.dropzone); selectedToken = null; }
+            });
+          });
+        } else if (step === 3) {
+          GameState.currentHintText = 'Hai gờ nhỏ trên phím F và J giúp tay em cảm nhận được vị trí đặt hai ngón trỏ mà không cần nhìn xuống bàn phím!';
+          setRobotSpeech('Bước 3/3: Em hãy trả lời câu hỏi cuối để nhận Viên Pha lê Lục Bảo nhé!', 'normal');
+          const options = [
+            { id: 'A', text: 'A. Giúp xác định vị trí đặt hai ngón trỏ khi gõ bàn phím.' },
+            { id: 'B', text: 'B. Giúp bật và tắt máy tính.' },
+            { id: 'C', text: 'C. Giúp xóa kí tự.' }
+          ];
+          main.innerHTML = `
+            <div class="screen-center">
+              <div class="mission-head">
+                <span class="mission-pill pill-emerald">NHIỆM VỤ 3 • BƯỚC 3/3</span>
+                <h2 class="mission-title">❓ Vì sao hai phím F và J có gờ?</h2>
+              </div>
+
+              <div style="display:flex; gap:20px;">
+                <div class="kb-key zoom-key f-l-index" style="font-size:24px;">F<span class="bump-bar"></span></div>
+                <div class="kb-key zoom-key f-r-index" style="font-size:24px;">J<span class="bump-bar"></span></div>
+              </div>
+
+              <div class="quiz-box">
+                ${options.map(o => `
+                  <button data-opt="${o.id}" class="btn-game quiz-opt">${o.text}</button>
+                `).join('')}
+              </div>
+            </div>
+          `;
+
+          main.querySelectorAll('[data-opt]').forEach(btn => {
+            btn.addEventListener('click', () => {
+              if (btn.dataset.opt === 'A') {
+                btn.classList.add('opt-correct');
+                awardMission(3);
+                setRobotSpeech('🎉 Quá đỉnh! Em đã giải mã hoàn toàn bí mật phím F và J! Nhận <b>15 điểm</b> và Viên Pha lê Lục Bảo!', 'happy');
+                setFooterAction(`
+                  <button onclick="SoundFX.click(); goToScreen('m4')" class="btn-game btn-md btn-green">
+                    Nhiệm vụ 4 ➜
+                  </button>
+                `);
+              } else {
+                SoundFX.wrong();
+                btn.classList.add('opt-wrong');
+                setRobotSpeech('Chưa đúng rồi! Em hãy nghĩ xem gờ nổi dưới đầu ngón tay giúp chúng ta nhận biết điều gì khi gõ phím nhé!', 'hint');
+              }
+            });
+          });
+        }
+      }
+
+      renderStep();
+    }
+
+    /*************************************************************************
+     * 10. NHIỆM VỤ 4: ĐÔI BÀN TAY THẦN KỲ (15 ĐIỂM - 2 BÀI TẬP)
+     *************************************************************************/
+    function renderMission4() {
+      let part = 1;
+      const homeKeys = [
+        { key: 'A', finger: 'l-pinky' },
+        { key: 'S', finger: 'l-ring' },
+        { key: 'D', finger: 'l-middle' },
+        { key: 'F', finger: 'l-index' },
+        { key: 'SPACE', finger: 'thumb' },
+        { key: 'J', finger: 'r-index' },
+        { key: 'K', finger: 'r-middle' },
+        { key: 'L', finger: 'r-ring' },
+        { key: ';', finger: 'r-pinky' }
+      ];
+      let p1Idx = 0;
+
+      const p2Questions = [
+        { key: 'D', answer: 'l-middle' },
+        { key: 'K', answer: 'r-middle' },
+        { key: 'A', answer: 'l-pinky' },
+        { key: 'J', answer: 'r-index' }
+      ];
+      let p2Idx = 0;
+
+      function renderPart() {
+        const main = document.getElementById('mainContent');
+
+        if (part === 1) {
+          const cur = homeKeys[p1Idx];
+          const targetLabel = cur.key === 'SPACE' ? 'Phím dấu cách (Space)' : `Phím ${cur.key}`;
+          GameState.currentHintText = `Hãy nhìn màu sắc của ${targetLabel} và chọn đúng ngón tay cùng màu trên hình bàn tay (hoặc nút tên ngón tay) nhé!`;
+          setRobotSpeech(`Bài tập 1/2 (${p1Idx + 1}/${homeKeys.length}): Ở vị trí xuất phát, ngón tay nào đặt lên <b>${targetLabel}</b>? Em hãy nháy vào ngón tay đó nhé!`, 'normal');
+
+          main.innerHTML = `
+            <div class="screen-col">
+              <div class="mission-head">
+                <span class="mission-pill pill-amber">NHIỆM VỤ 4 • BÀI TẬP 1/2 • 15 ĐIỂM</span>
+                <h2 class="mission-title">🖐️ Đặt tay ở vị trí xuất phát</h2>
+              </div>
+
+              <div class="home-row-zoom" style="padding:10px;">
+                <div class="home-row-keys">
+                  ${homeKeys.map((hk, i) => {
+                    const done = i < p1Idx;
+                    const active = i === p1Idx;
+                    const f = FINGERS[hk.finger];
+                    return `
+                      <div class="kb-key ${f.cls} ${active ? 'target-pulse' : ''}"
+                        style="width:${hk.key === 'SPACE' ? '82px' : '46px'}; height:46px; font-size:14px; ${done ? 'opacity:0.65;' : ''}">
+                        <span>${hk.key === 'SPACE' ? 'Space' : hk.key}</span>
+                        ${done ? '<span style="font-size:10px; font-weight:900;">✓</span>' : ''}
+                        ${(hk.key === 'F' || hk.key === 'J') ? '<span class="bump-bar"></span>' : ''}
+                      </div>
+                    `;
+                  }).join('')}
+                </div>
+              </div>
+
+              <div class="hands-panel" style="border-color:#fde68a;">
+                <div style="font-size:11px; font-weight:800; color:#64748b; margin-bottom:2px;">Nháy trực tiếp vào ngón tay trên hình hoặc chọn nút bên dưới:</div>
+                ${renderHandsSVG({ clickable: true, showLabels: false })}
+              </div>
+
+              <div class="finger-btn-row">
+                ${Object.values(FINGERS).map(f => `
+                  <button data-finger-click="${f.id}" class="btn-game finger-btn ${f.cls}">${f.name}</button>
+                `).join('')}
+              </div>
+            </div>
+          `;
+
+          main.querySelectorAll('[data-finger-click]').forEach(el => {
+            el.addEventListener('click', () => {
+              const chosen = el.dataset.fingerClick;
+              if (chosen === cur.finger) {
+                SoundFX.correct();
+                p1Idx++;
+                if (p1Idx >= homeKeys.length) {
+                  setRobotSpeech('🎉 Tuyệt vời! Em đã thuộc vị trí xuất phát của cả hai bàn tay! Giờ sang Bài tập 2 nhé!', 'happy');
+                  setTimeout(() => { part = 2; renderPart(); }, 1000);
+                } else {
+                  renderPart();
+                }
+              } else {
+                SoundFX.wrong();
+                setRobotSpeech(`Chưa đúng rồi! Hãy xem màu của <b>${targetLabel}</b> trùng với ngón tay màu nào nhé!`, 'hint');
+              }
+            });
+          });
+        } else {
+          const q = p2Questions[p2Idx];
+          GameState.currentHintText = `Phím ${q.key} có màu giống với ${FINGERS[q.answer].name} đấy!`;
+          setRobotSpeech(`Bài tập 2/2 (Câu ${p2Idx + 1}/4): Em hãy chọn ngón tay dùng để gõ phím <b>${q.key}</b> nhé!`, 'normal');
+
+          main.innerHTML = `
+            <div class="screen-col">
+              <div class="mission-head">
+                <span class="mission-pill pill-amber">NHIỆM VỤ 4 • BÀI TẬP 2/2 (${p2Idx + 1}/4)</span>
+                <h2 class="mission-title">
+                  🎯 Hãy chọn ngón tay dùng để gõ phím
+                  <span class="${FINGERS[q.answer].cls}" style="padding:2px 12px; border-radius:10px; border:2px solid; margin-left:4px;">${q.key}</span>
+                </h2>
+              </div>
+
+              <div class="hands-panel">
+                ${renderHandsSVG({ clickable: true, showLabels: false })}
+              </div>
+
+              <div class="finger-btn-grid">
+                ${['l-pinky','l-ring','l-middle','l-index','r-index','r-middle','r-ring','r-pinky'].map(id => {
+                  const f = FINGERS[id];
+                  return `<button data-finger-click="${f.id}" class="btn-game finger-btn ${f.cls}">${f.name}</button>`;
+                }).join('')}
+              </div>
+            </div>
+          `;
+
+          main.querySelectorAll('[data-finger-click]').forEach(el => {
+            el.addEventListener('click', () => {
+              if (el.dataset.fingerClick === q.answer) {
+                SoundFX.correct();
+                p2Idx++;
+                if (p2Idx >= p2Questions.length) {
+                  awardMission(4);
+                  setRobotSpeech('🎉 Xuất sắc quá! Em đã làm chủ Đôi bàn tay thần kỳ! Nhận <b>15 điểm</b> và Viên Pha lê Hổ Phách!', 'happy');
+                  setFooterAction(`
+                    <button onclick="SoundFX.click(); goToScreen('m5')" class="btn-game btn-md btn-green">
+                      Nhiệm vụ 5 ➜
+                    </button>
+                  `);
+                } else {
+                  setRobotSpeech(`Chính xác! Phím <b>${q.key}</b> do <b>${FINGERS[q.answer].name}</b> phụ trách!`, 'happy');
+                  renderPart();
+                }
+              } else {
+                SoundFX.wrong();
+                setRobotSpeech(`Chưa đúng rồi! Em hãy nhìn lại màu sắc của phím <b>${q.key}</b> và đối chiếu với 10 ngón tay nhé!`, 'hint');
+              }
+            });
+          });
+        }
+      }
+
+      renderPart();
+    }
+
+    /*************************************************************************
+     * 11. NHIỆM VỤ 5: THỬ THÁCH GÕ PHÍM (20 ĐIỂM - BÀN PHÍM THẬT!)
+     *************************************************************************/
+    function renderMission5() {
+      const rounds = [
+        { title: 'Vòng 1: Làm quen 4 phím giữa', seq: ['F','J','D','K'] },
+        { title: 'Vòng 2: Luyện thêm 4 phím còn lại', seq: ['A','S','L',';'] },
+        { title: 'Vòng 3: Gõ chuỗi phím liên tiếp', seq: ['F','J','F','J','A','S','D','F','J','K','L',';'] }
+      ];
+      let rIdx = 0;
+      let kIdx = 0;
+      let finished = false;
+
+      function renderTypingUI(lastTyped = '', isWrong = false) {
+        const curRound = rounds[rIdx];
+        const targetChar = finished ? null : curRound.seq[kIdx];
+        const targetFinger = targetChar ? KEY_TO_FINGER[targetChar] : null;
+
+        GameState.currentHintText = targetChar
+          ? `Hãy nhìn bàn phím thật của em, tìm phím "${targetChar}" và dùng ${FINGERS[targetFinger].name} để nhấn nhé!`
+          : 'Em đã hoàn thành toàn bộ thử thách gõ phím!';
+
+        if (!finished && !isWrong) {
+          setRobotSpeech(`<b>${curRound.title}</b>: Em hãy đặt tay theo hình gợi ý và nhấn phím <b>"${targetChar}"</b> trên <b>bàn phím máy tính thật</b> nhé!`, 'normal');
+        }
+
+        const main = document.getElementById('mainContent');
+        main.innerHTML = `
+          <div class="screen-col">
+            <div class="mission-head">
+              <span class="mission-pill pill-pink">NHIỆM VỤ 5 • THỰC HÀNH BÀN PHÍM THẬT • 20 ĐIỂM</span>
+              <h2 class="mission-title">⌨️ ${curRound.title} (Vòng ${rIdx + 1}/3)</h2>
+            </div>
+
+            <div class="seq-strip">
+              ${curRound.seq.map((ch, idx) => {
+                const isDone = finished || idx < kIdx;
+                const isCur = !finished && idx === kIdx;
+                const sep = (rIdx === 2 && (idx === 4 || idx === 8)) ? '<span class="seq-sep">|</span>' : '';
+                return `${sep}<div class="seq-char ${isDone ? 'done' : isCur ? 'cur' : ''}">${ch}</div>`;
+              }).join('')}
+            </div>
+
+            <div class="info-bar">
+              <span class="info-pill-sky">🖐️ Em hãy tự quan sát và đặt đúng ngón tay theo hình gợi ý bên dưới nhé!</span>
+              ${lastTyped ? `<span class="${isWrong ? 'info-pill-err' : 'info-pill-ok'}">Phím em vừa gõ: [ ${lastTyped} ]</span>` : ''}
+            </div>
+
+            <div class="typing-layout">
+              <div style="display:flex; justify-content:center;">
+                ${renderInteractiveMainKeyboard({ showBumps: true, colorByFinger: true, targetKey: targetChar })}
+              </div>
+              <div class="hands-panel" style="max-width:100%;">
+                <div style="font-size:12px; font-weight:900; color:#4338ca; margin-bottom:4px;">
+                  ${targetFinger ? `Gợi ý: Dùng ${FINGERS[targetFinger].name}` : 'Hoàn thành xuất sắc!'}
+                </div>
+                ${renderHandsSVG({ highlightFinger: targetFinger, showLabels: true })}
+              </div>
+            </div>
+          </div>
+        `;
+      }
+
+      GameState.activeKeyHandler = (e) => {
+        if (finished) return;
+        if (['Shift', 'Control', 'Alt', 'Meta', 'CapsLock', 'Tab'].includes(e.key)) return;
+        if (e.code === 'Space' || e.key === 'Enter') e.preventDefault();
+
+        let typed = '';
+        if (e.code === 'Semicolon' || e.key === ';') {
+          typed = ';';
+        } else if (e.key && e.key.length === 1) {
+          typed = e.key.toUpperCase();
+        } else {
+          return;
+        }
+
+        const keyEl = document.querySelector(`[data-key="${typed === ';' ? '\\;' : typed}"]`);
+        if (keyEl) {
+          keyEl.classList.add('active-press');
+          setTimeout(() => keyEl.classList.remove('active-press'), 180);
+        }
+
+        const expected = rounds[rIdx].seq[kIdx];
+        if (typed === expected) {
+          SoundFX.keyTap();
+          kIdx++;
+          if (kIdx >= rounds[rIdx].seq.length) {
+            rIdx++;
+            kIdx = 0;
+            if (rIdx >= rounds.length) {
+              finished = true;
+              rIdx = rounds.length - 1;
+              awardMission(5);
+              renderTypingUI(typed, false);
+              setRobotSpeech('🎉 Tuyệt đỉnh! Em đã gõ chính xác toàn bộ cả 3 vòng trên bàn phím thật! Nhận <b>20 điểm</b> và Viên Pha lê Hồng Ngọc!', 'happy');
+              setFooterAction(`
+                <button onclick="SoundFX.click(); goToScreen('m6')" class="btn-game btn-md btn-green">
+                  Nhiệm vụ cuối (6) ➜
+                </button>
+              `);
+              return;
+            } else {
+              SoundFX.correct();
+              setRobotSpeech(`Hoàn thành xuất sắc Vòng ${rIdx}! Tiến sang Vòng ${rIdx + 1} nào!`, 'happy');
+            }
+          }
+          renderTypingUI(typed, false);
+        } else {
+          SoundFX.wrong();
+          renderTypingUI(typed, true);
+          setRobotSpeech(`Em vừa nhấn phím <b>"${typed}"</b>. Hãy tìm và gõ đúng phím <b>"${expected}"</b> đang nhấp nháy nhé!`, 'hint');
+        }
+      };
+
+      window.addEventListener('keydown', GameState.activeKeyHandler);
+      renderTypingUI();
+    }
+
+    /*************************************************************************
+     * 12. NHIỆM VỤ 6: BẬC THẦY BÀN PHÍM (30 ĐIỂM - 3 TÌNH HUỐNG x 10 ĐIỂM)
+     *************************************************************************/
+    function renderMission6() {
+      let sit = 1;
+
+      function renderSituation() {
+        clearKeyboardListener();
+        const main = document.getElementById('mainContent');
+
+        const sitNav = `
+          <div class="sit-nav">
+            ${[1, 2, 3].map(n => `
+              <button data-sit-nav="${n}" class="sit-btn ${sit === n ? 'active' : GameState.m6SubDone[n] ? 'done' : ''}">
+                Tình huống ${n} ${GameState.m6SubDone[n] ? '✓' : '(10đ)'}
+              </button>
+            `).join('')}
+          </div>
+        `;
+
+        if (sit === 1) {
+          let fixedL = GameState.m6SubDone[1];
+          let fixedR = GameState.m6SubDone[1];
+          let selTok = null;
+
+          const drawSit1 = () => {
+            GameState.currentHintText = 'Hai ngón trỏ đang đặt sai ở G và H! Em hãy kéo Ngón trỏ trái về phím F và Ngón trỏ phải về phím J nhé!';
+            setRobotSpeech('Tình huống 1 (10đ): Cách đặt hai ngón trỏ ở G và H như vậy đã đúng chưa? Em hãy <b>kéo hai ngón trỏ về đúng vị trí</b> nhé!', 'normal');
+
+            main.innerHTML = `
+              <div class="screen-col">
+                <div class="mission-head">
+                  <span class="mission-pill pill-rose">NHIỆM VỤ 6 • VẬN DỤNG CAO • 30 ĐIỂM</span>
+                  <h2 class="mission-title">👑 Tình huống 1: Phát hiện và sửa lỗi đặt tay</h2>
+                </div>
+                ${sitNav}
+
+                <div class="info-pill-warn">
+                  ⚠️ Hiện tại: Ngón trỏ trái đang ở <b>G</b> (Sai), Ngón trỏ phải đang ở <b>H</b> (Sai). Hãy kéo chúng về đúng phím có gờ!
+                </div>
+
+                <div class="home-row-zoom">
+                  <div class="home-row-keys">
+                    ${['A','S','D','F','G','H','J','K','L',';'].map(k => {
+                      const hasBadL = k === 'G' && !fixedL;
+                      const hasBadR = k === 'H' && !fixedR;
+                      const hasGoodL = k === 'F' && fixedL;
+                      const hasGoodR = k === 'J' && fixedR;
+                      const bgStyle = (hasBadL || hasBadR) ? 'background:#ffe4e6; border-color:#fb7185;' : '';
+                      return `
+                        <div data-dropzone="${k}" class="kb-key zoom-key-tall ${hasGoodL ? 'f-l-index' : hasGoodR ? 'f-r-index' : ''}" style="${bgStyle}">
+                          <span>${k}</span>
+                          ${(k === 'F' || k === 'J') ? '<span class="bump-bar"></span>' : ''}
+                          ${hasBadL ? `<div id="badLeft" class="mini-tag" style="background:#10b981;">👆 Trỏ trái</div>` : ''}
+                          ${hasBadR ? `<div id="badRight" class="mini-tag" style="background:#0ea5e9;">👆 Trỏ phải</div>` : ''}
+                          ${hasGoodL ? `<span class="mini-tag" style="background:#16a34a;">✓ F</span>` : ''}
+                          ${hasGoodR ? `<span class="mini-tag" style="background:#0284c7;">✓ J</span>` : ''}
+                        </div>
+                      `;
+                    }).join('')}
+                  </div>
+                </div>
+
+                <div class="note-chip">Mẹo: Kéo nhãn <b>👆 Trỏ trái</b> và <b>👆 Trỏ phải</b> từ G, H sang đúng phím (hoặc nháy nhãn rồi nháy phím đích).</div>
+              </div>
+            `;
+
+            bindSitNav();
+
+            const checkFix = (tok, key) => {
+              if (tok === 'L' && key === 'F') {
+                fixedL = true;
+                SoundFX.correct();
+              } else if (tok === 'R' && key === 'J') {
+                fixedR = true;
+                SoundFX.correct();
+              } else {
+                SoundFX.wrong();
+                setRobotSpeech('Chưa đúng rồi! Hai ngón trỏ phải đặt lên hai phím có gờ là <b>F</b> và <b>J</b> nhé!', 'hint');
+                return;
+              }
+              if (fixedL && fixedR) {
+                awardMission6Sub(1);
+                setRobotSpeech('🎉 Chuẩn xác! Đã sửa lỗi đặt tay về <b>F</b> và <b>J</b>! Em nhận <b>10 điểm</b>. Sang Tình huống 2 nào!', 'happy');
+                setFooterAction(`<button id="nextSitBtn" class="btn-game btn-md btn-green">Tình huống 2 ➜</button>`);
+                document.getElementById('nextSitBtn').onclick = () => { SoundFX.click(); sit = 2; renderSituation(); };
+              }
+              drawSit1();
+            };
+
+            const bL = document.getElementById('badLeft');
+            const bR = document.getElementById('badRight');
+            if (bL) {
+              makeDraggable(bL, 'L', checkFix);
+              bL.addEventListener('click', (e) => { e.stopPropagation(); selTok = 'L'; bL.classList.add('selected-ring'); });
+            }
+            if (bR) {
+              makeDraggable(bR, 'R', checkFix);
+              bR.addEventListener('click', (e) => { e.stopPropagation(); selTok = 'R'; bR.classList.add('selected-ring'); });
+            }
+            main.querySelectorAll('[data-dropzone]').forEach(dz => {
+              dz.addEventListener('click', () => {
+                if (selTok) { checkFix(selTok, dz.dataset.dropzone); selTok = null; }
+              });
+            });
+          };
+          drawSit1();
+        } else if (sit === 2) {
+          const pairs = [
+            { key: 'E', answer: 'l-middle' },
+            { key: 'C', answer: 'l-middle' },
+            { key: 'I', answer: 'r-middle' },
+            { key: 'M', answer: 'r-index' }
+          ];
+          let phase = 'match';
+          let idx = 0;
+
+          const drawSit2 = () => {
+            clearKeyboardListener();
+            if (phase === 'match') {
+              const cur = pairs[idx];
+              GameState.currentHintText = `Phím ${cur.key} cùng cột màu với ${FINGERS[cur.answer].name} đấy!`;
+              setRobotSpeech(`Tình huống 2 - Phần A (${idx + 1}/4): Ngón tay nào phụ trách gõ phím <b>${cur.key}</b>?`, 'normal');
+
+              main.innerHTML = `
+                <div class="screen-col">
+                  <div class="mission-head">
+                    <span class="mission-pill pill-rose">NHIỆM VỤ 6 • TÌNH HUỐNG 2/3 • 10 ĐIỂM</span>
+                    <h2 class="mission-title">
+                      🎯 Ngón tay nào phụ trách phím
+                      <span class="${FINGERS[cur.answer].cls}" style="padding:2px 12px; border-radius:10px; border:2px solid;">${cur.key}</span> ?
+                    </h2>
+                  </div>
+                  ${sitNav}
+
+                  <div class="hands-panel">
+                    ${renderHandsSVG({ clickable: true, showLabels: true })}
+                  </div>
+
+                  <div class="finger-btn-row">
+                    ${['l-index','l-middle','r-index','r-middle','l-ring','r-ring'].map(id => {
+                      const f = FINGERS[id];
+                      return `<button data-finger-click="${f.id}" class="btn-game finger-btn ${f.cls}">${f.name}</button>`;
+                    }).join('')}
+                  </div>
+                </div>
+              `;
+              bindSitNav();
+
+              main.querySelectorAll('[data-finger-click]').forEach(el => {
+                el.addEventListener('click', () => {
+                  if (el.dataset.fingerClick === cur.answer) {
+                    SoundFX.correct();
+                    idx++;
+                    if (idx >= pairs.length) {
+                      phase = 'type';
+                      idx = 0;
+                      setRobotSpeech('Giỏi lắm! Bây giờ em hãy thực hành gõ chuỗi <b>E C I M</b> trên <b>bàn phím thật</b> nhé!', 'happy');
+                    }
+                    drawSit2();
+                  } else {
+                    SoundFX.wrong();
+                    setRobotSpeech('Chưa đúng rồi! Hãy nhớ: <b>E, C</b> cùng cột với D (Ngón giữa trái), <b>I</b> cùng cột với K, <b>M</b> cùng cột với J!', 'hint');
+                  }
+                });
+              });
+            } else {
+              const seq = ['E','C','I','M'];
+              const target = idx < seq.length ? seq[idx] : null;
+              GameState.currentHintText = target ? `Em hãy nhấn phím "${target}" trên bàn phím thật nhé!` : 'Em đã hoàn thành Tình huống 2!';
+
+              main.innerHTML = `
+                <div class="screen-col">
+                  <div class="mission-head">
+                    <span class="mission-pill pill-rose">NHIỆM VỤ 6 • TÌNH HUỐNG 2/3 • THỰC HÀNH GÕ</span>
+                    <h2 class="mission-title">⌨️ Gõ chuỗi phím E C I M trên bàn phím thật</h2>
+                  </div>
+                  ${sitNav}
+
+                  <div class="seq-strip">
+                    ${seq.map((ch, i) => `
+                      <div class="seq-char ${i < idx ? 'done' : i === idx ? 'cur' : ''}">${ch}</div>
+                    `).join('')}
+                  </div>
+
+                  ${renderInteractiveMainKeyboard({ showBumps: true, colorByFinger: true, targetKey: target })}
+                </div>
+              `;
+              bindSitNav();
+
+              if (target) {
+                GameState.activeKeyHandler = (e) => {
+                  if (e.code === 'Space' || e.key === 'Enter') e.preventDefault();
+                  if (!e.key || e.key.length !== 1) return;
+                  const typed = e.key.toUpperCase();
+                  if (typed === target) {
+                    SoundFX.keyTap();
+                    idx++;
+                    if (idx >= seq.length) {
+                      awardMission6Sub(2);
+                      setRobotSpeech('🎉 Tuyệt vời! Em đã ghép đúng và gõ chuẩn chuỗi E C I M! Nhận thêm <b>10 điểm</b>!', 'happy');
+                      setFooterAction(`<button id="nextSit3Btn" class="btn-game btn-md btn-green">Tình huống 3 ➜</button>`);
+                      document.getElementById('nextSit3Btn').onclick = () => { SoundFX.click(); sit = 3; renderSituation(); };
+                    }
+                    drawSit2();
+                  } else {
+                    SoundFX.wrong();
+                    setRobotSpeech(`Em vừa gõ "${typed}". Hãy gõ đúng phím <b>"${target}"</b> đang nhấp nháy nhé!`, 'hint');
+                  }
+                };
+                window.addEventListener('keydown', GameState.activeKeyHandler);
+              }
+            }
+          };
+          drawSit2();
+        } else {
+          let answered = GameState.m6SubDone[3];
+          GameState.currentHintText = 'Sau khi vươn ngón tay lên hàng trên hoặc xuống hàng dưới để gõ, ta luôn đưa ngón tay trở về vị trí xuất phát trên hàng phím cơ sở!';
+          setRobotSpeech('Tình huống 3 (10đ): Một bạn nói: <i>"Sau khi gõ phím ở hàng trên hoặc hàng dưới, mình cứ để ngón tay ở đó để gõ tiếp."</i> Em hãy chọn cách sửa đúng nhé!', 'normal');
+
+          const drawSit3 = () => {
+            main.innerHTML = `
+              <div class="screen-col">
+                <div class="mission-head">
+                  <span class="mission-pill pill-rose">NHIỆM VỤ 6 • TÌNH HUỐNG 3/3 • 10 ĐIỂM</span>
+                  <h2 class="mission-title">🔄 Trở về vị trí xuất phát</h2>
+                </div>
+                ${sitNav}
+
+                <div class="info-pill-quote">
+                  💬 <b>Bạn nhỏ nói:</b> "Sau khi gõ phím ở hàng phím trên hoặc hàng phím dưới, mình cứ để ngón tay ở đó để gõ tiếp."
+                </div>
+
+                ${!answered ? `
+                  <div class="quiz-box">
+                    <button data-s3="A" class="btn-game quiz-opt">A. Sau khi gõ, đưa ngón tay về vị trí xuất phát trên hàng phím cơ sở.</button>
+                    <button data-s3="B" class="btn-game quiz-opt">B. Sau khi gõ, chuyển tất cả ngón tay lên hàng phím số.</button>
+                    <button data-s3="C" class="btn-game quiz-opt">C. Sau khi gõ, đặt hai ngón trỏ lên phím dấu cách.</button>
+                  </div>
+                ` : `
+                  <div class="demo-return-card">
+                    <div style="font-weight:900; color:#065f46; font-size:14px;">✨ Chính xác! Quan sát các ngón tay gõ E / M rồi tự động quay về hàng cơ sở:</div>
+                    <div class="demo-mini-kb">
+                      <div class="demo-mini-row">
+                        <div class="kb-key demo-mini-key" style="opacity:0.6;">W</div>
+                        <div class="kb-key demo-mini-key f-l-middle">E</div>
+                        <div class="kb-key demo-mini-key" style="opacity:0.6;">R</div>
+                        <div style="width:18px;"></div>
+                        <div class="kb-key demo-mini-key" style="opacity:0.6;">U</div>
+                        <div class="kb-key demo-mini-key f-r-middle">I</div>
+                      </div>
+                      <div class="demo-mini-row">
+                        <div class="kb-key demo-mini-key f-l-ring">S</div>
+                        <div class="kb-key demo-mini-key f-l-middle">
+                          D
+                          <div class="demo-dot demo-return-up" style="background:#facc15; border:2px solid #a16207;">👆</div>
+                        </div>
+                        <div class="kb-key demo-mini-key f-l-index">F<span class="bump-bar"></span></div>
+                        <div style="width:18px;"></div>
+                        <div class="kb-key demo-mini-key f-r-index">
+                          J<span class="bump-bar"></span>
+                          <div class="demo-dot demo-return-down" style="background:#38bdf8; border:2px solid #075985;">👆</div>
+                        </div>
+                        <div class="kb-key demo-mini-key f-r-middle">K</div>
+                      </div>
+                      <div class="demo-mini-row">
+                        <div class="kb-key demo-mini-key" style="opacity:0.6;">X</div>
+                        <div class="kb-key demo-mini-key f-l-middle">C</div>
+                        <div class="kb-key demo-mini-key" style="opacity:0.6;">V</div>
+                        <div style="width:18px;"></div>
+                        <div class="kb-key demo-mini-key f-r-index">M</div>
+                        <div class="kb-key demo-mini-key" style="opacity:0.6;">,</div>
+                      </div>
+                    </div>
+                  </div>
+                `}
+              </div>
+            `;
+            bindSitNav();
+
+            if (!answered) {
+              main.querySelectorAll('[data-s3]').forEach(btn => {
+                btn.addEventListener('click', () => {
+                  if (btn.dataset.s3 === 'A') {
+                    answered = true;
+                    awardMission6Sub(3);
+                    setRobotSpeech('🎉 Tuyệt vời! Luôn đưa ngón tay về hàng phím cơ sở sau khi gõ nhé! Em đã chinh phục Nhiệm vụ 6!', 'happy');
+                    drawSit3();
+                    setFooterAction(`
+                      <button onclick="SoundFX.click(); goToScreen('treasure')" class="btn-game btn-md btn-grad-orange">
+                        🏆 Mở Kho Báu ➜
+                      </button>
+                    `);
+                  } else {
+                    SoundFX.wrong();
+                    btn.classList.add('opt-wrong');
+                    setRobotSpeech('Chưa đúng rồi! Ngón tay luôn cần quay về "ngôi nhà" của nó trên hàng phím cơ sở đấy!', 'hint');
+                  }
+                });
+              });
+            } else {
+              setFooterAction(`
+                <button onclick="SoundFX.click(); goToScreen('treasure')" class="btn-game btn-md btn-grad-orange">
+                  🏆 Mở Kho Báu ➜
+                </button>
+              `);
+            }
+          };
+          drawSit3();
+        }
+
+        function bindSitNav() {
+          main.querySelectorAll('[data-sit-nav]').forEach(b => {
+            b.addEventListener('click', () => {
+              SoundFX.click();
+              sit = Number(b.dataset.sitNav);
+              renderSituation();
+            });
+          });
+        }
+      }
+
+      renderSituation();
+    }
+
+    /*************************************************************************
+     * 13. MÀN HÌNH KHO BÁU & TỔNG KẾT (TREASURE)
+     *************************************************************************/
+    function renderTreasure() {
+      const allDone = Object.values(GameState.completed).every(Boolean);
+      const canOpen = allDone && GameState.score >= 80;
+      const isMaster = canOpen && GameState.score === 100 && GameState.totalHintsUsed === 0;
+      const selfBadges = MISSIONS_META.filter(m => GameState.completed[m.id] && !GameState.hintUsedByMission[m.id]).length;
+
+      const main = document.getElementById('mainContent');
+
+      if (canOpen) {
+        SoundFX.victory();
+        startConfetti();
+        const titleEarned = isMaster ? 'BẬC THẦY BÀN PHÍM' : 'HIỆP SĨ BÀN PHÍM';
+        setRobotSpeech(`🎊 Chúc mừng ${titleEarned}! Sáu viên pha lê đã tỏa sáng và giải cứu thành công Vương quốc Bàn phím!`, 'happy');
+        GameState.currentHintText = 'Em đã hoàn thành xuất sắc trò chơi! Em có thể nhấn "Chơi lại" để luyện tập thêm nhé!';
+
+        main.innerHTML = `
+          <div class="screen-center" style="text-align:center;">
+            <div class="treasure-crystals">
+              ${MISSIONS_META.map(m => `
+                <div class="treasure-crystal-orb">${renderCrystalSVG(m.color, true)}</div>
+              `).join('')}
+            </div>
+
+            <div style="font-size:62px; line-height:1;">🏆</div>
+
+            <div>
+              <div class="home-badge" style="margin-bottom:4px;">KHO BÁU ĐÃ MỞ! • ĐIỂM SỐ: ${GameState.score} / 100</div>
+              <h2 class="home-title" style="font-size:28px; background:linear-gradient(90deg,#f59e0b,#ea580c,#e11d48); -webkit-background-clip:text; -webkit-text-fill-color:transparent;">
+                DANH HIỆU: ${titleEarned}
+              </h2>
+            </div>
+
+            <div class="info-bar">
+              ${selfBadges > 0 ? `<span class="info-pill-sky" style="background:#e0e7ff; color:#3730a3; border-color:#a5b4fc;">🏅 Huy hiệu "Tự mình chinh phục" (${selfBadges}/6 nhiệm vụ không dùng gợi ý)</span>` : ''}
+              ${isMaster ? `<span class="info-pill-sky" style="background:#fef9c3; color:#854d0e; border-color:#facc15;">👑 Hoàn hảo 100/100 điểm – Không cần gợi ý!</span>` : ''}
+            </div>
+
+            <div class="home-actions">
+              <button onclick="SoundFX.click(); goToScreen('home')" class="btn-game btn-md btn-sky">🏠 Về Trang chủ</button>
+              <button onclick="SoundFX.click(); confirmRestart()" class="btn-game btn-md btn-green">🔄 Chơi lại từ đầu</button>
+            </div>
+          </div>
+        `;
+      } else {
+        setRobotSpeech('Em đang làm rất tốt! Hãy hoàn thành nốt các thử thách bên dưới để đủ 6 viên pha lê và đạt ít nhất 80 điểm mở kho báu nhé!', 'normal');
+        GameState.currentHintText = 'Nháy vào nút "Luyện tập" bên cạnh nhiệm vụ chưa hoàn thành để thu thập thêm pha lê và điểm số!';
+
+        main.innerHTML = `
+          <div class="screen-center" style="text-align:center;">
+            <div style="font-size:48px; line-height:1;">🔒</div>
+            <div>
+              <h2 class="mission-title">Rương Kho Báu Đang Chờ Em!</h2>
+              <p class="home-sub">
+                Điểm hiện tại: <b style="color:#4f46e5;">${GameState.score}/100</b> • Cần hoàn thành đủ <b>6 nhiệm vụ</b> và đạt từ <b>80 điểm</b> trở lên.
+              </p>
+            </div>
+
+            <div class="treasure-grid">
+              ${MISSIONS_META.map(m => {
+                const done = GameState.completed[m.id];
+                return `
+                  <div class="treasure-item ${done ? 'done' : ''}">
+                    <div>
+                      <div style="font-weight:900; font-size:13px; color:#1e293b;">${m.icon} ${m.id}. ${m.title}</div>
+                      <div style="font-size:11px; font-weight:700; color:${done ? '#059669' : '#d97706'};">${done ? 'Đã hoàn thành ✓' : 'Chưa hoàn thành'}</div>
+                    </div>
+                    ${!done ? `
+                      <button onclick="SoundFX.click(); goToScreen('m${m.id}')" class="btn-game btn-sm btn-amber">Luyện tập</button>
+                    ` : ''}
+                  </div>
+                `;
+              }).join('')}
+            </div>
+          </div>
+        `;
+      }
+    }
+
+    /*************************************************************************
+     * 14. HIỆU ỨNG PHÁO GIẤY (CANVAS NHẸ CHO MÁY CẤU HÌNH THẤP)
+     *************************************************************************/
+    let confettiAnimId = null;
+    function startConfetti() {
+      const canvas = document.getElementById('confettiCanvas');
+      const stage = document.getElementById('gameStage');
+      canvas.width = stage.clientWidth;
+      canvas.height = stage.clientHeight;
+      const ctx = canvas.getContext('2d');
+      const colors = ['#38bdf8', '#a855f7', '#22c55e', '#facc15', '#fb7185', '#f97316'];
+      const pieces = Array.from({ length: 75 }, () => ({
+        x: Math.random() * canvas.width,
+        y: Math.random() * -canvas.height,
+        w: 8 + Math.random() * 6,
+        h: 5 + Math.random() * 5,
+        c: colors[Math.floor(Math.random() * colors.length)],
+        vy: 2 + Math.random() * 3,
+        vx: (Math.random() - 0.5) * 1.5,
+        rot: Math.random() * 360,
+        vrot: (Math.random() - 0.5) * 6
+      }));
+
+      function loop() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        pieces.forEach(p => {
+          p.y += p.vy;
+          p.x += p.vx;
+          p.rot += p.vrot;
+          if (p.y > canvas.height + 20) {
+            p.y = -15;
+            p.x = Math.random() * canvas.width;
+          }
+          ctx.save();
+          ctx.translate(p.x, p.y);
+          ctx.rotate((p.rot * Math.PI) / 180);
+          ctx.fillStyle = p.c;
+          ctx.fillRect(-p.w / 2, -p.h / 2, p.w, p.h);
+          ctx.restore();
+        });
+        confettiAnimId = requestAnimationFrame(loop);
+      }
+      stopConfetti();
+      loop();
+    }
+
+    function stopConfetti() {
+      if (confettiAnimId) {
+        cancelAnimationFrame(confettiAnimId);
+        confettiAnimId = null;
+      }
+      const canvas = document.getElementById('confettiCanvas');
+      if (canvas) {
+        const ctx = canvas.getContext('2d');
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+      }
+    }
+
+    /*************************************************************************
+     * 15. CÁC NÚT ĐIỀU KHIỂN HEADER
+     *************************************************************************/
+    function confirmRestart() {
+      showModal({
+        icon: '🔄',
+        title: 'Chơi lại từ đầu?',
+        body: 'Điểm số và 6 viên pha lê sẽ được đặt lại về 0 để em chinh phục lại từ đầu nhé!',
+        buttons: [
+          { label: 'Để sau', cls: 'btn-slate' },
+          {
+            label: 'Chơi lại ngay',
+            cls: 'btn-rose-dk',
+            onClick: () => {
+              GameState.score = 0;
+              GameState.completed = { 1: false, 2: false, 3: false, 4: false, 5: false, 6: false };
+              GameState.m6SubDone = { 1: false, 2: false, 3: false, 4: false };
+              GameState.m6SubDone = { 1: false, 2: false, 3: false };
+              GameState.hintUsedByMission = { 1: false, 2: false, 3: false, 4: false, 5: false, 6: false };
+              GameState.totalHintsUsed = 0;
+              goToScreen('home');
+            }
+          }
+        ]
+      });
+    }
+
+    document.getElementById('btnHome').addEventListener('click', () => {
+      SoundFX.click();
+      goToScreen('home');
+    });
+
+    document.getElementById('btnTreasureNav').addEventListener('click', () => {
+      SoundFX.click();
+      goToScreen('treasure');
+    });
+
+    document.getElementById('btnSound').addEventListener('click', (e) => {
+      SoundFX.enabled = !SoundFX.enabled;
+      e.currentTarget.textContent = SoundFX.enabled ? '🔊' : '🔇';
+      if (SoundFX.enabled) SoundFX.click();
+    });
+
+    document.getElementById('btnRestart').addEventListener('click', () => {
+      SoundFX.click();
+      confirmRestart();
+    });
+
+    document.getElementById('btnHint').addEventListener('click', () => {
+      SoundFX.click();
+      if (GameState.screen.startsWith('m')) {
+        const mNum = Number(GameState.screen.slice(1));
+        if (!GameState.completed[mNum]) {
+          GameState.hintUsedByMission[mNum] = true;
+          GameState.totalHintsUsed++;
+        }
+      }
+      showModal({
+        icon: '💡',
+        title: 'Gợi ý từ Rô-bốt Bàn Phím',
+        body: GameState.currentHintText,
+        buttons: [{ label: 'Em hiểu rồi!', cls: 'btn-sky' }]
+      });
+    });
+
+    window.addEventListener('load', () => {
+      goToScreen('home');
+    });
+  </script>
+</body>
+</html>
