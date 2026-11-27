@@ -1,0 +1,2455 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Bé Luyện Gõ Phím – Thử Thách 10 Ngón</title>
+  <style>
+    /* =====================================================================
+       THIẾT LẬP CHUNG & BIẾN MÀU SẮC (PASTEL HOẠT HÌNH GIÁO DỤC)
+       ===================================================================== */
+    :root {
+      --bg-gradient-1: #eef7ff;
+      --bg-gradient-2: #fff7ed;
+      --card-bg: #ffffff;
+      --text-main: #243447;
+      --text-sub: #5c6f82;
+      --primary: #3b82f6;
+      --primary-dark: #2563eb;
+      --success: #22c55e;
+      --success-bg: #dcfce7;
+      --danger: #ef4444;
+      --danger-bg: #fee2e2;
+      --warning: #f59e0b;
+      --shadow-soft: 0 8px 24px rgba(36, 52, 71, 0.08);
+      --shadow-card: 0 6px 16px rgba(36, 52, 71, 0.07);
+      --radius-lg: 20px;
+      --radius-md: 14px;
+      --radius-sm: 10px;
+
+      /* Màu phân công 10 ngón tay theo chuẩn yêu cầu */
+      --c-l-pinky: #ff9eb5;     /* Hồng - Ngón út trái: 1, Q, A, Z */
+      --b-l-pinky: #e66484;
+
+      --c-l-ring: #ffb870;      /* Cam - Ngón áp út trái: 2, W, S, X */
+      --b-l-ring: #e0822a;
+
+      --c-l-middle: #ffe066;    /* Vàng - Ngón giữa trái: 3, E, D, C */
+      --b-l-middle: #d9a404;
+
+      --c-l-index: #8ce99a;     /* Xanh lá - Ngón trỏ trái: 4, 5, R, T, F, G, V, B */
+      --b-l-index: #37b24d;
+
+      --c-r-index: #66d9e8;     /* Xanh ngọc - Ngón trỏ phải: 6, 7, Y, U, H, J, N, M */
+      --b-r-index: #1098ad;
+
+      --c-r-middle: #74c0fc;    /* Xanh dương - Ngón giữa phải: 8, I, K, , */
+      --b-r-middle: #1c7ed6;
+
+      --c-r-ring: #b197fc;      /* Tím - Ngón áp út phải: 9, O, L, . */
+      --b-r-ring: #7048e8;
+
+      --c-r-pinky: #e599f7;     /* Hồng tím - Ngón út phải: 0, P, ;, / */
+      --b-r-pinky: #ae3ec9;
+
+      --c-thumb: #a5f3fc;       /* Xanh nhạt - Hai ngón cái: Phím cách */
+      --b-thumb: #0891b2;
+
+      --c-neutral: #e9eef5;
+      --b-neutral: #c5d1df;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      user-select: none;
+      -webkit-user-select: none;
+    }
+
+    html, body {
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+      font-family: 'Segoe UI', 'Roboto', 'Helvetica Neue', Arial, sans-serif;
+      color: var(--text-main);
+      background: linear-gradient(135deg, var(--bg-gradient-1) 0%, #f5f3ff 50%, var(--bg-gradient-2) 100%);
+    }
+
+    /* Khung ứng dụng chính - luôn vừa khít 1 màn hình */
+    .app-shell {
+      width: 100vw;
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+      padding: clamp(8px, 1.2vh, 16px) clamp(12px, 1.8vw, 24px);
+      overflow: hidden;
+      position: relative;
+    }
+
+    .screen {
+      display: none;
+      width: 100%;
+      height: 100%;
+      flex-direction: column;
+      min-height: 0;
+    }
+
+    .screen.active {
+      display: flex;
+    }
+
+    /* =====================================================================
+       NÚT BẤM PHONG CÁCH HOẠT HÌNH DỄ NHẤN
+       ===================================================================== */
+    .btn {
+      border: none;
+      outline: none;
+      cursor: pointer;
+      font-family: inherit;
+      font-weight: 800;
+      border-radius: 16px;
+      padding: 10px 20px;
+      font-size: clamp(14px, 1.15vw, 17px);
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      transition: transform 0.12s ease, box-shadow 0.12s ease, filter 0.15s ease;
+      white-space: nowrap;
+    }
+
+    .btn:hover {
+      filter: brightness(1.04);
+      transform: translateY(-2px);
+    }
+
+    .btn:active {
+      transform: translateY(2px);
+    }
+
+    .btn-primary {
+      background: linear-gradient(180deg, #4f9cff 0%, #2563eb 100%);
+      color: #fff;
+      box-shadow: 0 5px 0 #1d4ed8, 0 8px 18px rgba(37, 99, 235, 0.28);
+    }
+    .btn-primary:active {
+      box-shadow: 0 2px 0 #1d4ed8;
+    }
+
+    .btn-success {
+      background: linear-gradient(180deg, #4ade80 0%, #16a34a 100%);
+      color: #fff;
+      box-shadow: 0 5px 0 #15803d, 0 8px 18px rgba(22, 163, 74, 0.28);
+    }
+    .btn-success:active {
+      box-shadow: 0 2px 0 #15803d;
+    }
+
+    .btn-warning {
+      background: linear-gradient(180deg, #fbbf24 0%, #d97706 100%);
+      color: #fff;
+      box-shadow: 0 5px 0 #b45309, 0 8px 16px rgba(217, 119, 6, 0.25);
+    }
+    .btn-warning:active {
+      box-shadow: 0 2px 0 #b45309;
+    }
+
+    .btn-soft {
+      background: #ffffff;
+      color: var(--text-main);
+      border: 2px solid #dbe4f0;
+      box-shadow: 0 4px 0 #cbd5e1;
+    }
+    .btn-soft:active {
+      box-shadow: 0 1px 0 #cbd5e1;
+    }
+
+    .btn-sm {
+      padding: 7px 14px;
+      font-size: clamp(13px, 1vw, 15px);
+      border-radius: 12px;
+    }
+
+    .btn-lg {
+      padding: clamp(12px, 1.6vh, 16px) clamp(28px, 3vw, 44px);
+      font-size: clamp(17px, 1.5vw, 22px);
+      border-radius: 20px;
+    }
+
+    /* =====================================================================
+       MÀN HÌNH 1: TRANG CHỦ - LỰA CHỌN BÀI LUYỆN TẬP
+       ===================================================================== */
+    .home-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: clamp(8px, 1.4vh, 16px);
+      flex-shrink: 0;
+    }
+
+    .brand-box {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+
+    .brand-icon {
+      width: clamp(46px, 5.8vh, 60px);
+      height: clamp(46px, 5.8vh, 60px);
+      background: linear-gradient(135deg, #60a5fa, #a78bfa);
+      border-radius: 18px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 6px 14px rgba(96, 165, 250, 0.3);
+      flex-shrink: 0;
+    }
+
+    .brand-title h1 {
+      font-size: clamp(20px, 2.2vw, 32px);
+      font-weight: 900;
+      color: #1e3a8a;
+      line-height: 1.15;
+      letter-spacing: 0.3px;
+    }
+
+    .brand-title p {
+      font-size: clamp(13px, 1.05vw, 16px);
+      color: var(--text-sub);
+      font-weight: 600;
+      margin-top: 2px;
+    }
+
+    .header-actions {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .home-body {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      min-height: 0;
+      gap: clamp(10px, 1.6vh, 18px);
+      max-width: 1360px;
+      width: 100%;
+      margin: 0 auto;
+    }
+
+    .section-label {
+      font-size: clamp(15px, 1.25vw, 19px);
+      font-weight: 800;
+      color: #334155;
+      margin-bottom: clamp(6px, 1vh, 10px);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    /* Lưới 6 thẻ bài luyện tập */
+    .lesson-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: clamp(10px, 1.4vw, 18px);
+      flex: 1;
+      min-height: 0;
+    }
+
+    .lesson-card {
+      background: #ffffff;
+      border-radius: var(--radius-lg);
+      padding: clamp(12px, 1.6vh, 20px) clamp(14px, 1.5vw, 22px);
+      border: 3px solid transparent;
+      box-shadow: var(--shadow-card);
+      cursor: pointer;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      position: relative;
+      transition: transform 0.16s ease, box-shadow 0.16s ease, border-color 0.16s ease;
+      overflow: hidden;
+    }
+
+    .lesson-card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 12px 24px rgba(36, 52, 71, 0.12);
+    }
+
+    .lesson-card.selected {
+      border-color: #2563eb;
+      box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.2), 0 12px 24px rgba(37, 99, 235, 0.15);
+      transform: translateY(-3px);
+    }
+
+    .lesson-card-top {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 10px;
+    }
+
+    .lesson-icon-badge {
+      width: clamp(42px, 5.2vh, 54px);
+      height: clamp(42px, 5.2vh, 54px);
+      border-radius: 15px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: clamp(20px, 2.2vw, 28px);
+      font-weight: 900;
+      flex-shrink: 0;
+    }
+
+    .lesson-check {
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      border: 2px solid #cbd5e1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: #f8fafc;
+      color: transparent;
+      font-weight: 900;
+      font-size: 16px;
+      transition: all 0.15s ease;
+    }
+
+    .lesson-card.selected .lesson-check {
+      background: #2563eb;
+      border-color: #2563eb;
+      color: #ffffff;
+    }
+
+    .lesson-title {
+      font-size: clamp(16px, 1.35vw, 21px);
+      font-weight: 900;
+      color: var(--text-main);
+      margin-top: clamp(6px, 1vh, 10px);
+    }
+
+    .lesson-desc {
+      font-size: clamp(12.5px, 1vw, 14.5px);
+      color: var(--text-sub);
+      font-weight: 600;
+      margin-top: 4px;
+      line-height: 1.35;
+    }
+
+    .lesson-keys-preview {
+      margin-top: clamp(8px, 1vh, 12px);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .key-pill-group {
+      display: flex;
+      gap: 4px;
+      flex-wrap: wrap;
+    }
+
+    .mini-key {
+      background: rgba(255, 255, 255, 0.85);
+      border: 1.5px solid rgba(36, 52, 71, 0.14);
+      border-radius: 7px;
+      padding: 2px 7px;
+      font-size: clamp(11px, 0.9vw, 13px);
+      font-weight: 800;
+      color: var(--text-main);
+    }
+
+    .lesson-best-tag {
+      font-size: clamp(11px, 0.85vw, 13px);
+      font-weight: 800;
+      color: #b45309;
+      background: #fef3c7;
+      padding: 3px 9px;
+      border-radius: 999px;
+    }
+
+    /* Màu nền pastel riêng cho 6 thẻ bài */
+    .card-theme-1 { background: linear-gradient(145deg, #ffffff 35%, #e8fdf0 100%); }
+    .card-theme-1 .lesson-icon-badge { background: #bbf7d0; color: #15803d; }
+
+    .card-theme-2 { background: linear-gradient(145deg, #ffffff 35%, #e0f2fe 100%); }
+    .card-theme-2 .lesson-icon-badge { background: #bae6fd; color: #0369a1; }
+
+    .card-theme-3 { background: linear-gradient(145deg, #ffffff 35%, #fef3c7 100%); }
+    .card-theme-3 .lesson-icon-badge { background: #fde68a; color: #b45309; }
+
+    .card-theme-4 { background: linear-gradient(145deg, #ffffff 35%, #fce7f3 100%); }
+    .card-theme-4 .lesson-icon-badge { background: #fbcfe8; color: #be185d; }
+
+    .card-theme-5 { background: linear-gradient(145deg, #ffffff 35%, #cffafe 100%); }
+    .card-theme-5 .lesson-icon-badge { background: #a5f3fc; color: #0e7490; }
+
+    .card-theme-6 { background: linear-gradient(145deg, #ffffff 35%, #ede9fe 100%); }
+    .card-theme-6 .lesson-icon-badge { background: #ddd6fe; color: #6d28d9; }
+
+    /* Khu vực chọn thời gian & Nút Bắt đầu */
+    .home-footer-bar {
+      background: #ffffff;
+      border-radius: var(--radius-lg);
+      padding: clamp(12px, 1.5vh, 18px) clamp(16px, 2vw, 26px);
+      box-shadow: var(--shadow-soft);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      flex-wrap: wrap;
+      flex-shrink: 0;
+    }
+
+    .time-selector-wrap {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    .time-label {
+      font-size: clamp(14px, 1.15vw, 17px);
+      font-weight: 800;
+      color: var(--text-main);
+    }
+
+    .time-pills {
+      display: flex;
+      gap: 8px;
+    }
+
+    .time-btn {
+      border: 2px solid #cbd5e1;
+      background: #f8fafc;
+      color: var(--text-main);
+      font-weight: 800;
+      font-size: clamp(14px, 1.1vw, 16px);
+      padding: 8px 16px;
+      border-radius: 12px;
+      cursor: pointer;
+      transition: all 0.14s ease;
+    }
+
+    .time-btn:hover {
+      border-color: #60a5fa;
+      background: #eff6ff;
+    }
+
+    .time-btn.active {
+      background: #2563eb;
+      border-color: #2563eb;
+      color: #ffffff;
+      box-shadow: 0 4px 10px rgba(37, 99, 235, 0.28);
+    }
+
+    /* =====================================================================
+       MÀN HÌNH 2: LUYỆN TẬP (TOÀN BỘ TRONG 1 MÀN HÌNH, KHÔNG CUỘN)
+       ===================================================================== */
+    .practice-top-bar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      background: #ffffff;
+      border-radius: 16px;
+      padding: clamp(6px, 1vh, 10px) clamp(10px, 1.4vw, 18px);
+      box-shadow: var(--shadow-card);
+      flex-shrink: 0;
+    }
+
+    .practice-lesson-name {
+      font-size: clamp(14px, 1.2vw, 18px);
+      font-weight: 900;
+      color: #1e3a8a;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      white-space: nowrap;
+    }
+
+    .hud-stats {
+      display: flex;
+      align-items: center;
+      gap: clamp(6px, 0.9vw, 14px);
+      flex-wrap: nowrap;
+    }
+
+    .stat-chip {
+      background: #f8fafc;
+      border: 2px solid #e2e8f0;
+      border-radius: 12px;
+      padding: 4px clamp(8px, 1vw, 14px);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      min-width: clamp(64px, 6.2vw, 92px);
+    }
+
+    .stat-chip-label {
+      font-size: clamp(10px, 0.78vw, 12px);
+      font-weight: 700;
+      color: var(--text-sub);
+      text-transform: uppercase;
+      letter-spacing: 0.3px;
+    }
+
+    .stat-chip-val {
+      font-size: clamp(15px, 1.3vw, 20px);
+      font-weight: 900;
+      color: var(--text-main);
+      line-height: 1.15;
+    }
+
+    .stat-chip.score .stat-chip-val { color: #2563eb; }
+    .stat-chip.time .stat-chip-val { color: #d97706; }
+    .stat-chip.time.urgent { background: #fef2f2; border-color: #fca5a5; }
+    .stat-chip.time.urgent .stat-chip-val { color: #dc2626; }
+    .stat-chip.correct .stat-chip-val { color: #16a34a; }
+    .stat-chip.wrong .stat-chip-val { color: #dc2626; }
+    .stat-chip.accuracy .stat-chip-val { color: #7c3aed; }
+
+    .practice-controls {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    /* Khu vực hiển thị phím cần gõ ở chính giữa */
+    .prompt-stage {
+      display: grid;
+      grid-template-columns: 1fr auto 1fr;
+      align-items: center;
+      gap: 12px;
+      padding: clamp(6px, 1vh, 12px) 0;
+      flex-shrink: 0;
+      min-height: clamp(108px, 16vh, 148px);
+    }
+
+    /* Cột trái: Chuỗi thành tích (không bao giờ che phím) */
+    .streak-slot {
+      display: flex;
+      justify-content: flex-end;
+      align-items: center;
+      padding-right: 8px;
+    }
+
+    .streak-banner {
+      background: linear-gradient(135deg, #fef08a 0%, #fde047 100%);
+      border: 3px solid #eab308;
+      border-radius: 16px;
+      padding: 8px 16px;
+      box-shadow: 0 6px 16px rgba(234, 179, 8, 0.25);
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      opacity: 0;
+      transform: scale(0.85);
+      transition: opacity 0.22s ease, transform 0.22s ease;
+      pointer-events: none;
+    }
+
+    .streak-banner.show {
+      opacity: 1;
+      transform: scale(1);
+    }
+
+    .streak-count-badge {
+      background: #ca8a04;
+      color: #fff;
+      font-weight: 900;
+      font-size: clamp(13px, 1.1vw, 16px);
+      padding: 3px 9px;
+      border-radius: 999px;
+    }
+
+    .streak-text {
+      font-size: clamp(14px, 1.15vw, 17px);
+      font-weight: 900;
+      color: #854d0e;
+    }
+
+    /* Cột giữa: Phím mục tiêu thật lớn + hướng dẫn ngón tay */
+    .target-center {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: clamp(4px, 0.8vh, 8px);
+    }
+
+    .target-key-card {
+      min-width: clamp(92px, 12vh, 124px);
+      height: clamp(74px, 10.5vh, 104px);
+      padding: 0 22px;
+      background: #ffffff;
+      border: 4px solid #3b82f6;
+      border-radius: 22px;
+      box-shadow: 0 8px 0 #cbd5e1, 0 12px 24px rgba(37, 99, 235, 0.16);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: clamp(38px, 5.8vh, 58px);
+      font-weight: 900;
+      color: #1e293b;
+      transition: transform 0.12s ease, border-color 0.12s ease, background-color 0.12s ease;
+    }
+
+    .target-key-card.space-mode {
+      min-width: clamp(200px, 24vw, 290px);
+      font-size: clamp(22px, 2.8vh, 30px);
+      letter-spacing: 1px;
+    }
+
+    .target-key-card.pop {
+      animation: popIn 0.18s ease-out;
+    }
+
+    .target-key-card.shake {
+      animation: shakeWrong 0.28s ease-in-out;
+      border-color: var(--danger) !important;
+      background-color: #fff5f5;
+    }
+
+    @keyframes popIn {
+      0% { transform: scale(0.84); }
+      70% { transform: scale(1.06); }
+      100% { transform: scale(1); }
+    }
+
+    @keyframes shakeWrong {
+      0%, 100% { transform: translateX(0); }
+      25% { transform: translateX(-8px); }
+      50% { transform: translateX(8px); }
+      75% { transform: translateX(-5px); }
+    }
+
+    .finger-guide-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 9px;
+      background: #ffffff;
+      border: 2px solid #e2e8f0;
+      border-radius: 999px;
+      padding: 5px 16px;
+      font-size: clamp(14px, 1.2vw, 18px);
+      font-weight: 800;
+      color: var(--text-main);
+      box-shadow: 0 3px 8px rgba(36, 52, 71, 0.06);
+    }
+
+    .finger-color-dot {
+      width: 16px;
+      height: 16px;
+      border-radius: 50%;
+      border: 2px solid rgba(0, 0, 0, 0.22);
+      flex-shrink: 0;
+    }
+
+    /* Cột phải: Phản hồi Đúng / Sai */
+    .feedback-slot {
+      display: flex;
+      justify-content: flex-start;
+      align-items: center;
+      padding-left: 8px;
+    }
+
+    .feedback-toast {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 9px 16px;
+      border-radius: 16px;
+      font-size: clamp(14px, 1.15vw, 17px);
+      font-weight: 800;
+      opacity: 0;
+      transform: translateY(6px);
+      transition: opacity 0.16s ease, transform 0.16s ease;
+      pointer-events: none;
+      max-width: 320px;
+    }
+
+    .feedback-toast.show {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    .feedback-toast.is-correct {
+      background: var(--success-bg);
+      color: #15803d;
+      border: 2px solid #86efac;
+    }
+
+    .feedback-toast.is-wrong {
+      background: var(--danger-bg);
+      color: #b91c1c;
+      border: 2px solid #fca5a5;
+    }
+
+    .feedback-toast.is-info {
+      background: #e0f2fe;
+      color: #0369a1;
+      border: 2px solid #7dd3fc;
+    }
+
+    .feedback-icon {
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 16px;
+      font-weight: 900;
+      flex-shrink: 0;
+      color: #fff;
+    }
+
+    .feedback-toast.is-correct .feedback-icon { background: #22c55e; }
+    .feedback-toast.is-wrong .feedback-icon { background: #ef4444; }
+    .feedback-toast.is-info .feedback-icon { background: #0284c7; }
+
+    /* =====================================================================
+       BÀN PHÍM ẢO QWERTY 5 HÀNG CHUẨN BỐ CỤC (GRID 60 CỘT = 15U)
+       ===================================================================== */
+    .workspace-visuals {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: space-between;
+      min-height: 0;
+      gap: clamp(6px, 1vh, 12px);
+    }
+
+    .keyboard-shell {
+      width: 100%;
+      max-width: clamp(820px, 76vw, 1080px);
+      background: #ffffff;
+      border: 3px solid #dbe4f0;
+      border-radius: 20px;
+      padding: clamp(8px, 1.1vh, 14px) clamp(10px, 1.2vw, 16px);
+      box-shadow: 0 8px 20px rgba(36, 52, 71, 0.08);
+      display: flex;
+      flex-direction: column;
+      gap: clamp(4px, 0.65vh, 7px);
+      flex-shrink: 0;
+    }
+
+    .kb-row {
+      display: grid;
+      grid-template-columns: repeat(60, 1fr);
+      gap: clamp(3px, 0.35vw, 5px);
+      height: clamp(36px, 5.2vh, 52px);
+    }
+
+    .kb-key {
+      border-radius: 9px;
+      border: 2px solid transparent;
+      border-bottom-width: 4px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      font-weight: 800;
+      font-size: clamp(12px, 1.1vw, 17px);
+      color: #1e293b;
+      position: relative;
+      cursor: default;
+      transition: filter 0.12s ease;
+    }
+
+    .kb-key.special-key {
+      font-size: clamp(10px, 0.82vw, 13px);
+      color: #475569;
+    }
+
+    .kb-key .sub-char {
+      font-size: clamp(9px, 0.7vw, 11px);
+      opacity: 0.65;
+      line-height: 1;
+      margin-bottom: 1px;
+    }
+
+    /* Dấu gờ nổi trên phím F và J */
+    .kb-key.has-bump::after {
+      content: '';
+      position: absolute;
+      bottom: 4px;
+      width: 42%;
+      height: 3px;
+      border-radius: 99px;
+      background: rgba(30, 41, 59, 0.68);
+    }
+
+    /* Màu phím theo ngón tay */
+    .f-l-pinky  { background-color: var(--c-l-pinky);  border-color: var(--b-l-pinky); }
+    .f-l-ring   { background-color: var(--c-l-ring);   border-color: var(--b-l-ring); }
+    .f-l-middle { background-color: var(--c-l-middle); border-color: var(--b-l-middle); }
+    .f-l-index  { background-color: var(--c-l-index);  border-color: var(--b-l-index); }
+    .f-r-index  { background-color: var(--c-r-index);  border-color: var(--b-r-index); }
+    .f-r-middle { background-color: var(--c-r-middle); border-color: var(--b-r-middle); }
+    .f-r-ring   { background-color: var(--c-r-ring);   border-color: var(--b-r-ring); }
+    .f-r-pinky  { background-color: var(--c-r-pinky);  border-color: var(--b-r-pinky); }
+    .f-thumb    { background-color: var(--c-thumb);    border-color: var(--b-thumb); }
+    .f-neutral  { background-color: var(--c-neutral);  border-color: var(--b-neutral); }
+
+    /* Hiệu ứng phím đang cần gõ: phát sáng + viền nổi bật + nhấp nháy nhẹ, KHÔNG đổi kích thước/vị trí */
+    .kb-key.target-active {
+      z-index: 5;
+      color: #0f172a;
+      box-shadow: 0 0 0 3px #1d4ed8, 0 0 18px 4px rgba(37, 99, 235, 0.72);
+      animation: keyGlowPulse 0.85s ease-in-out infinite;
+    }
+
+    @keyframes keyGlowPulse {
+      0%, 100% {
+        filter: brightness(1.06);
+        box-shadow: 0 0 0 3px #1d4ed8, 0 0 14px 3px rgba(37, 99, 235, 0.65);
+      }
+      50% {
+        filter: brightness(1.25);
+        box-shadow: 0 0 0 4px #f59e0b, 0 0 22px 6px rgba(245, 158, 11, 0.78);
+      }
+    }
+
+    /* Hiệu ứng nháy khi nhấn phím vật lý */
+    .kb-key.just-pressed-ok {
+      filter: brightness(1.3);
+      box-shadow: 0 0 0 3px #16a34a, 0 0 14px rgba(34, 197, 94, 0.7);
+    }
+
+    .kb-key.just-pressed-err {
+      box-shadow: 0 0 0 3px #dc2626, 0 0 14px rgba(239, 68, 68, 0.7);
+    }
+
+    /* =====================================================================
+       MINH HỌA HAI BÀN TAY SVG (10 NGÓN ĐÚNG CẤU TẠO)
+       ===================================================================== */
+    .hands-stage {
+      flex: 1;
+      width: 100%;
+      max-width: clamp(680px, 66vw, 940px);
+      min-height: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: rgba(255, 255, 255, 0.72);
+      border: 2px solid #e2e8f0;
+      border-radius: 20px;
+      padding: clamp(4px, 0.8vh, 10px) 16px;
+    }
+
+    .hands-svg {
+      width: 100%;
+      height: 100%;
+      max-height: clamp(140px, 24vh, 235px);
+      display: block;
+    }
+
+    .finger-group {
+      transition: opacity 0.18s ease, filter 0.18s ease;
+    }
+
+    .hands-svg.has-active .finger-group {
+      opacity: 0.36;
+    }
+
+    .hands-svg.has-active .finger-group.finger-active {
+      opacity: 1;
+      filter: drop-shadow(0 0 8px rgba(37, 99, 235, 0.85));
+      animation: fingerPulse 0.85s ease-in-out infinite;
+    }
+
+    @keyframes fingerPulse {
+      0%, 100% { filter: drop-shadow(0 0 6px rgba(37, 99, 235, 0.8)); }
+      50% { filter: drop-shadow(0 0 14px rgba(245, 158, 11, 0.95)); }
+    }
+
+    /* =====================================================================
+       MÀN HÌNH 3: TỔNG KẾT KẾT QUẢ
+       ===================================================================== */
+    .result-wrapper {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 0;
+    }
+
+    .result-card {
+      background: #ffffff;
+      border-radius: 28px;
+      padding: clamp(18px, 2.8vh, 34px) clamp(22px, 3vw, 44px);
+      box-shadow: 0 18px 44px rgba(36, 52, 71, 0.12);
+      width: 100%;
+      max-width: 820px;
+      text-align: center;
+      border: 3px solid #e2e8f0;
+    }
+
+    .result-badge-top {
+      display: inline-block;
+      background: #eff6ff;
+      color: #1d4ed8;
+      font-weight: 800;
+      font-size: clamp(13px, 1.1vw, 16px);
+      padding: 6px 18px;
+      border-radius: 999px;
+      margin-bottom: 8px;
+    }
+
+    .result-stars {
+      font-size: clamp(36px, 5.2vh, 56px);
+      letter-spacing: 6px;
+      line-height: 1.1;
+      margin: 4px 0;
+    }
+
+    .star-on { color: #facc15; text-shadow: 0 3px 0 #ca8a04; }
+    .star-off { color: #e2e8f0; }
+
+    .result-rank-title {
+      font-size: clamp(22px, 2.3vw, 32px);
+      font-weight: 900;
+      color: #1e3a8a;
+      margin-top: 4px;
+    }
+
+    .result-comment {
+      font-size: clamp(14px, 1.2vw, 18px);
+      color: var(--text-sub);
+      font-weight: 700;
+      margin: 6px 0 clamp(14px, 2vh, 22px);
+    }
+
+    .new-record-pill {
+      display: none;
+      background: linear-gradient(135deg, #f59e0b, #ef4444);
+      color: #fff;
+      font-weight: 900;
+      font-size: 14px;
+      padding: 5px 14px;
+      border-radius: 999px;
+      margin-bottom: 10px;
+    }
+    .new-record-pill.show { display: inline-block; }
+
+    .result-metrics-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: clamp(10px, 1.4vw, 16px);
+      margin-bottom: clamp(16px, 2.4vh, 26px);
+    }
+
+    .metric-box {
+      background: #f8fafc;
+      border: 2px solid #e2e8f0;
+      border-radius: 16px;
+      padding: clamp(10px, 1.4vh, 16px) 10px;
+    }
+
+    .metric-label {
+      font-size: clamp(12px, 0.95vw, 14px);
+      font-weight: 700;
+      color: var(--text-sub);
+      margin-bottom: 4px;
+    }
+
+    .metric-val {
+      font-size: clamp(20px, 2vw, 28px);
+      font-weight: 900;
+      color: var(--text-main);
+    }
+
+    .metric-box.m-score .metric-val { color: #2563eb; }
+    .metric-box.m-ok .metric-val { color: #16a34a; }
+    .metric-box.m-err .metric-val { color: #dc2626; }
+    .metric-box.m-acc .metric-val { color: #7c3aed; }
+    .metric-box.m-kpm .metric-val { color: #0891b2; }
+    .metric-box.m-best .metric-val { color: #d97706; }
+
+    .result-actions {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 14px;
+      flex-wrap: wrap;
+    }
+
+    /* =====================================================================
+       OVERLAY TẠM DỪNG & MODAL XEM KỈ LỤC
+       ===================================================================== */
+    .overlay-backdrop {
+      position: fixed;
+      inset: 0;
+      background: rgba(15, 23, 42, 0.52);
+      backdrop-filter: blur(4px);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 100;
+      padding: 20px;
+    }
+
+    .overlay-backdrop.open {
+      display: flex;
+    }
+
+    .modal-box {
+      background: #ffffff;
+      border-radius: 24px;
+      padding: 26px 30px;
+      max-width: 680px;
+      width: 100%;
+      box-shadow: 0 20px 50px rgba(15, 23, 42, 0.25);
+      text-align: center;
+      border: 3px solid #e2e8f0;
+    }
+
+    .modal-title {
+      font-size: 24px;
+      font-weight: 900;
+      color: #1e3a8a;
+      margin-bottom: 8px;
+    }
+
+    .modal-sub {
+      font-size: 15px;
+      color: var(--text-sub);
+      font-weight: 600;
+      margin-bottom: 18px;
+    }
+
+    .records-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-bottom: 18px;
+      font-size: 14.5px;
+      text-align: left;
+    }
+
+    .records-table th {
+      background: #eff6ff;
+      color: #1e3a8a;
+      padding: 10px 12px;
+      font-weight: 800;
+    }
+
+    .records-table th:first-child { border-radius: 10px 0 0 10px; }
+    .records-table th:last-child { border-radius: 0 10px 10px 0; }
+
+    .records-table td {
+      padding: 10px 12px;
+      border-bottom: 1px solid #e2e8f0;
+      font-weight: 700;
+      color: var(--text-main);
+    }
+
+    .modal-actions {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    .confirm-reset-bar {
+      display: none;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      background: #fef2f2;
+      border: 2px solid #fecaca;
+      border-radius: 12px;
+      padding: 8px 14px;
+      margin-bottom: 14px;
+      font-size: 14px;
+      font-weight: 700;
+      color: #b91c1c;
+    }
+
+    .confirm-reset-bar.show {
+      display: flex;
+    }
+
+    /* =====================================================================
+       ĐÁP ỨNG MÀN HÌNH NHỎ HƠN
+       ===================================================================== */
+    @media (max-width: 960px) {
+      .lesson-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+      .practice-top-bar {
+        flex-wrap: wrap;
+        justify-content: center;
+      }
+      .prompt-stage {
+        grid-template-columns: 1fr;
+        justify-items: center;
+        min-height: auto;
+      }
+      .streak-slot, .feedback-slot {
+        justify-content: center;
+        padding: 0;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="app-shell">
+    <!-- ===================================================================
+         MÀN HÌNH 1: CHỌN BÀI LUYỆN TẬP & THỜI GIAN
+         =================================================================== -->
+    <section id="screen-home" class="screen active">
+      <header class="home-header">
+        <div class="brand-box">
+          <div class="brand-icon" aria-hidden="true">
+            <!-- Biểu tượng bàn phím SVG -->
+            <svg width="34" height="34" viewBox="0 0 36 36" fill="none">
+              <rect x="3" y="8" width="30" height="20" rx="5" fill="#ffffff"/>
+              <rect x="7" y="12" width="4" height="4" rx="1" fill="#3b82f6"/>
+              <rect x="13" y="12" width="4" height="4" rx="1" fill="#22c55e"/>
+              <rect x="19" y="12" width="4" height="4" rx="1" fill="#f59e0b"/>
+              <rect x="25" y="12" width="4" height="4" rx="1" fill="#ec4899"/>
+              <rect x="9" y="19" width="18" height="4" rx="1.5" fill="#60a5fa"/>
+            </svg>
+          </div>
+          <div class="brand-title">
+            <h1>BÉ LUYỆN GÕ PHÍM – THỬ THÁCH 10 NGÓN</h1>
+            <p>Đặt tay đúng vị trí, gõ đúng ngón, chinh phục 5 hàng phím thật vui!</p>
+          </div>
+        </div>
+        <div class="header-actions">
+          <button type="button" class="btn btn-soft btn-sm" id="btn-home-records">🏆 Kỉ lục</button>
+          <button type="button" class="btn btn-soft btn-sm btn-fullscreen">⛶ Toàn màn hình</button>
+        </div>
+      </header>
+
+      <div class="home-body">
+        <div>
+          <div class="section-label">📚 Bước 1: Bé hãy chọn một bài luyện tập nhé!</div>
+          <div class="lesson-grid" id="lesson-grid">
+            <!-- 6 thẻ bài luyện tập sẽ được tạo tự động bằng JS -->
+          </div>
+        </div>
+
+        <div class="home-footer-bar">
+          <div class="time-selector-wrap">
+            <span class="time-label">⏱️ Bước 2: Chọn thời gian luyện tập:</span>
+            <div class="time-pills" id="time-pills">
+              <button type="button" class="time-btn" data-minutes="1">1 phút</button>
+              <button type="button" class="time-btn active" data-minutes="2">2 phút</button>
+              <button type="button" class="time-btn" data-minutes="3">3 phút</button>
+              <button type="button" class="time-btn" data-minutes="5">5 phút</button>
+            </div>
+          </div>
+          <button type="button" class="btn btn-success btn-lg" id="btn-start-game">
+            ▶ BẮT ĐẦU LUYỆN TẬP
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===================================================================
+         MÀN HÌNH 2: LUYỆN TẬP GÕ PHÍM
+         =================================================================== -->
+    <section id="screen-practice" class="screen">
+      <!-- Thanh thông số trên cùng -->
+      <header class="practice-top-bar">
+        <div class="practice-lesson-name" id="hud-lesson-name">Bài 1: Hàng phím cơ sở</div>
+
+        <div class="hud-stats">
+          <div class="stat-chip score">
+            <span class="stat-chip-label">Điểm</span>
+            <span class="stat-chip-val" id="hud-score">0</span>
+          </div>
+          <div class="stat-chip time" id="hud-time-chip">
+            <span class="stat-chip-label">Thời gian</span>
+            <span class="stat-chip-val" id="hud-time">02:00</span>
+          </div>
+          <div class="stat-chip correct">
+            <span class="stat-chip-label">Gõ đúng</span>
+            <span class="stat-chip-val" id="hud-correct">0</span>
+          </div>
+          <div class="stat-chip wrong">
+            <span class="stat-chip-label">Gõ sai</span>
+            <span class="stat-chip-val" id="hud-wrong">0</span>
+          </div>
+          <div class="stat-chip accuracy">
+            <span class="stat-chip-label">Chính xác</span>
+            <span class="stat-chip-val" id="hud-accuracy">0%</span>
+          </div>
+        </div>
+
+        <div class="practice-controls">
+          <button type="button" class="btn btn-warning btn-sm" id="btn-pause">⏸ Tạm dừng</button>
+          <button type="button" class="btn btn-soft btn-sm" id="btn-go-home">🏠 Trang chủ</button>
+          <button type="button" class="btn btn-soft btn-sm btn-fullscreen">⛶ Toàn màn hình</button>
+        </div>
+      </header>
+
+      <!-- Khu vực phím cần gõ ở chính giữa + phản hồi & chuỗi thành tích hai bên -->
+      <div class="prompt-stage">
+        <div class="streak-slot">
+          <div class="streak-banner" id="streak-banner" aria-live="polite">
+            <span class="streak-count-badge" id="streak-count">5 liên tiếp</span>
+            <span class="streak-text" id="streak-text">Khởi đầu tuyệt vời!</span>
+          </div>
+        </div>
+
+        <div class="target-center">
+          <div class="target-key-card" id="target-key-card">F</div>
+          <div class="finger-guide-pill" id="finger-guide-pill">
+            <span class="finger-color-dot" id="finger-color-dot"></span>
+            <span id="finger-guide-text">Dùng ngón trỏ tay trái để gõ phím F</span>
+          </div>
+        </div>
+
+        <div class="feedback-slot">
+          <div class="feedback-toast" id="feedback-toast" aria-live="polite">
+            <span class="feedback-icon" id="feedback-icon">✓</span>
+            <span id="feedback-text">Chính xác!</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Bàn phím ảo + Hai bàn tay minh họa -->
+      <div class="workspace-visuals">
+        <div class="keyboard-shell" id="virtual-keyboard" aria-label="Bàn phím ảo minh họa">
+          <!-- 5 hàng phím QWERTY được tạo bằng JS -->
+        </div>
+
+        <div class="hands-stage">
+          <!-- Hình SVG hai bàn tay trái & phải đúng 10 ngón, tư thế gõ phím tự nhiên -->
+          <svg class="hands-svg has-active" id="hands-svg" viewBox="0 0 880 235" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Minh họa hai bàn tay 10 ngón">
+            <!-- ==================== BÀN TAY TRÁI ==================== -->
+            <g id="hand-left" transform="translate(30, 6)">
+              <!-- Lòng/Mu bàn tay trái -->
+              <path d="M 85 112 C 82 95, 252 92, 265 114 L 278 170 C 282 198, 250 218, 192 218 C 122 218, 86 196, 85 164 Z"
+                    fill="#ffe5d4" stroke="#d8a48f" stroke-width="3.5" stroke-linejoin="round"/>
+
+              <!-- 1. Ngón út tay trái (L-pinky) -->
+              <g class="finger-group" id="finger-l-pinky">
+                <rect x="86" y="54" width="34" height="78" rx="17" fill="#ff9eb5" stroke="#c24869" stroke-width="3"/>
+                <rect x="93" y="61" width="20" height="17" rx="8" fill="#ffffff" opacity="0.55"/>
+              </g>
+
+              <!-- 2. Ngón áp út tay trái (L-ring) -->
+              <g class="finger-group" id="finger-l-ring">
+                <rect x="130" y="24" width="36" height="98" rx="18" fill="#ffb870" stroke="#c26b1b" stroke-width="3"/>
+                <rect x="138" y="31" width="20" height="18" rx="8" fill="#ffffff" opacity="0.55"/>
+              </g>
+
+              <!-- 3. Ngón giữa tay trái (L-middle) -->
+              <g class="finger-group" id="finger-l-middle">
+                <rect x="176" y="10" width="38" height="110" rx="19" fill="#ffe066" stroke="#b88900" stroke-width="3"/>
+                <rect x="185" y="17" width="20" height="19" rx="8" fill="#ffffff" opacity="0.55"/>
+              </g>
+
+              <!-- 4. Ngón trỏ tay trái (L-index) -->
+              <g class="finger-group" id="finger-l-index">
+                <rect x="224" y="26" width="37" height="98" rx="18.5" fill="#8ce99a" stroke="#2b8a3e" stroke-width="3"/>
+                <rect x="232" y="33" width="21" height="18" rx="8" fill="#ffffff" opacity="0.55"/>
+              </g>
+
+              <!-- 5. Ngón cái tay trái (L-thumb) - nghiêng tự nhiên hướng về phím Cách -->
+              <g class="finger-group" id="finger-l-thumb">
+                <g transform="translate(274, 128) rotate(36)">
+                  <rect x="0" y="0" width="38" height="82" rx="19" fill="#a5f3fc" stroke="#0e7490" stroke-width="3"/>
+                  <rect x="9" y="8" width="20" height="16" rx="7" fill="#ffffff" opacity="0.55"/>
+                </g>
+              </g>
+
+              <!-- Nhãn TAY TRÁI -->
+              <rect x="116" y="146" width="124" height="34" rx="17" fill="#ffffff" stroke="#d8a48f" stroke-width="2"/>
+              <text x="178" y="169" text-anchor="middle" font-size="16" font-weight="900" fill="#334155">TAY TRÁI</text>
+            </g>
+
+            <!-- Đường phân tách nhẹ ở giữa -->
+            <line x1="440" y1="30" x2="440" y2="210" stroke="#cbd5e1" stroke-width="2" stroke-dasharray="6 6"/>
+
+            <!-- ==================== BÀN TAY PHẢI ==================== -->
+            <g id="hand-right" transform="translate(470, 6)">
+              <!-- Lòng/Mu bàn tay phải -->
+              <path d="M 115 114 C 128 92, 298 95, 295 112 L 295 164 C 294 196, 258 218, 188 218 C 130 218, 98 198, 102 170 Z"
+                    fill="#ffe5d4" stroke="#d8a48f" stroke-width="3.5" stroke-linejoin="round"/>
+
+              <!-- 6. Ngón cái tay phải (R-thumb) - nghiêng tự nhiên hướng về phím Cách -->
+              <g class="finger-group" id="finger-r-thumb">
+                <g transform="translate(106, 128) rotate(-36)">
+                  <rect x="-38" y="0" width="38" height="82" rx="19" fill="#a5f3fc" stroke="#0e7490" stroke-width="3"/>
+                  <rect x="-29" y="8" width="20" height="16" rx="7" fill="#ffffff" opacity="0.55"/>
+                </g>
+              </g>
+
+              <!-- 7. Ngón trỏ tay phải (R-index) -->
+              <g class="finger-group" id="finger-r-index">
+                <rect x="119" y="26" width="37" height="98" rx="18.5" fill="#66d9e8" stroke="#0b7285" stroke-width="3"/>
+                <rect x="127" y="33" width="21" height="18" rx="8" fill="#ffffff" opacity="0.55"/>
+              </g>
+
+              <!-- 8. Ngón giữa tay phải (R-middle) -->
+              <g class="finger-group" id="finger-r-middle">
+                <rect x="166" y="10" width="38" height="110" rx="19" fill="#74c0fc" stroke="#1864ab" stroke-width="3"/>
+                <rect x="175" y="17" width="20" height="19" rx="8" fill="#ffffff" opacity="0.55"/>
+              </g>
+
+              <!-- 9. Ngón áp út tay phải (R-ring) -->
+              <g class="finger-group" id="finger-r-ring">
+                <rect x="214" y="24" width="36" height="98" rx="18" fill="#b197fc" stroke="#5f3dc4" stroke-width="3"/>
+                <rect x="222" y="31" width="20" height="18" rx="8" fill="#ffffff" opacity="0.55"/>
+              </g>
+
+              <!-- 10. Ngón út tay phải (R-pinky) -->
+              <g class="finger-group" id="finger-r-pinky">
+                <rect x="260" y="54" width="34" height="78" rx="17" fill="#e599f7" stroke="#9c36b5" stroke-width="3"/>
+                <rect x="267" y="61" width="20" height="17" rx="8" fill="#ffffff" opacity="0.55"/>
+              </g>
+
+              <!-- Nhãn TAY PHẢI -->
+              <rect x="140" y="146" width="124" height="34" rx="17" fill="#ffffff" stroke="#d8a48f" stroke-width="2"/>
+              <text x="202" y="169" text-anchor="middle" font-size="16" font-weight="900" fill="#334155">TAY PHẢI</text>
+            </g>
+          </svg>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===================================================================
+         MÀN HÌNH 3: KẾT QUẢ LUYỆN TẬP
+         =================================================================== -->
+    <section id="screen-result" class="screen">
+      <div class="result-wrapper">
+        <div class="result-card">
+          <div class="result-badge-top" id="res-lesson-name">Bài 1: Hàng phím cơ sở</div>
+          <div><span class="new-record-pill" id="res-new-record">🎉 KỈ LỤC CÁ NHÂN MỚI!</span></div>
+          <div class="result-stars" id="res-stars">★★★</div>
+          <h2 class="result-rank-title" id="res-rank">Xuất sắc!</h2>
+          <p class="result-comment" id="res-comment">Bé gõ rất chính xác và tập trung. Tiếp tục phát huy nhé!</p>
+
+          <div class="result-metrics-grid">
+            <div class="metric-box m-score">
+              <div class="metric-label">Tổng điểm</div>
+              <div class="metric-val" id="res-score">0</div>
+            </div>
+            <div class="metric-box m-ok">
+              <div class="metric-label">Phím gõ đúng</div>
+              <div class="metric-val" id="res-correct">0</div>
+            </div>
+            <div class="metric-box m-err">
+              <div class="metric-label">Lần gõ sai</div>
+              <div class="metric-val" id="res-wrong">0</div>
+            </div>
+            <div class="metric-box m-acc">
+              <div class="metric-label">Tỉ lệ chính xác</div>
+              <div class="metric-val" id="res-accuracy">0%</div>
+            </div>
+            <div class="metric-box m-kpm">
+              <div class="metric-label">Phím đúng / phút</div>
+              <div class="metric-val" id="res-kpm">0</div>
+            </div>
+            <div class="metric-box m-best">
+              <div class="metric-label">Kỉ lục bài này</div>
+              <div class="metric-val" id="res-best">0</div>
+            </div>
+          </div>
+
+          <div class="result-actions">
+            <button type="button" class="btn btn-success" id="btn-retry">🔄 LUYỆN TẬP LẠI</button>
+            <button type="button" class="btn btn-primary" id="btn-choose-other">📚 CHỌN BÀI KHÁC</button>
+            <button type="button" class="btn btn-warning" id="btn-res-records">🏆 XEM KỈ LỤC</button>
+          </div>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <!-- =====================================================================
+       OVERLAY TẠM DỪNG
+       ===================================================================== -->
+  <div class="overlay-backdrop" id="overlay-pause">
+    <div class="modal-box" style="max-width: 440px;">
+      <div style="font-size: 46px; margin-bottom: 6px;">⏸️</div>
+      <h3 class="modal-title">Trò chơi đang tạm dừng</h3>
+      <p class="modal-sub" id="pause-reason">Bé hãy nghỉ tay một chút rồi nhấn Tiếp tục để luyện tiếp nhé!</p>
+      <div class="modal-actions">
+        <button type="button" class="btn btn-success" id="btn-resume">▶ TIẾP TỤC</button>
+        <button type="button" class="btn btn-soft" id="btn-pause-home">🏠 VỀ TRANG CHỦ</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- =====================================================================
+       MODAL XEM KỈ LỤC CÁ NHÂN
+       ===================================================================== -->
+  <div class="overlay-backdrop" id="overlay-records">
+    <div class="modal-box">
+      <h3 class="modal-title">🏆 Bảng Kỉ Lục Cá Nhân</h3>
+      <p class="modal-sub">Thành tích cao nhất của bé ở từng bài luyện tập (lưu trên máy này).</p>
+
+      <table class="records-table">
+        <thead>
+          <tr>
+            <th>Bài luyện tập</th>
+            <th>Điểm cao nhất</th>
+            <th>Chính xác cao nhất</th>
+            <th>Phím/phút tốt nhất</th>
+          </tr>
+        </thead>
+        <tbody id="records-tbody">
+          <!-- Dữ liệu kỉ lục được điền bằng JS -->
+        </tbody>
+      </table>
+
+      <div class="confirm-reset-bar" id="confirm-reset-bar">
+        <span>Bé có chắc muốn xóa toàn bộ kỉ lục không?</span>
+        <button type="button" class="btn btn-warning btn-sm" id="btn-confirm-reset-yes">Xóa ngay</button>
+        <button type="button" class="btn btn-soft btn-sm" id="btn-confirm-reset-no">Hủy</button>
+      </div>
+
+      <div class="modal-actions">
+        <button type="button" class="btn btn-primary" id="btn-close-records">Đóng</button>
+        <button type="button" class="btn btn-soft btn-sm" id="btn-ask-reset">Xóa kỉ lục</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    (function () {
+      'use strict';
+
+      /* ===================================================================
+         1. DỮ LIỆU NGÓN TAY, BÀN PHÍM & 6 BÀI LUYỆN TẬP
+         =================================================================== */
+
+      // Thông tin chi tiết từng nhóm ngón tay (tuyệt đối chính xác)
+      const FINGER_INFO = {
+        'l-pinky':  { name: 'ngón út tay trái',    color: '#ff9eb5', ids: ['finger-l-pinky'] },
+        'l-ring':   { name: 'ngón áp út tay trái', color: '#ffb870', ids: ['finger-l-ring'] },
+        'l-middle': { name: 'ngón giữa tay trái',  color: '#ffe066', ids: ['finger-l-middle'] },
+        'l-index':  { name: 'ngón trỏ tay trái',   color: '#8ce99a', ids: ['finger-l-index'] },
+        'r-index':  { name: 'ngón trỏ tay phải',   color: '#66d9e8', ids: ['finger-r-index'] },
+        'r-middle': { name: 'ngón giữa tay phải',  color: '#74c0fc', ids: ['finger-r-middle'] },
+        'r-ring':   { name: 'ngón áp út tay phải', color: '#b197fc', ids: ['finger-r-ring'] },
+        'r-pinky':  { name: 'ngón út tay phải',    color: '#e599f7', ids: ['finger-r-pinky'] },
+        'thumb':    { name: 'ngón cái',            color: '#a5f3fc', ids: ['finger-l-thumb', 'finger-r-thumb'] }
+      };
+
+      // Bản đồ chuẩn hóa phím (mã phím nội bộ -> thông tin hiển thị, ngón tay, e.code)
+      const KEY_META = {
+        '1': { label: '1', display: '1', finger: 'l-pinky',  code: 'Digit1' },
+        '2': { label: '2', display: '2', finger: 'l-ring',   code: 'Digit2' },
+        '3': { label: '3', display: '3', finger: 'l-middle', code: 'Digit3' },
+        '4': { label: '4', display: '4', finger: 'l-index',  code: 'Digit4' },
+        '5': { label: '5', display: '5', finger: 'l-index',  code: 'Digit5' },
+        '6': { label: '6', display: '6', finger: 'r-index',  code: 'Digit6' },
+        '7': { label: '7', display: '7', finger: 'r-index',  code: 'Digit7' },
+        '8': { label: '8', display: '8', finger: 'r-middle', code: 'Digit8' },
+        '9': { label: '9', display: '9', finger: 'r-ring',   code: 'Digit9' },
+        '0': { label: '0', display: '0', finger: 'r-pinky',  code: 'Digit0' },
+
+        'q': { label: 'Q', display: 'Q', finger: 'l-pinky',  code: 'KeyQ' },
+        'w': { label: 'W', display: 'W', finger: 'l-ring',   code: 'KeyW' },
+        'e': { label: 'E', display: 'E', finger: 'l-middle', code: 'KeyE' },
+        'r': { label: 'R', display: 'R', finger: 'l-index',  code: 'KeyR' },
+        't': { label: 'T', display: 'T', finger: 'l-index',  code: 'KeyT' },
+        'y': { label: 'Y', display: 'Y', finger: 'r-index',  code: 'KeyY' },
+        'u': { label: 'U', display: 'U', finger: 'r-index',  code: 'KeyU' },
+        'i': { label: 'I', display: 'I', finger: 'r-middle', code: 'KeyI' },
+        'o': { label: 'O', display: 'O', finger: 'r-ring',   code: 'KeyO' },
+        'p': { label: 'P', display: 'P', finger: 'r-pinky',  code: 'KeyP' },
+
+        'a': { label: 'A', display: 'A', finger: 'l-pinky',  code: 'KeyA' },
+        's': { label: 'S', display: 'S', finger: 'l-ring',   code: 'KeyS' },
+        'd': { label: 'D', display: 'D', finger: 'l-middle', code: 'KeyD' },
+        'f': { label: 'F', display: 'F', finger: 'l-index',  code: 'KeyF' },
+        'g': { label: 'G', display: 'G', finger: 'l-index',  code: 'KeyG' },
+        'h': { label: 'H', display: 'H', finger: 'r-index',  code: 'KeyH' },
+        'j': { label: 'J', display: 'J', finger: 'r-index',  code: 'KeyJ' },
+        'k': { label: 'K', display: 'K', finger: 'r-middle', code: 'KeyK' },
+        'l': { label: 'L', display: 'L', finger: 'r-ring',   code: 'KeyL' },
+        ';': { label: ';', display: 'dấu chấm phẩy (;)', finger: 'r-pinky', code: 'Semicolon' },
+
+        'z': { label: 'Z', display: 'Z', finger: 'l-pinky',  code: 'KeyZ' },
+        'x': { label: 'X', display: 'X', finger: 'l-ring',   code: 'KeyX' },
+        'c': { label: 'C', display: 'C', finger: 'l-middle', code: 'KeyC' },
+        'v': { label: 'V', display: 'V', finger: 'l-index',  code: 'KeyV' },
+        'b': { label: 'B', display: 'B', finger: 'l-index',  code: 'KeyB' },
+        'n': { label: 'N', display: 'N', finger: 'r-index',  code: 'KeyN' },
+        'm': { label: 'M', display: 'M', finger: 'r-index',  code: 'KeyM' },
+        ',': { label: ',', display: 'dấu phẩy (,)', finger: 'r-middle', code: 'Comma' },
+        '.': { label: '.', display: 'dấu chấm (.)', finger: 'r-ring',   code: 'Period' },
+        '/': { label: '/', display: 'dấu gạch chéo (/)', finger: 'r-pinky', code: 'Slash' },
+
+        ' ': { label: 'PHÍM CÁCH', display: 'phím Cách', finger: 'thumb', code: 'Space' }
+      };
+
+      // Bản đồ tra ngược từ KeyboardEvent.code -> mã phím nội bộ (chống lỗi khi bật bộ gõ Unikey/Telex)
+      const CODE_TO_KEY = {};
+      Object.keys(KEY_META).forEach(function (k) {
+        CODE_TO_KEY[KEY_META[k].code] = k;
+      });
+
+      // Bố cục 5 hàng phím QWERTY chuẩn (tổng mỗi hàng = 60 cột = 15u)
+      const KEYBOARD_ROWS = [
+        // Hàng 1: Hàng phím số
+        [
+          { key: '`', label: '`', sub: '~', finger: 'l-pinky', span: 4 },
+          { key: '1', label: '1', sub: '!', finger: 'l-pinky', span: 4 },
+          { key: '2', label: '2', sub: '@', finger: 'l-ring', span: 4 },
+          { key: '3', label: '3', sub: '#', finger: 'l-middle', span: 4 },
+          { key: '4', label: '4', sub: '$', finger: 'l-index', span: 4 },
+          { key: '5', label: '5', sub: '%', finger: 'l-index', span: 4 },
+          { key: '6', label: '6', sub: '^', finger: 'r-index', span: 4 },
+          { key: '7', label: '7', sub: '&', finger: 'r-index', span: 4 },
+          { key: '8', label: '8', sub: '*', finger: 'r-middle', span: 4 },
+          { key: '9', label: '9', sub: '(', finger: 'r-ring', span: 4 },
+          { key: '0', label: '0', sub: ')', finger: 'r-pinky', span: 4 },
+          { key: '-', label: '-', sub: '_', finger: 'r-pinky', span: 4 },
+          { key: '=', label: '=', sub: '+', finger: 'r-pinky', span: 4 },
+          { key: 'Backspace', label: '⌫ Backspace', finger: 'neutral', span: 8, special: true }
+        ],
+        // Hàng 2: Hàng phím trên
+        [
+          { key: 'Tab', label: 'Tab', finger: 'neutral', span: 6, special: true },
+          { key: 'q', label: 'Q', finger: 'l-pinky', span: 4 },
+          { key: 'w', label: 'W', finger: 'l-ring', span: 4 },
+          { key: 'e', label: 'E', finger: 'l-middle', span: 4 },
+          { key: 'r', label: 'R', finger: 'l-index', span: 4 },
+          { key: 't', label: 'T', finger: 'l-index', span: 4 },
+          { key: 'y', label: 'Y', finger: 'r-index', span: 4 },
+          { key: 'u', label: 'U', finger: 'r-index', span: 4 },
+          { key: 'i', label: 'I', finger: 'r-middle', span: 4 },
+          { key: 'o', label: 'O', finger: 'r-ring', span: 4 },
+          { key: 'p', label: 'P', finger: 'r-pinky', span: 4 },
+          { key: '[', label: '[', sub: '{', finger: 'r-pinky', span: 4 },
+          { key: ']', label: ']', sub: '}', finger: 'r-pinky', span: 4 },
+          { key: '\\', label: '\\', sub: '|', finger: 'r-pinky', span: 6 }
+        ],
+        // Hàng 3: Hàng phím cơ sở (có dấu gờ nổi trên F và J)
+        [
+          { key: 'CapsLock', label: 'Caps Lock', finger: 'neutral', span: 7, special: true },
+          { key: 'a', label: 'A', finger: 'l-pinky', span: 4 },
+          { key: 's', label: 'S', finger: 'l-ring', span: 4 },
+          { key: 'd', label: 'D', finger: 'l-middle', span: 4 },
+          { key: 'f', label: 'F', finger: 'l-index', span: 4, bump: true },
+          { key: 'g', label: 'G', finger: 'l-index', span: 4 },
+          { key: 'h', label: 'H', finger: 'r-index', span: 4 },
+          { key: 'j', label: 'J', finger: 'r-index', span: 4, bump: true },
+          { key: 'k', label: 'K', finger: 'r-middle', span: 4 },
+          { key: 'l', label: 'L', finger: 'r-ring', span: 4 },
+          { key: ';', label: ';', sub: ':', finger: 'r-pinky', span: 4 },
+          { key: "'", label: "'", sub: '"', finger: 'r-pinky', span: 4 },
+          { key: 'Enter', label: '↵ Enter', finger: 'neutral', span: 9, special: true }
+        ],
+        // Hàng 4: Hàng phím dưới
+        [
+          { key: 'ShiftLeft', label: '⇧ Shift', finger: 'neutral', span: 9, special: true },
+          { key: 'z', label: 'Z', finger: 'l-pinky', span: 4 },
+          { key: 'x', label: 'X', finger: 'l-ring', span: 4 },
+          { key: 'c', label: 'C', finger: 'l-middle', span: 4 },
+          { key: 'v', label: 'V', finger: 'l-index', span: 4 },
+          { key: 'b', label: 'B', finger: 'l-index', span: 4 },
+          { key: 'n', label: 'N', finger: 'r-index', span: 4 },
+          { key: 'm', label: 'M', finger: 'r-index', span: 4 },
+          { key: ',', label: ',', sub: '<', finger: 'r-middle', span: 4 },
+          { key: '.', label: '.', sub: '>', finger: 'r-ring', span: 4 },
+          { key: '/', label: '/', sub: '?', finger: 'r-pinky', span: 4 },
+          { key: 'ShiftRight', label: '⇧ Shift', finger: 'neutral', span: 11, special: true }
+        ],
+        // Hàng 5: Hàng phím chứa dấu cách
+        [
+          { key: 'ControlLeft', label: 'Ctrl', finger: 'neutral', span: 6, special: true },
+          { key: 'MetaLeft', label: 'Win', finger: 'neutral', span: 5, special: true },
+          { key: 'AltLeft', label: 'Alt', finger: 'neutral', span: 5, special: true },
+          { key: ' ', label: 'PHÍM CÁCH (Space)', finger: 'thumb', span: 26, special: false },
+          { key: 'AltRight', label: 'Alt', finger: 'neutral', span: 5, special: true },
+          { key: 'Fn', label: 'Fn', finger: 'neutral', span: 5, special: true },
+          { key: 'ControlRight', label: 'Ctrl', finger: 'neutral', span: 8, special: true }
+        ]
+      ];
+
+      // 6 bài luyện tập
+      const LESSONS = [
+        {
+          id: 'lesson1',
+          title: 'Bài 1: Hàng phím cơ sở',
+          desc: 'Làm quen vị trí đặt tay chuẩn với 2 phím có gai F và J.',
+          icon: '🏡',
+          theme: 'card-theme-1',
+          preview: ['A', 'S', 'D', 'F', 'J', 'K', 'L', ';'],
+          keys: ['a', 's', 'd', 'f', 'g', 'h', 'j', 'k', 'l', ';']
+        },
+        {
+          id: 'lesson2',
+          title: 'Bài 2: Hàng phím trên',
+          desc: 'Rèn luyện vươn ngón tay lên hàng phím chữ phía trên.',
+          icon: '☁️',
+          theme: 'card-theme-2',
+          preview: ['Q', 'W', 'E', 'R', 'T', 'Y', 'U', 'I', 'O', 'P'],
+          keys: ['q', 'w', 'e', 'r', 't', 'y', 'u', 'i', 'o', 'p']
+        },
+        {
+          id: 'lesson3',
+          title: 'Bài 3: Hàng phím dưới',
+          desc: 'Luyện gõ chính xác các phím chữ và dấu ở hàng dưới.',
+          icon: '🌱',
+          theme: 'card-theme-3',
+          preview: ['Z', 'X', 'C', 'V', 'B', 'N', 'M', ',', '.', '/'],
+          keys: ['z', 'x', 'c', 'v', 'b', 'n', 'm', ',', '.', '/']
+        },
+        {
+          id: 'lesson4',
+          title: 'Bài 4: Hàng phím số',
+          desc: 'Ghi nhớ nhanh vị trí các chữ số từ 1 đến 0 trên bàn phím.',
+          icon: '🔢',
+          theme: 'card-theme-4',
+          preview: ['1', '2', '3', '4', '5', '6', '7', '8', '9', '0'],
+          keys: ['1', '2', '3', '4', '5', '6', '7', '8', '9', '0']
+        },
+        {
+          id: 'lesson5',
+          title: 'Bài 5: Hàng phím chứa dấu cách',
+          desc: 'Luyện nhấn và nhả phím Cách nhịp nhàng bằng ngón cái.',
+          icon: '🚀',
+          theme: 'card-theme-5',
+          preview: ['PHÍM CÁCH (Space)'],
+          keys: [' '],
+          isSpaceLesson: true
+        },
+        {
+          id: 'lesson6',
+          title: 'Bài 6: Thử thách tổng hợp',
+          desc: 'Kết hợp cả 5 hàng phím để trở thành siêu sao 10 ngón!',
+          icon: '🌟',
+          theme: 'card-theme-6',
+          preview: ['A-Z', '0-9', '; , . /', 'Space'],
+          keys: [
+            'a', 's', 'd', 'f', 'g', 'h', 'j', 'k', 'l', ';',
+            'q', 'w', 'e', 'r', 't', 'y', 'u', 'i', 'o', 'p',
+            'z', 'x', 'c', 'v', 'b', 'n', 'm', ',', '.', '/',
+            '1', '2', '3', '4', '5', '6', '7', '8', '9', '0',
+            ' '
+          ]
+        }
+      ];
+
+      const PRAISE_MESSAGES = [
+        'Bé giỏi quá!',
+        'Chính xác!',
+        'Tuyệt vời!',
+        'Cố gắng phát huy nhé!'
+      ];
+
+      // Các phím điều khiển không tính là lỗi gõ
+      const IGNORED_KEYS = new Set([
+        'Shift', 'Control', 'Alt', 'Meta', 'CapsLock', 'Tab',
+        'Escape', 'NumLock', 'ScrollLock', 'Insert', 'Home',
+        'End', 'PageUp', 'PageDown', 'ArrowUp', 'ArrowDown',
+        'ArrowLeft', 'ArrowRight', 'F1', 'F2', 'F3', 'F4',
+        'F5', 'F6', 'F7', 'F8', 'F9', 'F10', 'F11', 'F12'
+      ]);
+
+      const STORAGE_KEY = 'be_luyen_go_phim_10_ngon_records_v1';
+
+      /* ===================================================================
+         2. TRẠNG THÁI ỨNG DỤNG
+         =================================================================== */
+      const state = {
+        selectedLessonId: 'lesson1',
+        selectedMinutes: 2,
+        currentScreen: 'home', // 'home' | 'practice' | 'result'
+        isPlaying: false,
+        isPaused: false,
+
+        totalSeconds: 120,
+        remainingSeconds: 120,
+        timerId: null,
+
+        score: 0,
+        correctCount: 0,
+        wrongCount: 0,
+        streak: 0,
+
+        currentTargetKey: null,
+        keyBag: [],
+        spaceDownValid: false, // Dùng cho Bài 5: kiểm tra nhấn + nhả phím Cách hợp lệ
+        feedbackTimeout: null,
+        streakTimeout: null
+      };
+
+      /* ===================================================================
+         3. THAM CHIẾU PHẦN TỬ DOM
+         =================================================================== */
+      const el = {
+        screenHome: document.getElementById('screen-home'),
+        screenPractice: document.getElementById('screen-practice'),
+        screenResult: document.getElementById('screen-result'),
+
+        lessonGrid: document.getElementById('lesson-grid'),
+        timePills: document.getElementById('time-pills'),
+        btnStartGame: document.getElementById('btn-start-game'),
+        btnHomeRecords: document.getElementById('btn-home-records'),
+
+        hudLessonName: document.getElementById('hud-lesson-name'),
+        hudScore: document.getElementById('hud-score'),
+        hudTime: document.getElementById('hud-time'),
+        hudTimeChip: document.getElementById('hud-time-chip'),
+        hudCorrect: document.getElementById('hud-correct'),
+        hudWrong: document.getElementById('hud-wrong'),
+        hudAccuracy: document.getElementById('hud-accuracy'),
+
+        btnPause: document.getElementById('btn-pause'),
+        btnGoHome: document.getElementById('btn-go-home'),
+
+        targetKeyCard: document.getElementById('target-key-card'),
+        fingerColorDot: document.getElementById('finger-color-dot'),
+        fingerGuideText: document.getElementById('finger-guide-text'),
+
+        feedbackToast: document.getElementById('feedback-toast'),
+        feedbackIcon: document.getElementById('feedback-icon'),
+        feedbackText: document.getElementById('feedback-text'),
+
+        streakBanner: document.getElementById('streak-banner'),
+        streakCount: document.getElementById('streak-count'),
+        streakText: document.getElementById('streak-text'),
+
+        virtualKeyboard: document.getElementById('virtual-keyboard'),
+        handsSvg: document.getElementById('hands-svg'),
+
+        resLessonName: document.getElementById('res-lesson-name'),
+        resNewRecord: document.getElementById('res-new-record'),
+        resStars: document.getElementById('res-stars'),
+        resRank: document.getElementById('res-rank'),
+        resComment: document.getElementById('res-comment'),
+        resScore: document.getElementById('res-score'),
+        resCorrect: document.getElementById('res-correct'),
+        resWrong: document.getElementById('res-wrong'),
+        resAccuracy: document.getElementById('res-accuracy'),
+        resKpm: document.getElementById('res-kpm'),
+        resBest: document.getElementById('res-best'),
+
+        btnRetry: document.getElementById('btn-retry'),
+        btnChooseOther: document.getElementById('btn-choose-other'),
+        btnResRecords: document.getElementById('btn-res-records'),
+
+        overlayPause: document.getElementById('overlay-pause'),
+        pauseReason: document.getElementById('pause-reason'),
+        btnResume: document.getElementById('btn-resume'),
+        btnPauseHome: document.getElementById('btn-pause-home'),
+
+        overlayRecords: document.getElementById('overlay-records'),
+        recordsTbody: document.getElementById('records-tbody'),
+        btnCloseRecords: document.getElementById('btn-close-records'),
+        btnAskReset: document.getElementById('btn-ask-reset'),
+        confirmResetBar: document.getElementById('confirm-reset-bar'),
+        btnConfirmResetYes: document.getElementById('btn-confirm-reset-yes'),
+        btnConfirmResetNo: document.getElementById('btn-confirm-reset-no'),
+
+        fullscreenBtns: document.querySelectorAll('.btn-fullscreen')
+      };
+
+      // Lưu tham chiếu DOM các phím trên bàn phím ảo để truy cập tức thì
+      const keyElementMap = {};
+
+      /* ===================================================================
+         4. QUẢN LÝ KỈ LỤC CÁ NHÂN (LOCALSTORAGE AN TOÀN)
+         =================================================================== */
+      function loadRecords() {
+        try {
+          const raw = window.localStorage.getItem(STORAGE_KEY);
+          if (!raw) return {};
+          const parsed = JSON.parse(raw);
+          return typeof parsed === 'object' && parsed !== null ? parsed : {};
+        } catch (err) {
+          return {};
+        }
+      }
+
+      function saveRecords(records) {
+        try {
+          window.localStorage.setItem(STORAGE_KEY, JSON.stringify(records));
+        } catch (err) {
+          // Bỏ qua nếu trình duyệt chặn LocalStorage
+        }
+      }
+
+      function updateLessonRecord(lessonId, score, accuracy, kpm) {
+        const records = loadRecords();
+        const prev = records[lessonId] || { bestScore: 0, bestAccuracy: 0, bestKpm: 0 };
+        const isNewScoreRecord = score > 0 && score > prev.bestScore;
+
+        records[lessonId] = {
+          bestScore: Math.max(prev.bestScore, score),
+          bestAccuracy: Math.max(prev.bestAccuracy, accuracy),
+          bestKpm: Math.max(prev.bestKpm, kpm)
+        };
+        saveRecords(records);
+        return {
+          record: records[lessonId],
+          isNewRecord: isNewScoreRecord
+        };
+      }
+
+      /* ===================================================================
+         5. KHỞI TẠO GIAO DIỆN: 6 THẺ BÀI & BÀN PHÍM ẢO
+         =================================================================== */
+      function getLessonById(id) {
+        return LESSONS.find(function (l) { return l.id === id; }) || LESSONS[0];
+      }
+
+      function renderLessonCards() {
+        const records = loadRecords();
+        el.lessonGrid.innerHTML = '';
+
+        LESSONS.forEach(function (lesson) {
+          const rec = records[lesson.id];
+          const card = document.createElement('div');
+          card.className = 'lesson-card ' + lesson.theme + (lesson.id === state.selectedLessonId ? ' selected' : '');
+          card.setAttribute('data-lesson-id', lesson.id);
+
+          const miniKeysHtml = lesson.preview.map(function (k) {
+            return '<span class="mini-key">' + k + '</span>';
+          }).join('');
+
+          const bestHtml = rec && rec.bestScore > 0
+            ? '<span class="lesson-best-tag">🏆 ' + rec.bestScore + ' điểm</span>'
+            : '<span class="lesson-best-tag" style="background:#f1f5f9;color:#64748b;">Chưa có kỉ lục</span>';
+
+          card.innerHTML =
+            '<div>' +
+              '<div class="lesson-card-top">' +
+                '<div class="lesson-icon-badge">' + lesson.icon + '</div>' +
+                '<div class="lesson-check">✓</div>' +
+              '</div>' +
+              '<div class="lesson-title">' + lesson.title + '</div>' +
+              '<div class="lesson-desc">' + lesson.desc + '</div>' +
+            '</div>' +
+            '<div class="lesson-keys-preview">' +
+              '<div class="key-pill-group">' + miniKeysHtml + '</div>' +
+              bestHtml +
+            '</div>';
+
+          card.addEventListener('click', function () {
+            state.selectedLessonId = lesson.id;
+            renderLessonCards();
+          });
+
+          el.lessonGrid.appendChild(card);
+        });
+      }
+
+      function buildVirtualKeyboard() {
+        el.virtualKeyboard.innerHTML = '';
+
+        KEYBOARD_ROWS.forEach(function (row) {
+          const rowEl = document.createElement('div');
+          rowEl.className = 'kb-row';
+
+          row.forEach(function (kObj) {
+            const keyEl = document.createElement('div');
+            keyEl.className = 'kb-key f-' + kObj.finger +
+              (kObj.special ? ' special-key' : '') +
+              (kObj.bump ? ' has-bump' : '');
+            keyEl.style.gridColumn = 'span ' + kObj.span;
+            keyEl.setAttribute('data-key', kObj.key);
+
+            if (kObj.sub) {
+              keyEl.innerHTML = '<span class="sub-char">' + kObj.sub + '</span><span>' + kObj.label + '</span>';
+            } else {
+              keyEl.textContent = kObj.label;
+            }
+
+            // Không cho nháy chuột vào bàn phím ảo để lấy điểm
+            keyEl.addEventListener('click', function () {
+              if (state.isPlaying && !state.isPaused) {
+                showFeedback('info', 'Bé hãy gõ trên bàn phím thật nhé!');
+              }
+            });
+
+            keyElementMap[kObj.key] = keyEl;
+            rowEl.appendChild(keyEl);
+          });
+
+          el.virtualKeyboard.appendChild(rowEl);
+        });
+      }
+
+      /* ===================================================================
+         6. CHUYỂN ĐỔI MÀN HÌNH & ĐỊNH DẠNG HIỂN THỊ
+         =================================================================== */
+      function showScreen(name) {
+        state.currentScreen = name;
+        el.screenHome.classList.toggle('active', name === 'home');
+        el.screenPractice.classList.toggle('active', name === 'practice');
+        el.screenResult.classList.toggle('active', name === 'result');
+
+        if (name === 'home') {
+          renderLessonCards();
+        }
+      }
+
+      function formatTime(totalSec) {
+        const mins = Math.floor(totalSec / 60);
+        const secs = totalSec % 60;
+        return String(mins).padStart(2, '0') + ':' + String(secs).padStart(2, '0');
+      }
+
+      function calcAccuracy(correct, wrong) {
+        const total = correct + wrong;
+        if (total === 0) return 0;
+        return Math.round((correct / total) * 100);
+      }
+
+      function updateHUD() {
+        el.hudScore.textContent = state.score;
+        el.hudTime.textContent = formatTime(state.remainingSeconds);
+        el.hudTimeChip.classList.toggle('urgent', state.remainingSeconds <= 10 && state.remainingSeconds > 0);
+        el.hudCorrect.textContent = state.correctCount;
+        el.hudWrong.textContent = state.wrongCount;
+        el.hudAccuracy.textContent = calcAccuracy(state.correctCount, state.wrongCount) + '%';
+      }
+
+      /* ===================================================================
+         7. THUẬT TOÁN SINH PHÍM CÂN BẰNG & CẬP NHẬT BÀN PHÍM / BÀN TAY
+         =================================================================== */
+      function shuffleArray(arr) {
+        const copy = arr.slice();
+        for (let i = copy.length - 1; i > 0; i--) {
+          const j = Math.floor(Math.random() * (i + 1));
+          const tmp = copy[i];
+          copy[i] = copy[j];
+          copy[j] = tmp;
+        }
+        return copy;
+      }
+
+      function getNextTargetKey() {
+        const lesson = getLessonById(state.selectedLessonId);
+
+        // Riêng Bài 5 luyện phím Cách
+        if (lesson.isSpaceLesson) {
+          return ' ';
+        }
+
+        // Sử dụng túi trộn ngẫu nhiên (shuffled bag) để đảm bảo mọi phím đều xuất hiện công bằng
+        if (state.keyBag.length === 0) {
+          state.keyBag = shuffleArray(lesson.keys);
+          // Đảm bảo phím đầu tiên của túi mới không trùng với phím vừa gõ
+          if (state.keyBag.length > 1 && state.keyBag[0] === state.currentTargetKey) {
+            const swapIdx = 1 + Math.floor(Math.random() * (state.keyBag.length - 1));
+            const temp = state.keyBag[0];
+            state.keyBag[0] = state.keyBag[swapIdx];
+            state.keyBag[swapIdx] = temp;
+          }
+        }
+
+        return state.keyBag.shift();
+      }
+
+      function highlightKeyAndFinger(targetKey) {
+        // Xóa trạng thái sáng cũ trên bàn phím ảo
+        Object.keys(keyElementMap).forEach(function (k) {
+          keyElementMap[k].classList.remove('target-active');
+        });
+
+        // Làm sáng phím cần gõ
+        if (keyElementMap[targetKey]) {
+          keyElementMap[targetKey].classList.add('target-active');
+        }
+
+        // Cập nhật hai bàn tay SVG
+        const allFingers = el.handsSvg.querySelectorAll('.finger-group');
+        allFingers.forEach(function (fg) {
+          fg.classList.remove('finger-active');
+        });
+
+        const meta = KEY_META[targetKey];
+        if (!meta) return;
+
+        const finger = FINGER_INFO[meta.finger];
+        if (finger) {
+          finger.ids.forEach(function (fid) {
+            const fEl = document.getElementById(fid);
+            if (fEl) fEl.classList.add('finger-active');
+          });
+
+          // Cập nhật thẻ phím lớn & hướng dẫn ngón tay
+          el.targetKeyCard.textContent = meta.label;
+          el.targetKeyCard.classList.toggle('space-mode', targetKey === ' ');
+          el.targetKeyCard.style.borderColor = finger.color;
+          el.targetKeyCard.classList.remove('pop', 'shake');
+          void el.targetKeyCard.offsetWidth; // Khởi động lại hiệu ứng mượt
+          el.targetKeyCard.classList.add('pop');
+
+          el.fingerColorDot.style.backgroundColor = finger.color;
+          if (targetKey === ' ') {
+            const lesson = getLessonById(state.selectedLessonId);
+            el.fingerGuideText.textContent = lesson.isSpaceLesson
+              ? 'Dùng ngón cái nhấn rồi nhả phím Cách'
+              : 'Dùng ngón cái để gõ phím Cách';
+          } else {
+            el.fingerGuideText.textContent = 'Dùng ' + finger.name + ' để gõ phím ' + meta.display;
+          }
+        }
+      }
+
+      function advanceToNextKey() {
+        state.currentTargetKey = getNextTargetKey();
+        highlightKeyAndFinger(state.currentTargetKey);
+      }
+
+      /* ===================================================================
+         8. HIỂN THỊ PHẢN HỒI & CHUỖI THÀNH TÍCH
+         =================================================================== */
+      function showFeedback(type, message) {
+        clearTimeout(state.feedbackTimeout);
+        el.feedbackToast.className = 'feedback-toast show ' +
+          (type === 'correct' ? 'is-correct' : type === 'wrong' ? 'is-wrong' : 'is-info');
+
+        if (type === 'correct') {
+          el.feedbackIcon.textContent = '✓';
+        } else if (type === 'wrong') {
+          el.feedbackIcon.textContent = '✕';
+        } else {
+          el.feedbackIcon.textContent = '!';
+        }
+
+        el.feedbackText.textContent = message;
+
+        state.feedbackTimeout = setTimeout(function () {
+          el.feedbackToast.classList.remove('show');
+        }, 1400);
+      }
+
+      function checkAndShowStreak() {
+        let milestoneText = '';
+        if (state.streak === 5) {
+          milestoneText = 'Khởi đầu tuyệt vời!';
+        } else if (state.streak === 10) {
+          milestoneText = 'Siêu sao bàn phím!';
+        } else if (state.streak === 20) {
+          milestoneText = 'Cao thủ gõ phím!';
+        } else if (state.streak > 20 && state.streak % 10 === 0) {
+          milestoneText = 'Cao thủ gõ phím!';
+        }
+
+        if (milestoneText) {
+          clearTimeout(state.streakTimeout);
+          el.streakCount.textContent = state.streak + ' liên tiếp';
+          el.streakText.textContent = milestoneText;
+          el.streakBanner.classList.add('show');
+
+          state.streakTimeout = setTimeout(function () {
+            el.streakBanner.classList.remove('show');
+          }, 2600);
+        }
+      }
+
+      function hideStreakBanner() {
+        clearTimeout(state.streakTimeout);
+        el.streakBanner.classList.remove('show');
+      }
+
+      function flashVirtualKey(keyChar, isOk) {
+        const kEl = keyElementMap[keyChar];
+        if (!kEl) return;
+        const cls = isOk ? 'just-pressed-ok' : 'just-pressed-err';
+        kEl.classList.add(cls);
+        setTimeout(function () {
+          kEl.classList.remove(cls);
+        }, 180);
+      }
+
+      /* ===================================================================
+         9. ĐIỀU KHIỂN VÒNG ĐỜI TRÒ CHƠI (BẮT ĐẦU, TẠM DỪNG, KẾT THÚC)
+         =================================================================== */
+      function startPractice() {
+        const lesson = getLessonById(state.selectedLessonId);
+
+        stopTimer();
+        state.isPlaying = true;
+        state.isPaused = false;
+        state.totalSeconds = state.selectedMinutes * 60;
+        state.remainingSeconds = state.totalSeconds;
+        state.score = 0;
+        state.correctCount = 0;
+        state.wrongCount = 0;
+        state.streak = 0;
+        state.keyBag = [];
+        state.currentTargetKey = null;
+        state.spaceDownValid = false;
+
+        el.hudLessonName.textContent = lesson.title;
+        el.feedbackToast.classList.remove('show');
+        hideStreakBanner();
+        el.overlayPause.classList.remove('open');
+
+        updateHUD();
+        showScreen('practice');
+        advanceToNextKey();
+        startTimer();
+      }
+
+      function startTimer() {
+        stopTimer();
+        state.timerId = setInterval(function () {
+          if (!state.isPlaying || state.isPaused) return;
+          state.remainingSeconds--;
+          updateHUD();
+
+          if (state.remainingSeconds <= 0) {
+            finishPractice();
+          }
+        }, 1000);
+      }
+
+      function stopTimer() {
+        if (state.timerId !== null) {
+          clearInterval(state.timerId);
+          state.timerId = null;
+        }
+      }
+
+      function pausePractice(reasonText) {
+        if (!state.isPlaying || state.isPaused) return;
+        state.isPaused = true;
+        state.spaceDownValid = false;
+        el.pauseReason.textContent = reasonText || 'Bé hãy nghỉ tay một chút rồi nhấn Tiếp tục để luyện tiếp nhé!';
+        el.overlayPause.classList.add('open');
+      }
+
+      function resumePractice() {
+        if (!state.isPlaying || !state.isPaused) return;
+        state.isPaused = false;
+        el.overlayPause.classList.remove('open');
+      }
+
+      function goHome() {
+        stopTimer();
+        state.isPlaying = false;
+        state.isPaused = false;
+        state.spaceDownValid = false;
+        el.overlayPause.classList.remove('open');
+        showScreen('home');
+      }
+
+      function finishPractice() {
+        stopTimer();
+        state.isPlaying = false;
+        state.isPaused = false;
+        state.spaceDownValid = false;
+        el.overlayPause.classList.remove('open');
+
+        const lesson = getLessonById(state.selectedLessonId);
+        const accuracy = calcAccuracy(state.correctCount, state.wrongCount);
+        const minutes = state.totalSeconds / 60;
+        const kpm = minutes > 0 ? Math.round(state.correctCount / minutes) : 0;
+
+        // Cập nhật kỉ lục cá nhân
+        const saved = updateLessonRecord(lesson.id, state.score, accuracy, kpm);
+
+        // Xếp loại sao có kiểm tra số lượt thực hành tối thiểu
+        let stars = 0;
+        let rankText = '';
+        let commentText = '';
+
+        if (state.correctCount === 0) {
+          stars = 0;
+          rankText = 'Cần luyện tập thêm';
+          commentText = 'Bé chưa gõ đúng phím nào trong lượt này. Hãy thử lại và quan sát bàn tay hướng dẫn nhé!';
+        } else if (state.correctCount < 10) {
+          // Quá ít lượt thực hành -> không xếp loại Xuất sắc
+          stars = accuracy >= 70 ? 1 : 0;
+          rankText = accuracy >= 70 ? 'Hoàn thành' : 'Cần luyện tập thêm';
+          commentText = 'Bé gõ khá cẩn thận, hãy luyện thêm để gõ được nhiều phím hơn trong mỗi lượt nhé!';
+        } else if (accuracy >= 95) {
+          stars = 3;
+          rankText = 'Xuất sắc!';
+          commentText = 'Tuyệt vời quá! Bé ghi nhớ vị trí phím rất tốt và gõ cực kì chính xác!';
+        } else if (accuracy >= 85) {
+          stars = 2;
+          rankText = 'Hoàn thành tốt!';
+          commentText = 'Bé làm rất tốt! Cố gắng gõ chậm rãi và chính xác thêm một chút để đạt 3 sao nhé!';
+        } else if (accuracy >= 70) {
+          stars = 1;
+          rankText = 'Hoàn thành';
+          commentText = 'Bé đã hoàn thành bài luyện tập. Hãy chú ý nhìn màu ngón tay để gõ đúng hơn nữa nhé!';
+        } else {
+          stars = 0;
+          rankText = 'Cần luyện tập thêm';
+          commentText = 'Không sao cả, gõ 10 ngón cần kiên trì! Bé cứ gõ từ từ cho đúng phím trước nhé!';
+        }
+
+        // Hiển thị kết quả lên màn hình
+        el.resLessonName.textContent = lesson.title + ' (' + state.selectedMinutes + ' phút)';
+        el.resNewRecord.classList.toggle('show', saved.isNewRecord);
+
+        let starsHtml = '';
+        for (let i = 1; i <= 3; i++) {
+          starsHtml += '<span class="' + (i <= stars ? 'star-on' : 'star-off') + '">★</span>';
+        }
+        el.resStars.innerHTML = starsHtml;
+        el.resRank.textContent = rankText;
+        el.resComment.textContent = commentText;
+
+        el.resScore.textContent = state.score;
+        el.resCorrect.textContent = state.correctCount;
+        el.resWrong.textContent = state.wrongCount;
+        el.resAccuracy.textContent = accuracy + '%';
+        el.resKpm.textContent = kpm;
+        el.resBest.textContent = saved.record.bestScore + ' điểm';
+
+        showScreen('result');
+      }
+
+      /* ===================================================================
+         10. XỬ LÝ SỰ KIỆN BÀN PHÍM VẬT LÝ
+         =================================================================== */
+      function normalizePressedKey(e) {
+        // Ưu tiên e.code để tránh lỗi khi máy tính học sinh đang bật bộ gõ tiếng Việt (Unikey/EVKey)
+        if (e.code && CODE_TO_KEY[e.code]) {
+          return CODE_TO_KEY[e.code];
+        }
+        if (e.key === ' ') return ' ';
+        if (typeof e.key === 'string' && e.key.length === 1) {
+          return e.key.toLowerCase();
+        }
+        return null;
+      }
+
+      function handleCorrectPress(pressedKey) {
+        state.score += 10;
+        state.correctCount += 1;
+        state.streak += 1;
+
+        flashVirtualKey(pressedKey, true);
+        const msg = PRAISE_MESSAGES[Math.floor(Math.random() * PRAISE_MESSAGES.length)];
+        showFeedback('correct', msg);
+        checkAndShowStreak();
+        updateHUD();
+        advanceToNextKey();
+      }
+
+      function handleWrongPress(pressedKey) {
+        state.wrongCount += 1;
+        state.streak = 0;
+        hideStreakBanner();
+
+        if (pressedKey) {
+          flashVirtualKey(pressedKey, false);
+        }
+
+        // Lắc nhẹ ô phím cần gõ nhưng vẫn giữ nguyên phím hiện tại
+        el.targetKeyCard.classList.remove('shake');
+        void el.targetKeyCard.offsetWidth;
+        el.targetKeyCard.classList.add('shake');
+
+        showFeedback('wrong', 'Chưa đúng, bé hãy thử lại nhé!');
+        updateHUD();
+      }
+
+      window.addEventListener('keydown', function (e) {
+        // Ngăn phím Cách làm cuộn trang hoặc kích hoạt nút bấm đang focus khi đang chơi
+        if (state.isPlaying && (e.code === 'Space' || e.key === ' ')) {
+          e.preventDefault();
+        }
+
+        if (!state.isPlaying || state.isPaused) return;
+
+        // Bỏ qua sự kiện lặp khi giữ phím liên tục (chống gian lận)
+        if (e.repeat) return;
+
+        // Không tính các phím Shift, Ctrl, Alt, CapsLock... là lỗi gõ
+        if (IGNORED_KEYS.has(e.key) || e.ctrlKey || e.altKey || e.metaKey) {
+          return;
+        }
+
+        const pressed = normalizePressedKey(e);
+        if (pressed === null) return;
+
+        const lesson = getLessonById(state.selectedLessonId);
+
+        // Riêng Bài 5 (luyện phím Cách): phải nhấn và nhả phím Cách hợp lệ mới tính 1 lượt
+        if (lesson.isSpaceLesson) {
+          if (pressed === ' ') {
+            state.spaceDownValid = true;
+            flashVirtualKey(' ', true);
+          } else {
+            state.spaceDownValid = false;
+            handleWrongPress(pressed);
+          }
+          return;
+        }
+
+        // Các bài luyện tập khác
+        if (pressed === state.currentTargetKey) {
+          handleCorrectPress(pressed);
+        } else {
+          handleWrongPress(pressed);
+        }
+      });
+
+      window.addEventListener('keyup', function (e) {
+        if (!state.isPlaying || state.isPaused) return;
+
+        const lesson = getLessonById(state.selectedLessonId);
+        if (lesson.isSpaceLesson && (e.code === 'Space' || e.key === ' ')) {
+          e.preventDefault();
+          if (state.spaceDownValid) {
+            state.spaceDownValid = false;
+            handleCorrectPress(' ');
+          }
+        }
+      });
+
+      /* ===================================================================
+         11. TỰ ĐỘNG TẠM DỪNG KHI CHUYỂN CỬA SỔ / TAB KHÁC
+         =================================================================== */
+      document.addEventListener('visibilitychange', function () {
+        if (document.hidden && state.isPlaying && !state.isPaused) {
+          pausePractice('Trò chơi đã tự động tạm dừng khi bé chuyển sang cửa sổ khác.');
+        }
+      });
+
+      window.addEventListener('blur', function () {
+        if (state.isPlaying && !state.isPaused) {
+          pausePractice('Trò chơi đã tự động tạm dừng khi cửa sổ không còn được chọn.');
+        }
+      });
+
+      /* ===================================================================
+         12. CHẾ ĐỘ TOÀN MÀN HÌNH & MODAL KỈ LỤC
+         =================================================================== */
+      function toggleFullscreen() {
+        try {
+          if (!document.fullscreenElement) {
+            if (document.documentElement.requestFullscreen) {
+              document.documentElement.requestFullscreen();
+            }
+          } else {
+            if (document.exitFullscreen) {
+              document.exitFullscreen();
+            }
+          }
+        } catch (err) {
+          // Một số khung nhúng có thể không hỗ trợ toàn màn hình
+        }
+      }
+
+      function updateFullscreenLabels() {
+        const isFs = Boolean(document.fullscreenElement);
+        el.fullscreenBtns.forEach(function (btn) {
+          btn.textContent = isFs ? '✕ Thoát toàn màn hình' : '⛶ Toàn màn hình';
+        });
+      }
+
+      document.addEventListener('fullscreenchange', updateFullscreenLabels);
+
+      function openRecordsModal() {
+        const records = loadRecords();
+        el.recordsTbody.innerHTML = '';
+        el.confirmResetBar.classList.remove('show');
+
+        LESSONS.forEach(function (lesson) {
+          const rec = records[lesson.id];
+          const tr = document.createElement('tr');
+          tr.innerHTML =
+            '<td>' + lesson.icon + ' ' + lesson.title + '</td>' +
+            '<td>' + (rec && rec.bestScore > 0 ? rec.bestScore + ' điểm' : '—') + '</td>' +
+            '<td>' + (rec && rec.bestAccuracy > 0 ? rec.bestAccuracy + '%' : '—') + '</td>' +
+            '<td>' + (rec && rec.bestKpm > 0 ? rec.bestKpm + ' phím/phút' : '—') + '</td>';
+          el.recordsTbody.appendChild(tr);
+        });
+
+        el.overlayRecords.classList.add('open');
+      }
+
+      function closeRecordsModal() {
+        el.overlayRecords.classList.remove('open');
+        el.confirmResetBar.classList.remove('show');
+      }
+
+      /* ===================================================================
+         13. GẮN SỰ KIỆN CHO CÁC NÚT BẤM
+         =================================================================== */
+      // Chọn thời gian luyện tập (1, 2, 3, 5 phút)
+      el.timePills.addEventListener('click', function (e) {
+        const btn = e.target.closest('.time-btn');
+        if (!btn) return;
+        const mins = parseInt(btn.getAttribute('data-minutes'), 10);
+        if (!isNaN(mins)) {
+          state.selectedMinutes = mins;
+          el.timePills.querySelectorAll('.time-btn').forEach(function (b) {
+            b.classList.toggle('active', b === btn);
+          });
+        }
+      });
+
+      el.btnStartGame.addEventListener('click', function () {
+        el.btnStartGame.blur();
+        startPractice();
+      });
+
+      el.btnPause.addEventListener('click', function () {
+        el.btnPause.blur();
+        pausePractice('Bé đã tạm dừng luyện tập. Nhấn Tiếp tục khi sẵn sàng nhé!');
+      });
+
+      el.btnResume.addEventListener('click', function () {
+        el.btnResume.blur();
+        resumePractice();
+      });
+
+      el.btnGoHome.addEventListener('click', goHome);
+      el.btnPauseHome.addEventListener('click', goHome);
+
+      el.btnRetry.addEventListener('click', function () {
+        el.btnRetry.blur();
+        startPractice();
+      });
+
+      el.btnChooseOther.addEventListener('click', goHome);
+
+      el.btnHomeRecords.addEventListener('click', openRecordsModal);
+      el.btnResRecords.addEventListener('click', openRecordsModal);
+      el.btnCloseRecords.addEventListener('click', closeRecordsModal);
+
+      el.btnAskReset.addEventListener('click', function () {
+        el.confirmResetBar.classList.add('show');
+      });
+
+      el.btnConfirmResetNo.addEventListener('click', function () {
+        el.confirmResetBar.classList.remove('show');
+      });
+
+      el.btnConfirmResetYes.addEventListener('click', function () {
+        saveRecords({});
+        renderLessonCards();
+        openRecordsModal();
+      });
+
+      el.fullscreenBtns.forEach(function (btn) {
+        btn.addEventListener('click', function () {
+          btn.blur();
+          toggleFullscreen();
+        });
+      });
+
+      /* ===================================================================
+         14. KHỞI CHẠY ỨNG DỤNG
+         =================================================================== */
+      buildVirtualKeyboard();
+      renderLessonCards();
+      showScreen('home');
+    })();
+  </script>
+</body>
+</html>
